@@ -6,72 +6,51 @@ function AlertsFeedPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-900 text-white">
-      <header className="flex justify-between items-center bg-slate-800 border-b border-slate-700 px-8 py-4">
-        <button
-          className="text-xl font-bold tracking-wider hover:text-blue-400 transition-colors"
-          type="button"
-          onClick={() => navigate(ROUTES.home)}
-        >
-          SENTINEL
-        </button>
-        <nav className="flex gap-8" aria-label="Main navigation">
-          <a
-            href="#"
-            className="text-blue-400 border-b-2 border-blue-400 pb-1 uppercase text-sm font-semibold"
-          >
-            ALERTS
-          </a>
-          <a
-            href="#"
-            className="text-gray-300 hover:text-white uppercase text-sm font-semibold transition-colors"
-          >
-            MAP
-          </a>
-          <a
-            href="#"
-            className="text-gray-300 hover:text-white uppercase text-sm font-semibold transition-colors"
-          >
-            CHAT
-          </a>
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              navigate(ROUTES.login);
-            }}
-            className="text-gray-300 hover:text-white uppercase text-sm font-semibold transition-colors"
-          >
-            LOGIN
-          </a>
-        </nav>
-        <div className="flex items-center gap-4">
-          <button
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold uppercase text-xs rounded transition-colors"
-            type="button"
-          >
-            EMERGENCY CALL
-          </button>
-          <span
-            className="w-8 h-8 rounded-full bg-slate-700 border border-slate-600"
-            aria-hidden
-          />
-        </div>
-      </header>
-
       <section className="bg-slate-800/50 border-b border-slate-700 px-8 py-12">
-        <div className="grid grid-cols-3 gap-8 mb-8">
-          <div className="col-span-2">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div>
             <p className="text-xs text-blue-400 uppercase tracking-widest font-bold mb-4">
               REAL-TIME SITUATIONAL AWARENESS
             </p>
-            <h1 className="text-4xl md:text-5xl font-black mb-6 leading-tight">
+            <h1 className="text-4xl md:text-5xl font-black mb-3 leading-tight">
               <span className="text-white">Active Flood</span>{" "}
               <span className="text-cyan-400">Intelligence.</span>
             </h1>
-            <p className="text-gray-300 text-lg leading-relaxed">
+            <p className="text-gray-300 text-lg leading-relaxed max-w-2xl">
               Sentinel Protocol processes thousands of hydrological data points
               per second to deliver verified emergency broadcasts before the
               surge hits.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <button
+              className="py-2 px-4 bg-red-600 hover:bg-red-700 text-white font-bold uppercase text-xs rounded transition-colors"
+              type="button"
+            >
+              EMERGENCY CALL
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate(ROUTES.login)}
+              className="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold uppercase text-xs rounded transition-colors"
+            >
+              Login
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section className="px-8 py-8">
+        <div className="grid grid-cols-3 gap-8 mb-8">
+          <div className="col-span-2">
+            <p className="text-xs text-blue-400 uppercase tracking-widest font-bold mb-4">
+              ALERT OVERVIEW
+            </p>
+            <p className="text-gray-300 text-lg leading-relaxed">
+              Review live alerts, region filters, and urgent action channels.
+              Use the dashboard to track flood zones and response readiness in
+              real time.
             </p>
           </div>
           <aside className="bg-slate-700 rounded-lg p-6 border border-slate-600 flex flex-col justify-between">

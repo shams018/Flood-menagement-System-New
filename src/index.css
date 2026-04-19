@@ -1,7 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  font-family: "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+  font-family:
+    "Segoe UI",
+    Inter,
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
 * {
@@ -11,4 +16,14 @@
 body {
   margin: 0;
   background: #060a10;
+}
+
+/* Hide scrollbars */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
 }

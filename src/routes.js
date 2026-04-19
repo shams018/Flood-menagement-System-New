@@ -4,4 +4,8 @@ export const ROUTES = {
   login: "/login",
   alerts: "/alerts",
   dashboard: "/dashboard",
+  liveMap: "/live-map",
+  ngoCoordination: "/ngo-coordination",
+  victimRegistration: "/victim-registration",
+  chat: "/chat",
 };

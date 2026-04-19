@@ -1,6 +1,5 @@
 import HeroSection from "../components/HeroSection";
 import MapAlertsSection from "../components/MapAlertsSection";
-import Navbar from "../components/navBar";
 import RegionalStatusSection from "../components/RegionalStatusSection";
 import StatusTicker from "../components/StatusTicker";
 
@@ -8,7 +7,6 @@ import StatusTicker from "../components/StatusTicker";
 function LandingPage() {
   return (
     <>
-      <Navbar />
       <StatusTicker />
       <div className="hero-shell">
         <HeroSection />

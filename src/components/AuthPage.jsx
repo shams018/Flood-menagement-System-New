@@ -4,13 +4,35 @@ import { ROUTES } from "../routes";
 
 function AuthPage() {
   const [tab, setTab] = useState("login");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    fullName: "",
+    phone: "",
+    role: "User",
+  });
   const navigate = useNavigate();
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleLoginSubmit = (e) => {
+    e.preventDefault();
+    navigate(ROUTES.dashboard);
+  };
+
+  const handleRegisterSubmit = (e) => {
+    e.preventDefault();
+  };
+
   return (
-    <section className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900/20 to-slate-900 flex items-center justify-center px-4">
-      <div className="w-full max-w-md flex flex-col items-center gap-8">
+    <section className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900/20 to-slate-900 flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md">
+        {/* Logo */}
         <button
-          className="flex flex-col items-center gap-1 hover:opacity-80 transition-opacity"
+          className="flex flex-col items-center gap-2 w-full mb-12 hover:opacity-80 transition-opacity"
           type="button"
           onClick={() => navigate(ROUTES.home)}
         >
@@ -22,36 +44,42 @@ function AuthPage() {
           </span>
         </button>
 
-        <article className="w-full bg-slate-800 rounded-lg border border-slate-700 overflow-hidden shadow-2xl">
-          <div className="flex border-b border-slate-700">
+        {/* Auth Card */}
+        <div className="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden shadow-2xl">
+          {/* Tab Navigation */}
+          <div className="flex border-b border-slate-700 bg-slate-900/50">
             <button
               type="button"
-              className={`flex-1 py-4 px-6 font-bold uppercase text-sm tracking-wide transition-colors ${
+              onClick={() => setTab("login")}
+              className={`flex-1 py-4 px-6 font-bold uppercase text-sm tracking-wide transition-all duration-300 ${
                 tab === "login"
                   ? "bg-blue-600/20 text-blue-400 border-b-2 border-blue-400"
                   : "text-gray-400 hover:text-white"
               }`}
-              onClick={() => setTab("login")}
             >
               LOGIN
             </button>
             <button
               type="button"
-              className={`flex-1 py-4 px-6 font-bold uppercase text-sm tracking-wide transition-colors ${
+              onClick={() => setTab("register")}
+              className={`flex-1 py-4 px-6 font-bold uppercase text-sm tracking-wide transition-all duration-300 ${
                 tab === "register"
                   ? "bg-blue-600/20 text-blue-400 border-b-2 border-blue-400"
                   : "text-gray-400 hover:text-white"
               }`}
-              onClick={() => setTab("register")}
             >
               REGISTER
             </button>
           </div>
 
-          {tab === "login" ? (
-            <div className="p-8 space-y-6">
+          {/* Login Tab */}
+          {tab === "login" && (
+            <form
+              onSubmit={handleLoginSubmit}
+              className="p-8 space-y-6 animate-in fade-in duration-300"
+            >
               <div>
-                <h2 className="text-2xl font-bold text-white mb-2">
+                <h2 className="text-2xl font-bold text-white mb-1">
                   Welcome Back
                 </h2>
                 <p className="text-gray-400 text-sm">
@@ -60,144 +88,183 @@ function AuthPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
-                  ACCESS PROTOCOL
+                <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
+                  EMAIL
                 </label>
-                <div className="px-4 py-3 bg-slate-900/50 text-gray-300 rounded border border-slate-700 text-sm">
-                  Logins as User
-                </div>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="email@protocol.sentinel"
+                  className="w-full px-4 py-3 bg-slate-900/50 text-white border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors placeholder-gray-600"
+                />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
-                  IDENTIFIER
+                <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
+                  PASSWORD
                 </label>
-                <div className="px-4 py-3 bg-slate-900/50 text-gray-500 rounded border border-slate-700 text-sm">
-                  email@protocol.sentinel
-                </div>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  placeholder="••••••••••"
+                  className="w-full px-4 py-3 bg-slate-900/50 text-white border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors placeholder-gray-600"
+                />
               </div>
 
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <label className="text-xs font-bold uppercase tracking-widest text-gray-400">
-                    SECURITY PHRASE
-                  </label>
-                  <button
-                    type="button"
-                    className="text-xs text-blue-400 hover:text-blue-300 font-bold uppercase"
-                  >
-                    FORGOT?
-                  </button>
-                </div>
-                <div className="px-4 py-3 bg-slate-900/50 text-gray-500 rounded border border-slate-700 text-sm">
-                  ***********
-                </div>
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  className="text-xs text-blue-400 hover:text-blue-300 font-bold uppercase transition-colors"
+                >
+                  FORGOT PASSWORD?
+                </button>
               </div>
 
               <button
-                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold uppercase tracking-wider rounded transition-colors text-sm"
-                type="button"
-                onClick={() => navigate(ROUTES.dashboard)}
+                type="submit"
+                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold uppercase tracking-wider rounded-lg transition-all duration-200 shadow-lg hover:shadow-blue-500/50"
               >
                 INITIALIZE SESSION
               </button>
-              <small className="block text-center text-xs text-gray-500 uppercase tracking-widest">
+
+              <p className="text-center text-xs text-gray-500 uppercase tracking-widest">
                 SECURE ENDPOINT ALPHA-7
-              </small>
-            </div>
-          ) : (
-            <div className="p-8 space-y-6">
+              </p>
+            </form>
+          )}
+
+          {/* Register Tab */}
+          {tab === "register" && (
+            <form
+              onSubmit={handleRegisterSubmit}
+              className="p-8 space-y-6 animate-in fade-in duration-300"
+            >
               <div>
-                <h2 className="text-2xl font-bold text-white mb-2">
+                <h2 className="text-2xl font-bold text-white mb-1">
                   Protocol Enrollment
                 </h2>
                 <p className="text-gray-400 text-sm">
-                  Initialize your mission-critical identity across the Sentinel
-                  Protocol network.
+                  Initialize your mission-critical identity across Sentinel
+                  Protocol.
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-1">
-                  <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
+                  <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
                     FULL NAME
                   </label>
-                  <div className="px-0 py-2 border-b border-slate-700 text-gray-500 text-sm"></div>
+                  <input
+                    type="text"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleInputChange}
+                    placeholder="Enter name"
+                    className="w-full px-4 py-3 bg-slate-900/50 text-white border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors placeholder-gray-600"
+                  />
                 </div>
+
                 <div className="col-span-1">
-                  <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
-                    PROTOCOL EMAIL
+                  <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
+                    EMAIL
                   </label>
-                  <div className="px-0 py-2 border-b border-slate-700 text-gray-500 text-sm"></div>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="email@protocol"
+                    className="w-full px-4 py-3 bg-slate-900/50 text-white border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors placeholder-gray-600"
+                  />
                 </div>
-                <div className="col-span-1">
-                  <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
-                    SECURE PHONE LINE
+
+                <div className="col-span-2">
+                  <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
+                    PHONE
                   </label>
-                  <div className="px-0 py-2 border-b border-slate-700 text-gray-500 text-sm"></div>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    placeholder="+1 (555) 000-0000"
+                    className="w-full px-4 py-3 bg-slate-900/50 text-white border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors placeholder-gray-600"
+                  />
                 </div>
-                <div className="col-span-1">
-                  <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
+
+                <div className="col-span-2">
+                  <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
                     ACCOUNT ROLE
                   </label>
-                  <div className="px-0 py-2 border-b border-slate-700 text-gray-300 text-sm flex justify-between items-center">
-                    User
-                    <span>v</span>
-                  </div>
+                  <select
+                    name="role"
+                    value={formData.role}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 bg-slate-900/50 text-white border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                  >
+                    <option>User</option>
+                    <option>Organization</option>
+                    <option>Emergency Services</option>
+                  </select>
                 </div>
               </div>
 
               <div>
-                <div className="flex justify-between items-center mb-2">
-                  <label className="text-xs font-bold uppercase tracking-widest text-gray-400">
-                    CREATE SECURITY PHRASE
-                  </label>
-                  <span className="text-xs text-green-400 font-bold uppercase">
-                    ENTROPY: HIGH
-                  </span>
-                </div>
-                <div className="px-0 py-2 border-b border-slate-700 text-gray-500 text-sm">
-                  *************
-                </div>
+                <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
+                  PASSWORD
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  placeholder="••••••••••"
+                  className="w-full px-4 py-3 bg-slate-900/50 text-white border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors placeholder-gray-600"
+                />
               </div>
 
               <button
-                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold uppercase tracking-wider rounded transition-colors text-sm"
-                type="button"
+                type="submit"
+                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold uppercase tracking-wider rounded-lg transition-all duration-200 shadow-lg hover:shadow-blue-500/50"
               >
                 INITIATE ENROLLMENT
               </button>
 
               <p className="text-center text-sm text-gray-400">
-                Already have a secure session?{" "}
+                Already enrolled?{" "}
                 <button
                   type="button"
                   onClick={() => setTab("login")}
                   className="text-blue-400 hover:text-blue-300 font-bold"
                 >
-                  Login
+                  LOGIN HERE
                 </button>
               </p>
-            </div>
+            </form>
           )}
-        </article>
+        </div>
 
-        <div className="flex gap-6 text-xs text-gray-400 hover:[&_a]:text-white transition-colors">
+        {/* Footer Links */}
+        <div className="flex gap-6 justify-center mt-8 text-xs text-gray-400">
           <a
             href="#"
-            className="uppercase tracking-widest font-semibold hover:text-blue-400"
+            className="uppercase tracking-widest font-semibold hover:text-blue-400 transition-colors"
           >
             EMERGENCY MAP
           </a>
           <a
             href="#"
-            className="uppercase tracking-widest font-semibold hover:text-blue-400"
+            className="uppercase tracking-widest font-semibold hover:text-blue-400 transition-colors"
           >
             PRIVACY PROTOCOL
           </a>
           <a
             href="#"
-            className="uppercase tracking-widest font-semibold hover:text-blue-400"
+            className="uppercase tracking-widest font-semibold hover:text-blue-400 transition-colors"
           >
             SYSTEM STATUS
           </a>

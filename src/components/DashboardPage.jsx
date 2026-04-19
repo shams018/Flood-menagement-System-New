@@ -26,6 +26,7 @@ function DashboardPage() {
             <button
               className="py-3 px-4 text-gray-400 rounded font-semibold uppercase text-sm tracking-wide text-left hover:bg-slate-700/50 transition-colors"
               type="button"
+              onClick={() => navigate(ROUTES.liveMap)}
             >
               LIVE MAP
             </button>
@@ -38,6 +39,7 @@ function DashboardPage() {
             <button
               className="py-3 px-4 text-gray-400 rounded font-semibold uppercase text-sm tracking-wide text-left hover:bg-slate-700/50 transition-colors"
               type="button"
+              onClick={() => navigate(ROUTES.ngoCoordination)}
             >
               NGO COORDINATION
             </button>
@@ -71,39 +73,6 @@ function DashboardPage() {
       </aside>
 
       <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-slate-800 border-b border-slate-700 px-8 py-4 flex justify-between items-center">
-          <button
-            type="button"
-            className="text-xl font-bold tracking-wider hover:text-blue-400 transition-colors"
-            onClick={() => navigate(ROUTES.home)}
-          >
-            SENTINEL
-          </button>
-          <nav className="flex gap-8">
-            <a
-              href="#"
-              className="text-gray-300 hover:text-white transition-colors uppercase text-sm font-semibold"
-            >
-              ALERTS
-            </a>
-            <a
-              href="#"
-              className="text-gray-300 hover:text-white transition-colors uppercase text-sm font-semibold"
-            >
-              MAP
-            </a>
-            <a
-              href="#"
-              className="text-gray-300 hover:text-white transition-colors uppercase text-sm font-semibold"
-            >
-              CHAT
-            </a>
-          </nav>
-          <div className="text-sm font-semibold text-gray-300">
-            Marcus Thorne
-          </div>
-        </header>
-
         <div className="flex-1 overflow-y-auto p-8">
           <div className="grid grid-cols-3 gap-6 auto-rows-max">
             <section className="col-span-2 bg-slate-800 rounded-lg p-6 border border-slate-700">
