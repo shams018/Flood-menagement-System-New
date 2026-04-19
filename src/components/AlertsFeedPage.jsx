@@ -5,200 +5,268 @@ function AlertsFeedPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="alerts-feed-page">
-      <header className="alerts-top-nav">
+    <div className="flex flex-col min-h-screen bg-slate-900 text-white">
+      <header className="flex justify-between items-center bg-slate-800 border-b border-slate-700 px-8 py-4">
         <button
-          className="alerts-brand"
+          className="text-xl font-bold tracking-wider hover:text-blue-400 transition-colors"
           type="button"
           onClick={() => navigate(ROUTES.home)}
         >
           SENTINEL
         </button>
-        <nav className="alerts-nav-links" aria-label="Main navigation">
-          <a href="#" className="active" aria-current="page">
+        <nav className="flex gap-8" aria-label="Main navigation">
+          <a
+            href="#"
+            className="text-blue-400 border-b-2 border-blue-400 pb-1 uppercase text-sm font-semibold"
+          >
             ALERTS
           </a>
-          <a href="#">MAP</a>
-          <a href="#">CHAT</a>
+          <a
+            href="#"
+            className="text-gray-300 hover:text-white uppercase text-sm font-semibold transition-colors"
+          >
+            MAP
+          </a>
+          <a
+            href="#"
+            className="text-gray-300 hover:text-white uppercase text-sm font-semibold transition-colors"
+          >
+            CHAT
+          </a>
           <a
             href="#"
             onClick={(e) => {
               e.preventDefault();
               navigate(ROUTES.login);
             }}
+            className="text-gray-300 hover:text-white uppercase text-sm font-semibold transition-colors"
           >
             LOGIN
           </a>
         </nav>
-        <div className="alerts-nav-actions">
-          <button className="emergency-btn emergency-btn--danger" type="button">
+        <div className="flex items-center gap-4">
+          <button
+            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold uppercase text-xs rounded transition-colors"
+            type="button"
+          >
             EMERGENCY CALL
           </button>
-          <span className="alerts-avatar" aria-hidden />
+          <span
+            className="w-8 h-8 rounded-full bg-slate-700 border border-slate-600"
+            aria-hidden
+          />
         </div>
       </header>
 
-      <section className="alerts-hero">
-        <div className="alerts-hero-grid">
-          <div className="alerts-hero-copy">
-            <p className="alerts-kicker">REAL-TIME SITUATIONAL AWARENESS</p>
-            <h1>
-              <span className="alerts-headline-strong">Active Flood</span>{" "}
-              <span className="alerts-headline-accent">Intelligence.</span>
+      <section className="bg-slate-800/50 border-b border-slate-700 px-8 py-12">
+        <div className="grid grid-cols-3 gap-8 mb-8">
+          <div className="col-span-2">
+            <p className="text-xs text-blue-400 uppercase tracking-widest font-bold mb-4">
+              REAL-TIME SITUATIONAL AWARENESS
+            </p>
+            <h1 className="text-4xl md:text-5xl font-black mb-6 leading-tight">
+              <span className="text-white">Active Flood</span>{" "}
+              <span className="text-cyan-400">Intelligence.</span>
             </h1>
-            <p className="alerts-lede">
-              Sentinel Protocol processes thousands of hydrological data points per
-              second to deliver verified emergency broadcasts before the surge hits.
+            <p className="text-gray-300 text-lg leading-relaxed">
+              Sentinel Protocol processes thousands of hydrological data points
+              per second to deliver verified emergency broadcasts before the
+              surge hits.
             </p>
           </div>
-          <aside className="alerts-status-card">
-            <p className="alerts-status-label">GLOBAL ALERT STATUS</p>
-            <p className="alerts-status-zones">
-              <span className="alerts-status-dot" />
-              14 High-Risk Zones
-            </p>
-            <button className="alerts-subscribe-btn" type="button">
+          <aside className="bg-slate-700 rounded-lg p-6 border border-slate-600 flex flex-col justify-between">
+            <div>
+              <p className="text-xs text-gray-400 uppercase tracking-widest font-bold mb-4">
+                GLOBAL ALERT STATUS
+              </p>
+              <p className="flex items-center gap-2 text-white font-semibold mb-6">
+                <span className="w-2 h-2 rounded-full bg-green-500" />
+                14 High-Risk Zones
+              </p>
+            </div>
+            <button
+              className="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold uppercase text-xs rounded transition-colors"
+              type="button"
+            >
               Subscribe to Alerts
             </button>
           </aside>
         </div>
 
-        <div className="alerts-filter-bar">
-          <div className="alerts-filters-left">
+        <div className="flex items-center justify-between bg-slate-900/50 px-6 py-4 rounded border border-slate-700">
+          <div className="flex items-center gap-4">
             <svg
-              className="alerts-funnel-icon"
               width="16"
               height="16"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
+              className="text-gray-400"
               aria-hidden
             >
               <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" />
             </svg>
-            <span className="alerts-filters-label">FILTERS</span>
-            <select className="alerts-select" aria-label="Region">
+            <span className="text-xs text-gray-400 uppercase tracking-widest font-bold">
+              FILTERS
+            </span>
+            <select
+              className="px-3 py-1 bg-slate-800 border border-slate-700 text-gray-300 text-xs rounded hover:bg-slate-700 transition-colors"
+              aria-label="Region"
+            >
               <option>REGION: ALL GLOBAL</option>
             </select>
-            <select className="alerts-select" aria-label="Severity">
+            <select
+              className="px-3 py-1 bg-slate-800 border border-slate-700 text-gray-300 text-xs rounded hover:bg-slate-700 transition-colors"
+              aria-label="Severity"
+            >
               <option>SEVERITY: ALL</option>
             </select>
-            <select className="alerts-select" aria-label="Date sort">
+            <select
+              className="px-3 py-1 bg-slate-800 border border-slate-700 text-gray-300 text-xs rounded hover:bg-slate-700 transition-colors"
+              aria-label="Date sort"
+            >
               <option>DATE: RECENT FIRST</option>
             </select>
           </div>
-          <div className="alerts-live-stream">
-            <span>LIVE STREAM:</span>
-            <span className="alerts-stream-dot alerts-stream-dot--blue" />
-            <span className="alerts-stream-dot alerts-stream-dot--yellow" />
-            <span className="alerts-stream-dot alerts-stream-dot--red" />
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-gray-400 uppercase tracking-widest font-bold">
+              LIVE STREAM:
+            </span>
+            <span className="w-2 h-2 rounded-full bg-blue-500" />
+            <span className="w-2 h-2 rounded-full bg-yellow-500" />
+            <span className="w-2 h-2 rounded-full bg-red-500" />
           </div>
         </div>
       </section>
 
-      <section className="alerts-incident-feed" aria-label="Live incident reports">
-        <article className="incident-card incident-card--main">
-          <div
-            className="incident-card-media incident-card-media--flood"
-            role="img"
-            aria-label="Flooded urban street"
-          >
-            <span className="incident-badge incident-badge--emergency">EMERGENCY</span>
-            <span className="incident-impact-tag">IMPACT IN: 04 MINUTES</span>
+      <section
+        className="flex-1 px-8 py-8 space-y-6"
+        aria-label="Live incident reports"
+      >
+        <article className="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
+          <div className="h-48 bg-gradient-to-br from-blue-600/20 to-cyan-600/20 relative flex items-start justify-between p-6">
+            <span className="px-3 py-1 bg-red-600 text-white text-xs font-bold uppercase rounded">
+              EMERGENCY
+            </span>
+            <span className="px-3 py-1 bg-slate-900/80 text-orange-400 text-xs font-bold uppercase rounded">
+              IMPACT IN: 04 MINUTES
+            </span>
           </div>
-          <div className="incident-card-body">
-            <h2 className="incident-card-title">
+          <div className="p-6">
+            <h2 className="text-2xl font-bold text-white mb-2">
               Sudden Surge: Lower Manhattan Zone 4
             </h2>
-            <p className="incident-card-meta">
-              Lower Manhattan, NY &middot; 12:42 PM EST
+            <p className="text-sm text-gray-400 mb-4">
+              Lower Manhattan, NY · 12:42 PM EST
             </p>
-            <div className="incident-ai-box">
-              <span className="incident-ai-label">AI SUMMARY</span>
-              <p>
-                Rapid water-level rise detected upstream. Models indicate breach risk
-                at seawall nodes LM-12 to LM-15 within the next hour. Evacuation
-                corridors Alpha and Bravo remain open.
+            <div className="bg-slate-900/50 border border-slate-700 rounded p-4 mb-4">
+              <span className="text-xs text-blue-400 font-bold uppercase tracking-widest">
+                AI SUMMARY
+              </span>
+              <p className="text-gray-300 text-sm mt-2 leading-relaxed">
+                Rapid water-level rise detected upstream. Models indicate breach
+                risk at seawall nodes LM-12 to LM-15 within the next hour.
+                Evacuation corridors Alpha and Bravo remain open.
               </p>
             </div>
-            <div className="incident-card-toolbar">
-              <div className="incident-tags">
-                <span>WIND 28 KTS</span>
-                <span>RISE +0.4M / 15 MIN</span>
+            <div className="flex justify-between items-center">
+              <div className="flex gap-4">
+                <span className="text-xs text-gray-400 font-semibold">
+                  WIND 28 KTS
+                </span>
+                <span className="text-xs text-gray-400 font-semibold">
+                  RISE +0.4M / 15 MIN
+                </span>
               </div>
-              <a className="incident-log-link" href="#">
+              <a className="text-blue-400 hover:text-blue-300 text-sm font-semibold uppercase">
                 Full Incident Log <span aria-hidden>→</span>
               </a>
             </div>
           </div>
         </article>
 
-        <article className="incident-card incident-card--warning">
-          <div
-            className="incident-card-media incident-card-media--estuary"
-            role="img"
-            aria-label="Estuary at sunset"
-          >
-            <span className="incident-badge incident-badge--warning">WARNING</span>
+        <article className="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
+          <div className="h-40 bg-gradient-to-br from-green-600/20 to-emerald-600/20 relative flex items-start justify-start p-6">
+            <span className="px-3 py-1 bg-yellow-600 text-white text-xs font-bold uppercase rounded">
+              WARNING
+            </span>
           </div>
-          <div className="incident-card-body incident-card-body--compact">
-            <h3 className="incident-card-title-sm">Thames Estuary Watch</h3>
-            <p className="incident-card-desc">
-              Elevated tidal coupling combined with upstream discharge may exceed
-              advisory thresholds near barrier gates T3-T5.
+          <div className="p-6">
+            <h3 className="text-lg font-bold text-white mb-2">
+              Thames Estuary Watch
+            </h3>
+            <p className="text-sm text-gray-400 mb-4">
+              Elevated tidal coupling combined with upstream discharge may
+              exceed advisory thresholds near barrier gates T3-T5.
             </p>
-            <div className="incident-card-row">
-              <time>2 HOURS AGO</time>
-              <button type="button" className="incident-read-more">
+            <div className="flex justify-between items-center">
+              <time className="text-xs text-gray-500 uppercase">
+                2 HOURS AGO
+              </time>
+              <button
+                type="button"
+                className="text-blue-400 hover:text-blue-300 text-sm font-bold uppercase"
+              >
                 Read More
               </button>
             </div>
           </div>
         </article>
 
-        <article className="incident-card incident-card--watch">
-          <div className="incident-watch-head">
-            <span className="incident-badge incident-badge--watch">WATCH</span>
-            <span className="incident-clock-icon" aria-hidden>
-              ◷
+        <article className="bg-slate-800 rounded-lg border border-slate-700 p-6">
+          <div className="flex justify-between items-start mb-4">
+            <span className="px-3 py-1 bg-blue-600 text-white text-xs font-bold uppercase rounded">
+              WATCH
             </span>
+            <span className="text-2xl text-gray-400">◷</span>
           </div>
-          <h3 className="incident-card-title-sm">Rhine Valley Pre-Alert</h3>
-          <p className="incident-card-desc">
-            Long-range precipitation models suggest sustained saturation along the
-            middle Rhine basin through Thursday.
+          <h3 className="text-lg font-bold text-white mb-2">
+            Rhine Valley Pre-Alert
+          </h3>
+          <p className="text-sm text-gray-400 mb-4">
+            Long-range precipitation models suggest sustained saturation along
+            the middle Rhine basin through Thursday.
           </p>
-          <div className="incident-card-row">
-            <time>10 HOURS AGO</time>
-            <button type="button" className="incident-read-more">
+          <div className="flex justify-between items-center">
+            <time className="text-xs text-gray-500 uppercase">
+              10 HOURS AGO
+            </time>
+            <button
+              type="button"
+              className="text-blue-400 hover:text-blue-300 text-sm font-bold uppercase"
+            >
               Read More
             </button>
           </div>
         </article>
 
-        <article className="incident-card incident-card--priority">
-          <div
-            className="incident-card-media incident-card-media--cyclone"
-            role="img"
-            aria-label="Storm satellite view"
-          />
-          <div className="incident-card-body incident-card-body--split">
-            <p className="incident-priority-label">HIGH PRIORITY EMERGENCY</p>
-            <h2 className="incident-card-title">
+        <article className="bg-slate-800 rounded-lg border border-red-600/50 overflow-hidden">
+          <div className="h-48 bg-gradient-to-br from-red-600/20 to-orange-600/20" />
+          <div className="p-6">
+            <p className="text-xs text-red-400 font-bold uppercase tracking-widest mb-2">
+              HIGH PRIORITY EMERGENCY
+            </p>
+            <h2 className="text-2xl font-bold text-white mb-4">
               Coastal Breach: Mumbai North Coastal Sector
             </h2>
-            <p className="incident-card-desc">
-              Storm surge modeling shows overlapping king tide and cyclonic fetch.
-              Municipal seawall monitoring stations report structural stress above
-              rated tolerance. Shelter capacity and evacuation routes are being
-              updated in real time.
+            <p className="text-gray-300 text-sm mb-6 leading-relaxed">
+              Storm surge modeling shows overlapping king tide and cyclonic
+              fetch. Municipal seawall monitoring stations report structural
+              stress above rated tolerance. Shelter capacity and evacuation
+              routes are being updated in real time.
             </p>
-            <div className="incident-priority-actions">
-              <button type="button" className="incident-btn-primary">
+            <div className="flex gap-4">
+              <button
+                type="button"
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold uppercase text-xs rounded transition-colors"
+              >
                 View Evacuation Map
               </button>
-              <button type="button" className="incident-btn-secondary">
+              <button
+                type="button"
+                className="px-6 py-2 bg-slate-700 hover:bg-slate-600 text-white font-bold uppercase text-xs rounded border border-slate-600 transition-colors"
+              >
                 Alert Details
               </button>
             </div>
@@ -206,20 +274,23 @@ function AlertsFeedPage() {
         </article>
       </section>
 
-      <div className="alerts-feed-end">
-        <div className="alerts-feed-progress" aria-hidden>
-          <div className="alerts-feed-progress-track" />
-          <div className="alerts-feed-progress-fill" />
+      <div className="border-t border-slate-700 py-8 px-8 flex flex-col items-center gap-6">
+        <div className="w-full h-1 bg-slate-700 rounded-full overflow-hidden">
+          <div className="h-full w-1/3 bg-blue-500" />
         </div>
-        <p className="alerts-feed-end-label">VIEWING 12 OF 84 LIVE REPORTS</p>
-        <button type="button" className="alerts-load-historical">
+        <p className="text-sm text-gray-400 uppercase tracking-widest font-semibold">
+          VIEWING 12 OF 84 LIVE REPORTS
+        </p>
+        <button
+          type="button"
+          className="px-6 py-3 border-2 border-slate-600 hover:border-slate-500 text-gray-300 hover:text-white font-bold uppercase text-sm rounded transition-colors"
+        >
           Load Historical Logs
-          <span className="alerts-load-chevron" aria-hidden>
+          <span className="ml-2" aria-hidden>
             ⌄
           </span>
         </button>
       </div>
-
     </div>
   );
 }

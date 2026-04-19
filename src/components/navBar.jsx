@@ -17,15 +17,15 @@ function Navbar() {
   };
 
   return (
-    <header className="top-nav">
+    <header className="flex items-center justify-between bg-slate-900 text-white px-6 py-4 border-b border-slate-700">
       <button
-        className="brand brand-btn"
+        className="text-xl font-bold tracking-wider hover:text-blue-400 transition-colors cursor-pointer"
         type="button"
         onClick={() => navigate(ROUTES.home)}
       >
         SENTINEL
       </button>
-      <nav className="nav-links" aria-label="Main navigation">
+      <nav className="flex gap-8 items-center" aria-label="Main navigation">
         {navItems.map((item, index) => (
           <a
             key={item}
@@ -36,7 +36,11 @@ function Navbar() {
                   ? ROUTES.login
                   : "#"
             }
-            className={index === 0 ? "active" : ""}
+            className={`cursor-pointer transition-colors ${
+              index === 0
+                ? "text-blue-400 border-b-2 border-blue-400 pb-1"
+                : "text-gray-300 hover:text-white"
+            }`}
             aria-current={index === 0 ? "page" : undefined}
             onClick={(event) => handleClick(event, item)}
           >
@@ -44,7 +48,10 @@ function Navbar() {
           </a>
         ))}
       </nav>
-      <button className="emergency-btn" type="button">
+      <button
+        className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded transition-colors cursor-pointer"
+        type="button"
+      >
         EMERGENCY CALL
       </button>
     </header>
