@@ -9,8 +9,8 @@ import { ROUTES } from "./routes";
 
 function App() {
   return (
-    <main className="landing-shell">
-      <div className="page-overlay">
+    <main className="min-h-screen bg-slate-900">
+      <div className="flex flex-col min-h-screen">
         <Routes>
           <Route path={ROUTES.home} element={<LandingPage />} />
           <Route path={ROUTES.login} element={<AuthPage />} />
