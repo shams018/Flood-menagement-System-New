@@ -143,7 +143,7 @@ const LiveMap = () => {
         </div>
 
         {/* Sidebar Content */}
-        <div className="absolute left-6 top-24 bottom-6 w-[380px] bg-slate-800/50 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 shadow-2xl z-20 flex flex-col">
+        <div className="absolute left-6 top-24 bottom-6 w-96 bg-slate-800/50 backdrop-blur-xl border border-white/10 rounded-4xl p-8 shadow-2xl z-20 flex flex-col">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-2xl font-bold text-white tracking-tight">
               Nearby Resources

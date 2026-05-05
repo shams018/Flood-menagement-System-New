@@ -58,15 +58,14 @@ function Navbar() {
         SENTINEL
       </button>
       <nav className="flex gap-8 items-center" aria-label="Main navigation">
-        {navItems.map((item, index) => (
+        {navItems.map((item) => (
           <a
             key={item}
             href={getItemRoute(item)}
-            className={`cursor-pointer transition-colors ${
-              isActive(item)
+            className={`cursor-pointer transition-colors ${isActive(item)
                 ? "text-blue-400 border-b-2 border-blue-400 pb-1"
                 : "text-gray-300 hover:text-white"
-            }`}
+              }`}
             aria-current={isActive(item) ? "page" : undefined}
             onClick={(event) => handleClick(event, item)}
           >
