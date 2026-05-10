@@ -3,7 +3,7 @@ import {
   MessagesSquare, AlertCircle, LifeBuoy, Users, Settings,
   HelpCircle, Search, MoreVertical, Paperclip, PlusCircle,
   Send, Shield, Menu, X, CheckCheck, Camera, ImagePlus, Smile, MapPin, FileText,
-  ThumbsUp, Heart, Zap, AlertTriangle
+  ThumbsUp, Heart, Zap, AlertTriangle, Edit, Trash2
 } from 'lucide-react';
 import Logo from "../../assets/logo.jpg";
 
@@ -19,6 +19,17 @@ const AdminChat = () => {
   const [currentLocation, setCurrentLocation] = useState('No location yet');
   const [locationStatus, setLocationStatus] = useState('Live location disconnected');
   const fileInputRef = useRef(null);
+  const galleryInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
+  const videoRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [cameraStream, setCameraStream] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [RecordedChunks, setRecordedChunks] = useState([]);
+  const [cameraError, setCameraError] = useState(null);
+  const [editingMessageId, setEditingMessageId] = useState(null);
+  const [editMessageText, setEditMessageText] = useState("");
   const scrollRef = useRef(null);
 
   // --- REAL-TIME DATA SIMULATION ---
@@ -55,6 +66,12 @@ const AdminChat = () => {
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
+
+  useEffect(() => {
+    if (cameraOpen && cameraStream && videoRef.current) {
+      videoRef.current.srcObject = cameraStream;
+    }
+  }, [cameraOpen, cameraStream]);
 
   useEffect(() => {
     const handleEscape = (e) => {
@@ -112,12 +129,123 @@ const AdminChat = () => {
       reader.readAsDataURL(file);
       setShowMediaMenu(false);
     }
+    if (e.target) {
+      e.target.value = "";
+    }
   };
 
   const removeAttachment = () => {
     setAttachedFile(null);
     setAttachedFilePreview(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
+    if (galleryInputRef.current) galleryInputRef.current.value = '';
+    if (cameraInputRef.current) cameraInputRef.current.value = '';
+  };
+
+  const handleEditMessage = (id, text) => {
+    setEditingMessageId(id);
+    setEditMessageText(text || "");
+    setShowMediaMenu(false);
+    setShowEmojiMenu(false);
+  };
+
+  const handleSaveEdit = () => {
+    if (editingMessageId === null) return;
+    setMessages((prev) => prev.map((msg) => msg.id === editingMessageId ? { ...msg, text: editMessageText } : msg));
+    setEditingMessageId(null);
+    setEditMessageText("");
+  };
+
+  const handleCancelEdit = () => {
+    setEditingMessageId(null);
+    setEditMessageText("");
+  };
+
+  const handleDeleteMessage = (id) => {
+    setMessages((prev) => prev.filter((msg) => msg.id !== id));
+    if (editingMessageId === id) {
+      setEditingMessageId(null);
+      setEditMessageText("");
+    }
+  };
+
+  const stopCameraStream = () => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach((track) => track.stop());
+      setCameraStream(null);
+    }
+    setCameraOpen(false);
+    setIsRecording(false);
+    setRecordedChunks([]);
+    setCameraError(null);
+  };
+
+  const openCameraModal = async () => {
+    setShowMediaMenu(false);
+    setCameraError(null);
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      cameraInputRef.current?.click();
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: true });
+      setCameraStream(stream);
+      setCameraOpen(true);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (error) {
+      setCameraError('Camera access denied or unavailable');
+      cameraInputRef.current?.click();
+    }
+  };
+
+  const capturePhoto = () => {
+    if (!videoRef.current) return;
+    const video = videoRef.current;
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth || 1280;
+    canvas.height = video.videoHeight || 720;
+    const context = canvas.getContext('2d');
+    if (!context) return;
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const file = new File([blob], `photo-${Date.now()}.jpg`, { type: 'image/jpeg' });
+      setAttachedFile(file);
+      setAttachedFilePreview(URL.createObjectURL(blob));
+      stopCameraStream();
+    }, 'image/jpeg', 0.92);
+  };
+
+  const startRecording = () => {
+    if (!cameraStream || !MediaRecorder) return;
+    const chunks = [];
+    const recorder = new MediaRecorder(cameraStream, { mimeType: 'video/webm; codecs=vp8,opus' });
+    mediaRecorderRef.current = recorder;
+    recorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        chunks.push(event.data);
+      }
+    };
+    recorder.onstop = () => {
+      const blob = new Blob(chunks, { type: 'video/webm' });
+      const file = new File([blob], `video-${Date.now()}.webm`, { type: 'video/webm' });
+      setAttachedFile(file);
+      setAttachedFilePreview(URL.createObjectURL(blob));
+      stopCameraStream();
+    };
+    recorder.start();
+    setIsRecording(true);
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
+    setIsRecording(false);
   };
 
   const handleSendMessage = (e) => {
@@ -236,12 +364,30 @@ const AdminChat = () => {
           </div>
 
           {messages.map((msg) => (
-            <div key={msg.id} className={`flex ${msg.type === 'outgoing' ? 'justify-end' : 'justify-start'} animate-in fade-in duration-300`}>
+            <div key={msg.id} className={`relative flex ${msg.type === 'outgoing' ? 'justify-end' : 'justify-start'} animate-in fade-in duration-300`}>
               <div className={`flex gap-4 max-w-[86%] ${msg.type === 'outgoing' ? 'flex-row-reverse text-right' : ''}`}>
                 <div className="w-11 h-11 rounded-3xl bg-slate-950 shrink-0 border border-white/5 overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.25)]">
                   <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${msg.user}`} alt="avatar" />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 relative group">
+                  {msg.type === 'outgoing' && editingMessageId !== msg.id && (
+                    <div className="absolute -top-2 right-0 flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                      <button
+                        type="button"
+                        onClick={() => handleEditMessage(msg.id, msg.text)}
+                        className="rounded-full bg-white/10 p-2 text-slate-200 hover:bg-slate-800"
+                      >
+                        <Edit size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteMessage(msg.id)}
+                        className="rounded-full bg-white/10 p-2 text-red-400 hover:bg-slate-800"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  )}
                   <div className={`flex items-center gap-3 ${msg.type === 'outgoing' ? 'flex-row-reverse justify-end' : ''}`}>
                     <span className={`text-[11px] font-black tracking-wider uppercase ${msg.type === 'outgoing' ? 'text-sky-300' : 'text-slate-300'}`}>{msg.user}</span>
                     {msg.isVerified && (
@@ -256,6 +402,8 @@ const AdminChat = () => {
                     <div className={`rounded-[20px] p-3 max-w-xs ${msg.type === 'outgoing' ? 'bg-blue-500/20' : 'bg-white/5'} border border-white/10`}>
                       {msg.file.type.startsWith('image/') ? (
                         <img src={msg.file.preview} alt="attachment" className="rounded-lg max-h-48 w-full object-cover" />
+                      ) : msg.file.type.startsWith('video/') ? (
+                        <video src={msg.file.preview} controls className="rounded-lg max-h-48 w-full object-cover bg-black" />
                       ) : (
                         <div className="flex items-center gap-3 p-2">
                           <div className="p-3 bg-slate-800 rounded-lg">
@@ -270,11 +418,26 @@ const AdminChat = () => {
                     </div>
                   )}
                   {/* Text Message */}
-                  {msg.text && (<div className={`relative p-4 text-sm leading-relaxed shadow-[0_20px_50px_rgba(0,0,0,0.35)] ${msg.type === 'outgoing' ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-[30px] rounded-br-[8px]' : 'bg-[#111827] border border-white/10 text-slate-200 rounded-[30px] rounded-bl-[8px]'}`}>
-                    {msg.type === 'incoming' && <span className="absolute left-0 top-4 h-10 w-0.5 rounded-full bg-sky-400/80" />}
-                    {msg.text}
-                  </div>)}
-                    {msg.type === 'outgoing' && (
+                  {editingMessageId === msg.id ? (
+                    <div className={`relative p-4 text-sm leading-relaxed shadow-[0_20px_50px_rgba(0,0,0,0.35)] ${msg.type === 'outgoing' ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-[30px] rounded-br-[8px]' : 'bg-[#111827] border border-white/10 text-slate-200 rounded-[30px] rounded-bl-[8px]'}`}>
+                      <textarea
+                        value={editMessageText}
+                        onChange={(e) => setEditMessageText(e.target.value)}
+                        rows={3}
+                        className="w-full resize-none rounded-2xl border border-white/10 bg-slate-950/80 p-3 text-sm text-slate-100 outline-none focus:border-sky-400"
+                      />
+                      <div className="mt-3 flex justify-end gap-2">
+                        <button type="button" onClick={handleCancelEdit} className="rounded-full bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-200 transition hover:bg-white/20">Cancel</button>
+                        <button type="button" onClick={handleSaveEdit} className="rounded-full bg-sky-500 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white transition hover:bg-sky-400">Save</button>
+                      </div>
+                    </div>
+                  ) : msg.text && (
+                    <div className={`relative p-4 text-sm leading-relaxed shadow-[0_20px_50px_rgba(0,0,0,0.35)] ${msg.type === 'outgoing' ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-[30px] rounded-br-[8px]' : 'bg-[#111827] border border-white/10 text-slate-200 rounded-[30px] rounded-bl-[8px]'}`}>
+                      {msg.type === 'incoming' && <span className="absolute left-0 top-4 h-10 w-0.5 rounded-full bg-sky-400/80" />}
+                      {msg.text}
+                    </div>
+                  )}
+                  {msg.type === 'outgoing' && editingMessageId !== msg.id && (
                     <div className="flex items-center gap-1 justify-end mt-1">
                       <div className="bg-[#0f172a] px-2 py-1 rounded-full border border-white/10 flex items-center gap-1">
                         <CheckCheck size={10} className="text-sky-300" />
@@ -318,6 +481,8 @@ const AdminChat = () => {
             <div className="mx-auto max-w-4xl bg-[#111827] border border-white/10 rounded-xl p-3 flex items-center gap-3">
               {attachedFile?.type.startsWith('image/') ? (
                 <img src={attachedFilePreview} alt="preview" className="h-16 w-16 object-cover rounded-lg" />
+              ) : attachedFile?.type.startsWith('video/') ? (
+                <video src={attachedFilePreview} controls className="h-16 w-16 object-cover rounded-lg bg-black" />
               ) : (
                 <div className="h-16 w-16 bg-slate-800 rounded-lg flex items-center justify-center border border-white/5">
                   <FileText size={24} className="text-sky-400" />
@@ -341,6 +506,21 @@ const AdminChat = () => {
               onChange={handleFileSelect}
               className="hidden"
               accept="*/*"
+            />
+            <input
+              type="file"
+              ref={galleryInputRef}
+              onChange={handleFileSelect}
+              className="hidden"
+              accept="image/*,video/*"
+            />
+            <input
+              type="file"
+              ref={cameraInputRef}
+              onChange={handleFileSelect}
+              className="hidden"
+              accept="image/*,video/*"
+              capture="environment"
             />
 
             <div className="flex items-center gap-1 rounded-full bg-white/5 px-2 py-2 border border-white/10 relative">
@@ -370,9 +550,7 @@ const AdminChat = () => {
                   <div className="absolute bottom-12 left-0 bg-[#1a2332] border border-white/10 rounded-xl p-2 shadow-xl z-50 flex flex-col gap-1 w-40">
                     <button
                       type="button"
-                      onClick={() => {
-                        setShowMediaMenu(false);
-                      }}
+                      onClick={openCameraModal}
                       className="flex items-center gap-3 px-3 py-2 text-sm text-slate-300 hover:bg-white/10 rounded-lg transition-colors"
                     >
                       <Camera size={16} className="text-orange-400" />
@@ -454,6 +632,47 @@ const AdminChat = () => {
               Send <Send size={14} />
             </button>
           </form>
+
+          {cameraOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
+              <div className="w-full max-w-3xl rounded-[32px] border border-white/10 bg-[#08101b]/95 shadow-[0_30px_80px_rgba(0,0,0,0.75)] overflow-hidden">
+                <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+                  <div>
+                    <p className="text-sm font-black uppercase tracking-[0.35em] text-slate-300">Live Camera</p>
+                    <p className="text-[11px] text-slate-500 mt-1">{cameraError || (isRecording ? 'Recording video — press stop to save' : 'Capture a photo or record a clip')}</p>
+                  </div>
+                  <button type="button" onClick={stopCameraStream} className="rounded-2xl bg-white/5 px-4 py-2 text-xs font-bold text-slate-100 transition hover:bg-white/10">Close</button>
+                </div>
+                <div className="bg-black">
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    onCanPlay={() => {
+                      if (videoRef.current) {
+                        videoRef.current.play().catch(() => {});
+                      }
+                    }}
+                    className="h-[360px] w-full object-cover bg-slate-900"
+                  />
+                </div>
+                <div className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex flex-wrap gap-2">
+                    <button type="button" onClick={capturePhoto} className="rounded-full bg-sky-500 px-5 py-3 text-xs font-black uppercase tracking-[0.2em] text-white transition hover:bg-sky-400">Photo</button>
+                    {isRecording ? (
+                      <button type="button" onClick={stopRecording} className="rounded-full bg-red-500 px-5 py-3 text-xs font-black uppercase tracking-[0.2em] text-white transition hover:bg-red-400">Stop</button>
+                    ) : (
+                      <button type="button" onClick={startRecording} className="rounded-full bg-orange-500 px-5 py-3 text-xs font-black uppercase tracking-[0.2em] text-white transition hover:bg-orange-400">Record</button>
+                    )}
+                    <button type="button" onClick={() => galleryInputRef.current?.click()} className="rounded-full bg-white/10 px-5 py-3 text-xs font-black uppercase tracking-[0.2em] text-slate-100 transition hover:bg-white/20">Gallery</button>
+                  </div>
+                  {cameraError && <p className="text-sm text-orange-300">{cameraError}</p>}
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="flex flex-col gap-2 mt-3 px-2 text-[9px] text-slate-500 uppercase font-bold tracking-[0.2em] sm:flex-row sm:justify-between">
             <p>Encrypting... [AES-256-GCM]</p>
             <p>{locationStatus}: {currentLocation}</p>

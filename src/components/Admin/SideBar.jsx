@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Shield, Grid, Map, User, Users, Settings, HelpCircle } from "lucide-react";
+import { Shield, Grid, Map, User, Users, Activity, Settings, HelpCircle } from "lucide-react";
 import { ROUTES } from "../../routes";
 import Logo from "../../assets/logo.jpg";
 function SideBar() {
@@ -53,6 +53,18 @@ function SideBar() {
 
           <button
             type="button"
+            onClick={() => navigate(ROUTES.adminResourceManagement)}
+            className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition ${activeRoute(ROUTES.adminResourceManagement)
+              ? "bg-slate-900 text-slate-100"
+              : "text-slate-400 hover:text-slate-100 hover:bg-slate-900/70"
+              }`}
+          >
+            <Activity className={`${activeRoute(ROUTES.adminResourceManagement) ? "text-sky-300" : "text-slate-400"}`} size={18} />
+            Resources
+          </button>
+
+          <button
+            type="button"
             onClick={() => navigate(ROUTES.adminVictimReport)}
             className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition ${activeRoute(ROUTES.adminVictimReport)
               ? "bg-slate-900 text-slate-100"
@@ -65,8 +77,8 @@ function SideBar() {
 
           <button
             type="button"
-            onClick={() => navigate(ROUTES.adminNgoCoordination)}
-            className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition ${activeRoute(ROUTES.adminNgoCoordination)
+            onClick={() => navigate(ROUTES.ngoPortal)}
+            className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition ${activeRoute(ROUTES.ngoPortal)
               ? "bg-slate-900 text-slate-100"
               : "text-slate-400 hover:text-slate-100 hover:bg-slate-900/70"
               }`}

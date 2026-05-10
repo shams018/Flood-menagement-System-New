@@ -14,9 +14,12 @@ import DashboardPage from "./components/DashboardPage";
 import { ROUTES } from "./routes";
 
 import AdminMap from "./components/Admin/AdminMap";
+import ResourceManagement from "./components/Admin/ResourceManagement";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import AdminVictimReport from "./components/Admin/AdminVictimReport";
 import AdminChat from "./components/Admin/AdminChart";
+import NGOPortal from "./components/Admin/NGOportal";
+import ManageAlerts from "./components/Admin/ManageAlerts";
 
 function App() {
   return (
@@ -45,8 +48,11 @@ function App() {
 
             <Route path={ROUTES.adminDashboard} element={<AdminDashboard />} />
             <Route path={ROUTES.adminMap} element={<AdminMap />} />
+            <Route path={ROUTES.adminResourceManagement} element={<ResourceManagement />} />
             <Route path={ROUTES.adminVictimReport} element={<AdminVictimReport />} />
             <Route path={ROUTES.adminChat} element={<AdminChat />} />
+            <Route path={ROUTES.ngoPortal} element={<NGOPortal />} />
+            <Route path={ROUTES.manageAlerts} element={<ManageAlerts />} />
 
             // Catch-all route to redirect to home
             <Route path="*" element={<Navigate to={ROUTES.home} replace />} />

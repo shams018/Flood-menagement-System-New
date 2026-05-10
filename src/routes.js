@@ -1,5 +1,3 @@
-import AdminMap from "./components/Admin/AdminMap";
-
 /** Central path definitions — use these with <Link> and useNavigate() */
 export const ROUTES = {
   home: "/",
@@ -16,7 +14,10 @@ export const ROUTES = {
   //admin routes
   adminDashboard: "/admin-dashboard",
   adminMap: "/admin-map",
+  adminResourceManagement: "/admin-resources",
   adminVictimReport: "/victim-report",
   adminNgoCoordination: "/admin-ngo-coordination",
   adminChat: "/admin-chat",
+  ngoPortal: "/ngo-portal",
+  manageAlerts: "/manage-alerts",
 };
