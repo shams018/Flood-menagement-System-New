@@ -1,5 +1,16 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Shield, Grid, Map, User, Users, Activity, Settings, HelpCircle } from "lucide-react";
+import {
+  Shield,
+  Grid,
+  Map,
+  User,
+  Users,
+  Activity,
+  Settings,
+  HelpCircle,
+  LogOut,
+} from "lucide-react";
+import { motion } from "framer-motion";
 import { ROUTES } from "../../routes";
 import Logo from "../../assets/logo.jpg";
 function SideBar() {
@@ -27,93 +38,101 @@ function SideBar() {
         </div>
 
         <nav className="px-4 pt-4 pb-4 space-y-2">
-          <button
-            type="button"
-            onClick={() => navigate(ROUTES.adminDashboard)}
-            className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition ${activeRoute(ROUTES.adminDashboard)
-              ? "bg-slate-900 text-slate-100"
-              : "text-slate-400 hover:text-slate-100 hover:bg-slate-900/70"
-              }`}
-          >
-            <Grid className={`${activeRoute(ROUTES.adminDashboard) ? "text-sky-300" : "text-slate-400"}`} size={18} />
-            Dashboard
-          </button>
-
-          <button
-            type="button"
-            onClick={() => navigate(ROUTES.adminMap)}
-            className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition ${activeRoute(ROUTES.adminMap)
-              ? "bg-slate-900 text-slate-100"
-              : "text-slate-400 hover:text-slate-100 hover:bg-slate-900/70"
-              }`}
-          >
-            <Map className={`${activeRoute(ROUTES.adminMap) ? "text-sky-300" : "text-slate-400"}`} size={18} />
-            Resource Hub
-          </button>
-
-          <button
-            type="button"
-            onClick={() => navigate(ROUTES.adminResourceManagement)}
-            className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition ${activeRoute(ROUTES.adminResourceManagement)
-              ? "bg-slate-900 text-slate-100"
-              : "text-slate-400 hover:text-slate-100 hover:bg-slate-900/70"
-              }`}
-          >
-            <Activity className={`${activeRoute(ROUTES.adminResourceManagement) ? "text-sky-300" : "text-slate-400"}`} size={18} />
-            Resources
-          </button>
-
-          <button
-            type="button"
-            onClick={() => navigate(ROUTES.adminVictimReport)}
-            className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition ${activeRoute(ROUTES.adminVictimReport)
-              ? "bg-slate-900 text-slate-100"
-              : "text-slate-400 hover:text-slate-100 hover:bg-slate-900/70"
-              }`}
-          >
-            <User className={`${activeRoute(ROUTES.adminVictimReport) ? "text-sky-300" : "text-slate-400"}`} size={18} />
-            Victim Reports
-          </button>
-
-          <button
-            type="button"
-            onClick={() => navigate(ROUTES.ngoPortal)}
-            className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition ${activeRoute(ROUTES.ngoPortal)
-              ? "bg-slate-900 text-slate-100"
-              : "text-slate-400 hover:text-slate-100 hover:bg-slate-900/70"
-              }`}
-          >
-            <Users className={`${activeRoute(ROUTES.adminNgoCoordination) ? "text-sky-300" : "text-slate-400"}`} size={18} />
-            NGO Coordination
-          </button>
+          {[
+            { route: ROUTES.adminDashboard, icon: Grid, label: "Dashboard" },
+            { route: ROUTES.adminMap, icon: Map, label: "Resource Hub" },
+            {
+              route: ROUTES.adminResourceManagement,
+              icon: Activity,
+              label: "Resources",
+            },
+            {
+              route: ROUTES.adminVictimReport,
+              icon: User,
+              label: "Victim Reports",
+            },
+            {
+              route: ROUTES.ngoAdminLogin,
+              icon: Users,
+              label: "NGO Coordination"
+            },
+          ].map((item, index) => (
+            <motion.button
+              key={item.route}
+              type="button"
+              onClick={() => navigate(item.route)}
+              className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition ${activeRoute(item.route)
+                  ? "bg-slate-900 text-slate-100"
+                  : "text-slate-400 hover:text-slate-100 hover:bg-slate-900/70"
+                }`}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <item.icon
+                className={`${activeRoute(item.route) ? "text-sky-300" : "text-slate-400"}`}
+                size={18}
+              />
+              {item.label}
+            </motion.button>
+          ))}
         </nav>
       </div>
 
       <div className="px-6 pb-8">
-        <button
+        <motion.button
           type="button"
           onClick={() => navigate(ROUTES.victimRegistration)}
           className="w-full rounded-3xl bg-sky-400 text-slate-950 font-semibold py-3 shadow-lg shadow-sky-500/20 transition hover:bg-sky-300"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
           Report Incident
-        </button>
+        </motion.button>
 
-        <div className="mt-8 space-y-3">
-          <button
-            type="button"
-            className="w-full flex items-center gap-3 text-sm text-slate-400 hover:text-slate-100 transition"
-          >
-            <Settings size={18} className="text-slate-400" />
-            Settings
-          </button>
-          <button
-            type="button"
-            className="w-full flex items-center gap-3 text-sm text-slate-400 hover:text-slate-100 transition"
-          >
-            <HelpCircle size={18} className="text-slate-400" />
-            Support
-          </button>
-        </div>
+        {location.pathname === ROUTES.ngoPortal ? (
+          <div className="mt-8 p-4 bg-slate-800 rounded-2xl">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-8 h-8 bg-sky-500 rounded-full flex items-center justify-center">
+                <User size={16} className="text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white">NGO Admin</p>
+                <p className="text-xs text-slate-400">admin@ngo.org</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate(ROUTES.adminDashboard)}
+              className="w-full flex items-center gap-3 text-sm text-red-400 hover:text-red-300 transition"
+            >
+              <LogOut size={18} className="text-red-400" />
+              Logout
+            </button>
+          </div>
+        ) : (
+          <div className="mt-8 space-y-3">
+            <button
+              type="button"
+              className="w-full flex items-center gap-3 text-sm text-slate-400 hover:text-slate-100 transition"
+            >
+              <Settings size={18} className="text-slate-400" />
+              Settings
+            </button>
+            <button
+              type="button"
+              className="w-full flex items-center gap-3 text-sm text-slate-400 hover:text-slate-100 transition"
+            >
+              <HelpCircle size={18} className="text-slate-400" />
+              Support
+            </button>
+          </div>
+        )}
       </div>
     </aside>
   );

@@ -19,5 +19,6 @@ export const ROUTES = {
   adminNgoCoordination: "/admin-ngo-coordination",
   adminChat: "/admin-chat",
   ngoPortal: "/ngo-portal",
+  ngoAdminLogin: "/ngo-admin-login",
   manageAlerts: "/manage-alerts",
 };

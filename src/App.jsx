@@ -18,7 +18,8 @@ import ResourceManagement from "./components/Admin/ResourceManagement";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import AdminVictimReport from "./components/Admin/AdminVictimReport";
 import AdminChat from "./components/Admin/AdminChart";
-import NGOPortal from "./components/Admin/NGOportal";
+import NGOPortal from "./components/Admin/NGOPortal";
+import NGOAdminLogin from "./components/Admin/NGOAdminLogin";
 import ManageAlerts from "./components/Admin/ManageAlerts";
 
 function App() {
@@ -52,9 +53,10 @@ function App() {
             <Route path={ROUTES.adminVictimReport} element={<AdminVictimReport />} />
             <Route path={ROUTES.adminChat} element={<AdminChat />} />
             <Route path={ROUTES.ngoPortal} element={<NGOPortal />} />
+            <Route path={ROUTES.ngoAdminLogin} element={<NGOAdminLogin />} />
             <Route path={ROUTES.manageAlerts} element={<ManageAlerts />} />
 
-            // Catch-all route to redirect to home
+            {/* Catch-all route to redirect to home */}
             <Route path="*" element={<Navigate to={ROUTES.home} replace />} />
           </Routes>
         </div>

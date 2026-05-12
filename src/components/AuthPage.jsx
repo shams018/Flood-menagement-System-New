@@ -51,22 +51,20 @@ function AuthPage() {
             <button
               type="button"
               onClick={() => setTab("login")}
-              className={`flex-1 py-4 px-6 font-bold uppercase text-sm tracking-wide transition-all duration-300 ${
-                tab === "login"
+              className={`flex-1 py-4 px-6 font-bold uppercase text-sm tracking-wide transition-all duration-300 ${tab === "login"
                   ? "bg-blue-600/20 text-blue-400 border-b-2 border-blue-400"
                   : "text-gray-400 hover:text-white"
-              }`}
+                }`}
             >
               LOGIN
             </button>
             <button
               type="button"
               onClick={() => setTab("register")}
-              className={`flex-1 py-4 px-6 font-bold uppercase text-sm tracking-wide transition-all duration-300 ${
-                tab === "register"
+              className={`flex-1 py-4 px-6 font-bold uppercase text-sm tracking-wide transition-all duration-300 ${tab === "register"
                   ? "bg-blue-600/20 text-blue-400 border-b-2 border-blue-400"
                   : "text-gray-400 hover:text-white"
-              }`}
+                }`}
             >
               REGISTER
             </button>
@@ -115,12 +113,21 @@ function AuthPage() {
                 />
               </div>
 
-              <div className="flex justify-end">
+              <div className="flex flex-col gap-3">
+                <div className="flex justify-between">
+                  <button
+                    type="button"
+                    className="text-xs text-blue-400 hover:text-blue-300 font-bold uppercase transition-colors"
+                  >
+                    FORGOT PASSWORD?
+                  </button>
+                </div>
                 <button
                   type="button"
-                  className="text-xs text-blue-400 hover:text-blue-300 font-bold uppercase transition-colors"
+                  onClick={() => navigate(ROUTES.ngoAdminLogin)}
+                  className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold uppercase tracking-wider rounded-lg transition-all duration-200 border border-slate-700"
                 >
-                  FORGOT PASSWORD?
+                  NGO ADMIN LOGIN
                 </button>
               </div>
 

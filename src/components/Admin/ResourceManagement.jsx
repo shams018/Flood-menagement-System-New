@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Table, Plus, Globe, Activity, ShieldAlert, ChevronRight, X, Map, MoreVertical, Edit, Trash2, Eye, Layout, MapPin, Radio, Users } from 'lucide-react';
+import { motion } from 'framer-motion';
 import SideBar from './SideBar';
 import Header from './Header';
 
@@ -111,10 +112,18 @@ const ResourceManagement = () => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#090b14] text-slate-100">
+    <motion.div 
+      className="flex h-screen overflow-hidden bg-[#090b14] text-slate-100"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       <style>{`
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none !important; }
+        .no-scrollbar::-webkit-scrollbar-track { display: none !important; }
+        .no-scrollbar::-webkit-scrollbar-thumb { display: none !important; }
+        .no-scrollbar { -ms-overflow-style: none !important; scrollbar-width: none !important; }
+        .no-scrollbar::-webkit-scrollbar-corner { display: none !important; }
       `}</style>
 
       {/* --- FIXED SIDEBAR --- */}
@@ -169,14 +178,19 @@ const ResourceManagement = () => {
               <div className="lg:col-span-8 rounded-4xl border border-white/5 bg-slate-950 p-6 shadow-2xl">
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
                   <div className="flex flex-wrap gap-2">
-                    {['Shelters', 'Medical Centers', 'Rescue Teams'].map((tab) => (
-                      <button
+                    {['Shelters', 'Medical Centers', 'Rescue Teams'].map((tab, index) => (
+                      <motion.button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
                         className={`rounded-full px-6 py-3 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab ? 'bg-sky-500 text-slate-950' : 'bg-slate-900 text-slate-400 hover:text-white'}`}
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                       >
                         {tab}
-                      </button>
+                      </motion.button>
                     ))}
                   </div>
                   <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
@@ -196,8 +210,15 @@ const ResourceManagement = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5 text-slate-200">
-                      {currentResources.map((res) => (
-                        <tr key={res.id} className="transition hover:bg-white/2 group">
+                      {currentResources.map((res, index) => (
+                        <motion.tr 
+                          key={res.id} 
+                          className="transition hover:bg-white/2 group"
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.3, delay: index * 0.05 }}
+                          whileHover={{ scale: 1.01 }}
+                        >
                           <td className="px-6 py-5">
                             <div className="flex items-center gap-4">
                               <div className={`h-10 w-1.5 rounded-full ${res.color}`} />
@@ -233,7 +254,7 @@ const ResourceManagement = () => {
                               </div>
                             )}
                           </td>
-                        </tr>
+                        </motion.tr>
                       ))}
                     </tbody>
                   </table>
@@ -266,8 +287,20 @@ const ResourceManagement = () => {
 
       {/* --- ATTRACTIVE VIEW DETAILS MODAL --- */}
       {showDetailModal && selectedResource && (
-        <div className="fixed inset-0 z-150 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300" onClick={() => setShowDetailModal(false)}>
-          <div className="w-full max-w-2xl bg-[#090b14] border border-white/10 rounded-[48px] overflow-hidden shadow-[0_0_100px_rgba(56,189,248,0.1)] relative" onClick={e => e.stopPropagation()}>
+        <motion.div 
+          className="fixed inset-0 z-150 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300" 
+          onClick={() => setShowDetailModal(false)}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <motion.div 
+            className="w-full max-w-2xl bg-[#090b14] border border-white/10 rounded-[48px] overflow-hidden shadow-[0_0_100px_rgba(56,189,248,0.1)] relative" 
+            onClick={e => e.stopPropagation()}
+            initial={{ y: 50 }}
+            animate={{ y: 0 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+          >
             
             {/* Modal Header with Glow */}
             <div className={`h-2 w-full ${selectedResource.color} shadow-[0_0_20px_rgba(255,255,255,0.2)]`} />
@@ -340,14 +373,26 @@ const ResourceManagement = () => {
                 </button>
               </div>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
 
       {/* --- ADD/EDIT MODAL --- */}
       {showAddModal && (
-        <div className="fixed inset-0 z-140 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={closeAddModal}>
-          <div className="w-full max-w-2xl bg-slate-950 border border-white/10 rounded-[40px] p-8 shadow-2xl" onClick={e => e.stopPropagation()}>
+        <motion.div 
+          className="fixed inset-0 z-140 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" 
+          onClick={closeAddModal}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <motion.div 
+            className="w-full max-w-2xl bg-slate-950 border border-white/10 rounded-[40px] p-8 shadow-2xl" 
+            onClick={e => e.stopPropagation()}
+            initial={{ scale: 0.9, y: 50 }}
+            animate={{ scale: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+          >
             <div className="flex justify-between items-center mb-8 pb-4 border-b border-white/5">
               <h2 className="text-2xl font-black uppercase tracking-tighter text-white">{isEditing ? 'Update' : 'Initialize'} <span className="text-sky-400">Resource</span></h2>
               <button onClick={closeAddModal} className="text-slate-400 hover:text-white"><X/></button>
@@ -373,14 +418,24 @@ const ResourceManagement = () => {
                 <button type="submit" className="bg-sky-500 text-slate-950 px-10 py-4 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl">Execute Entry</button>
               </div>
             </form>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
 
       {/* --- DELETE CONFIRMATION --- */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 z-160 flex items-center justify-center bg-black/90 p-4 backdrop-blur-lg">
-          <div className="max-w-md w-full bg-slate-950 border border-white/10 rounded-[40px] p-10 text-center shadow-2xl">
+        <motion.div 
+          className="fixed inset-0 z-160 flex items-center justify-center bg-black/90 p-4 backdrop-blur-lg"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <motion.div 
+            className="max-w-md w-full bg-slate-950 border border-white/10 rounded-[40px] p-10 text-center shadow-2xl"
+            initial={{ scale: 0.8, y: 50 }}
+            animate={{ scale: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+          >
             <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-red-500/20 text-red-500 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
               <Trash2 size={36}/>
             </div>
@@ -390,10 +445,10 @@ const ResourceManagement = () => {
               <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 py-4 rounded-full border border-white/5 text-[10px] font-black uppercase tracking-widest text-slate-500">Abort</button>
               <button onClick={confirmDelete} className="flex-1 py-4 rounded-full bg-red-600 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-red-600/20">Purge Data</button>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 };
 

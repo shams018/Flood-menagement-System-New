@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Header from "./Header";
 import SideBar from "./SideBar";
+import { motion } from "framer-motion";
 import {
   Users,
   MapPin,
@@ -88,7 +89,19 @@ const AdminVictimReport = () => {
   });
 
   return (
-    <section className="flex h-screen w-full bg-[#0a0a0a] text-white overflow-hidden font-sans">
+    <motion.section 
+      className="flex h-screen w-full bg-[#0a0a0a] text-white overflow-hidden font-sans"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar { display: none !important; }
+        .no-scrollbar::-webkit-scrollbar-track { display: none !important; }
+        .no-scrollbar::-webkit-scrollbar-thumb { display: none !important; }
+        .no-scrollbar { -ms-overflow-style: none !important; scrollbar-width: none !important; }
+        .no-scrollbar::-webkit-scrollbar-corner { display: none !important; }
+      `}</style>
       {/* SIDEBAR - Jo aapne pehle use kiya tha */}
       <aside className="w-64 h-full bg-[#1e1e1e] border-r border-gray-800 hidden md:flex flex-col shrink-0">
         <SideBar />
@@ -147,10 +160,14 @@ const AdminVictimReport = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
-                      {filteredVictims.map((victim) => (
-                        <tr
+                      {filteredVictims.map((victim, index) => (
+                        <motion.tr
                           key={victim.id}
                           className="hover:bg-white/[0.03] transition-all group"
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.3, delay: index * 0.05 }}
+                          whileHover={{ scale: 1.01 }}
                         >
                           <td className="p-6">
                             <span className="font-mono text-blue-400 text-xs font-bold bg-blue-500/5 px-3 py-1 rounded-lg border border-blue-500/10 tracking-widest uppercase">
@@ -220,7 +237,7 @@ const AdminVictimReport = () => {
                               </button>
                             </div>
                           </td>
-                        </tr>
+                        </motion.tr>
                       ))}
                     </tbody>
                   </table>
@@ -427,7 +444,7 @@ const AdminVictimReport = () => {
           </div>
         </div>
       </main>
-    </section>
+    </motion.section>
   );
 };
 
