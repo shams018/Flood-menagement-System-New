@@ -25,38 +25,44 @@ function Navbar() {
     : isAuthenticated
       ? "LOGOUT"
       : "LOGIN";
+
   const navItems = [...baseNavItems, accountItem];
 
   const handleClick = (event, item) => {
     event.preventDefault();
     if (item === "SESSION") return;
-    if (item === "LOGIN") {
-      navigate(ROUTES.login);
-    }
-    if (item === "LOGOUT") {
-      logout();
-      navigate(ROUTES.home);
-    }
-    if (item === "ALERTS") {
-      navigate(ROUTES.alerts);
-    }
-    if (item === "FLOOD") {
-      navigate(ROUTES.floodCheck);
-    }
-    if (item === "SOS") {
-      navigate(ROUTES.emergencySos);
-    }
-    if (item === "NOTIFICATIONS") {
-      navigate(ROUTES.notifications);
-    }
-    if (item === "MAP") {
-      navigate(ROUTES.liveMap);
-    }
-    if (item === "CHAT") {
-      navigate(ROUTES.chat);
-    }
-    if (item === "REGISTER") {
-      navigate(ROUTES.victimRegistration);
+
+    switch (item) {
+      case "LOGIN":
+        navigate(ROUTES.login);
+        break;
+      case "LOGOUT":
+        logout();
+        navigate(ROUTES.home);
+        break;
+      case "ALERTS":
+        navigate(ROUTES.alerts);
+        break;
+      case "FLOOD":
+        navigate(ROUTES.floodCheck);
+        break;
+      case "SOS":
+        navigate(ROUTES.emergencySos);
+        break;
+      case "NOTIFICATIONS":
+        navigate(ROUTES.notifications);
+        break;
+      case "MAP":
+        navigate(ROUTES.liveMap);
+        break;
+      case "CHAT":
+        navigate(ROUTES.chat);
+        break;
+      case "REGISTER":
+        navigate(ROUTES.victimRegistration);
+        break;
+      default:
+        break;
     }
   };
 
@@ -97,8 +103,8 @@ function Navbar() {
     setShowEmergencyModal(true);
   };
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(emergencyNumber);
+  const copyToClipboard = async () => {
+    await navigator.clipboard.writeText(emergencyNumber);
     alert("Emergency number copied to clipboard!");
   };
 
@@ -111,6 +117,7 @@ function Navbar() {
       >
         SENTINEL
       </button>
+
       <nav
         className="flex gap-5 md:gap-8 items-center flex-wrap justify-end"
         aria-label="Main navigation"
@@ -133,6 +140,7 @@ function Navbar() {
           </a>
         ))}
       </nav>
+
       <button
         className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded transition-colors cursor-pointer shrink-0"
         type="button"

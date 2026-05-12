@@ -3,6 +3,7 @@ import { ROUTES } from "../routes";
 
 function HeroSection() {
   const navigate = useNavigate();
+
   return (
     <section className="flex flex-col items-start justify-center min-h-screen bg-gradient-to-b from-slate-900 via-slate-900 to-blue-900/20 px-6 py-20 ml-6">
       <span className="inline-flex items-center gap-2 px-4 py-2 mb-8 bg-blue-500/20 text-blue-300 text-xs font-bold uppercase tracking-widest rounded-full border border-blue-500/40 animate-in slide-in-from-top-4 duration-700">
@@ -26,23 +27,25 @@ function HeroSection() {
 
       <div className="flex gap-6 flex-wrap">
         <button
-          className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold uppercase tracking-wider rounded-lg transition-all duration-200 text-base shadow-lg hover:shadow-blue-500/50"
           type="button"
           onClick={() => navigate(ROUTES.alerts)}
+          className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold uppercase tracking-wider rounded-lg transition-all duration-200 text-base shadow-lg hover:shadow-blue-500/50"
         >
           View Live Alerts
         </button>
+
         <button
-          className="px-8 py-4 bg-cyan-700 hover:bg-cyan-600 text-white font-bold uppercase tracking-wider rounded-lg border border-cyan-500/50 transition-all duration-200 text-base"
           type="button"
           onClick={() => navigate(ROUTES.floodCheck)}
+          className="px-8 py-4 bg-cyan-700 hover:bg-cyan-600 text-white font-bold uppercase tracking-wider rounded-lg border border-cyan-500/50 transition-all duration-200 text-base"
         >
-          Flood risk by location
+          Flood Risk by Location
         </button>
+
         <button
-          className="px-8 py-4 bg-slate-700 hover:bg-slate-600 text-white font-bold uppercase tracking-wider rounded-lg border border-slate-600 transition-all duration-200 text-base"
           type="button"
           onClick={() => navigate(ROUTES.victimRegistration)}
+          className="px-8 py-4 bg-slate-700 hover:bg-slate-600 text-white font-bold uppercase tracking-wider rounded-lg border border-slate-600 transition-all duration-200 text-base"
         >
           Register as Victim
         </button>
