@@ -112,7 +112,7 @@ const ResourceManagement = () => {
   };
 
   return (
-    <motion.div 
+    <motion.div
       className="flex h-screen overflow-hidden bg-[#090b14] text-slate-100"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -211,8 +211,8 @@ const ResourceManagement = () => {
                     </thead>
                     <tbody className="divide-y divide-white/5 text-slate-200">
                       {currentResources.map((res, index) => (
-                        <motion.tr 
-                          key={res.id} 
+                        <motion.tr
+                          key={res.id}
                           className="transition hover:bg-white/2 group"
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
@@ -248,9 +248,9 @@ const ResourceManagement = () => {
                             </button>
                             {openMenuId === res.id && (
                               <div className="absolute right-6 top-12 bg-slate-950 border border-white/10 rounded-2xl shadow-2xl z-50 min-w-40 overflow-hidden">
-                                <button onClick={() => handleViewResource(res)} className="w-full flex items-center gap-3 px-4 py-3 text-xs text-slate-300 hover:bg-white/5 border-b border-white/5"><Eye size={14}/> View Details</button>
-                                <button onClick={() => handleEditResource(res)} className="w-full flex items-center gap-3 px-4 py-3 text-xs text-slate-300 hover:bg-white/5 border-b border-white/5"><Edit size={14}/> Edit Record</button>
-                                <button onClick={() => {setSelectedResource(res); setShowDeleteConfirm(true); setOpenMenuId(null);}} className="w-full flex items-center gap-3 px-4 py-3 text-xs text-red-400 hover:bg-white/5"><Trash2 size={14}/> Delete</button>
+                                <button onClick={() => handleViewResource(res)} className="w-full flex items-center gap-3 px-4 py-3 text-xs text-slate-300 hover:bg-white/5 border-b border-white/5"><Eye size={14} /> View Details</button>
+                                <button onClick={() => handleEditResource(res)} className="w-full flex items-center gap-3 px-4 py-3 text-xs text-slate-300 hover:bg-white/5 border-b border-white/5"><Edit size={14} /> Edit Record</button>
+                                <button onClick={() => { setSelectedResource(res); setShowDeleteConfirm(true); setOpenMenuId(null); }} className="w-full flex items-center gap-3 px-4 py-3 text-xs text-red-400 hover:bg-white/5"><Trash2 size={14} /> Delete</button>
                               </div>
                             )}
                           </td>
@@ -287,35 +287,35 @@ const ResourceManagement = () => {
 
       {/* --- ATTRACTIVE VIEW DETAILS MODAL --- */}
       {showDetailModal && selectedResource && (
-        <motion.div 
-          className="fixed inset-0 z-150 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300" 
+        <motion.div
+          className="fixed inset-0 z-150 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300"
           onClick={() => setShowDetailModal(false)}
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.3 }}
         >
-          <motion.div 
-            className="w-full max-w-2xl bg-[#090b14] border border-white/10 rounded-[48px] overflow-hidden shadow-[0_0_100px_rgba(56,189,248,0.1)] relative" 
+          <motion.div
+            className="w-full max-w-2xl bg-[#090b14] border border-white/10 rounded-[48px] overflow-hidden shadow-[0_0_100px_rgba(56,189,248,0.1)] relative"
             onClick={e => e.stopPropagation()}
             initial={{ y: 50 }}
             animate={{ y: 0 }}
             transition={{ duration: 0.3, delay: 0.1 }}
           >
-            
+
             {/* Modal Header with Glow */}
             <div className={`h-2 w-full ${selectedResource.color} shadow-[0_0_20px_rgba(255,255,255,0.2)]`} />
-            
+
             <div className="p-10 space-y-10">
               <div className="flex justify-between items-start">
                 <div>
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-sky-400 mb-4">
-                    <Layout size={12}/> Resource Profile
+                    <Layout size={12} /> Resource Profile
                   </div>
                   <h3 className="text-5xl font-black text-white uppercase tracking-tighter leading-none">{selectedResource.name}</h3>
                   <p className="text-xs text-slate-500 mt-2 font-mono uppercase tracking-[0.4em]">{selectedResource.id}</p>
                 </div>
                 <button onClick={() => setShowDetailModal(false)} className="p-4 rounded-full bg-white/5 text-slate-500 hover:bg-white/10 hover:text-white transition-all shadow-inner border border-white/5">
-                  <X size={20}/>
+                  <X size={20} />
                 </button>
               </div>
 
@@ -323,7 +323,7 @@ const ResourceManagement = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-slate-900/50 border border-white/5 rounded-4xl p-6 group hover:border-sky-500/30 transition-all duration-500">
                   <div className="flex items-center gap-3 text-slate-600 mb-4">
-                    <MapPin size={18} className="group-hover:text-sky-400"/>
+                    <MapPin size={18} className="group-hover:text-sky-400" />
                     <span className="text-[10px] font-black uppercase tracking-widest">Location Zone</span>
                   </div>
                   <p className="text-lg font-bold text-slate-200 uppercase leading-tight">{selectedResource.location}</p>
@@ -331,31 +331,31 @@ const ResourceManagement = () => {
 
                 <div className="bg-slate-900/50 border border-white/5 rounded-4xl p-6 group hover:border-sky-500/30 transition-all duration-500">
                   <div className="flex items-center gap-3 text-slate-600 mb-4">
-                    <Radio size={18} className="group-hover:text-sky-400 animate-pulse"/>
+                    <Radio size={18} className="group-hover:text-sky-400 animate-pulse" />
                     <span className="text-[10px] font-black uppercase tracking-widest">Comm Channel</span>
                   </div>
                   <p className="text-lg font-bold text-slate-200 uppercase leading-tight">{selectedResource.channel}</p>
                 </div>
 
                 <div className="bg-slate-900/50 border border-white/5 rounded-4xl p-6 group hover:border-sky-500/30 transition-all duration-500">
-                   <div className="flex items-center gap-3 text-slate-600 mb-4">
-                    <Users size={18} className="group-hover:text-sky-400"/>
+                  <div className="flex items-center gap-3 text-slate-600 mb-4">
+                    <Users size={18} className="group-hover:text-sky-400" />
                     <span className="text-[10px] font-black uppercase tracking-widest">Load Status</span>
                   </div>
                   <div className="space-y-2">
                     <div className="flex justify-between items-end">
-                       <p className="text-2xl font-black text-white">{Math.round((selectedResource.capacity/selectedResource.maxCapacity)*100)}%</p>
-                       <p className="text-[10px] font-bold text-slate-500">{selectedResource.capacity} / {selectedResource.maxCapacity}</p>
+                      <p className="text-2xl font-black text-white">{Math.round((selectedResource.capacity / selectedResource.maxCapacity) * 100)}%</p>
+                      <p className="text-[10px] font-bold text-slate-500">{selectedResource.capacity} / {selectedResource.maxCapacity}</p>
                     </div>
                     <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                       <div className={`${selectedResource.color} h-full transition-all duration-1000`} style={{width: `${(selectedResource.capacity/selectedResource.maxCapacity)*100}%`}}/>
+                      <div className={`${selectedResource.color} h-full transition-all duration-1000`} style={{ width: `${(selectedResource.capacity / selectedResource.maxCapacity) * 100}%` }} />
                     </div>
                   </div>
                 </div>
 
                 <div className="bg-slate-900/50 border border-white/5 rounded-4xl p-6 group hover:border-sky-500/30 transition-all duration-500 flex flex-col justify-between">
                   <div className="flex items-center gap-3 text-slate-600 mb-4">
-                    <ShieldAlert size={18} className="group-hover:text-sky-400"/>
+                    <ShieldAlert size={18} className="group-hover:text-sky-400" />
                     <span className="text-[10px] font-black uppercase tracking-widest">Deployment</span>
                   </div>
                   <div className={`px-4 py-2 rounded-2xl border text-[11px] font-black uppercase tracking-[0.2em] text-center ${selectedResource.status === 'CRITICAL FILL' ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-sky-500/10 border-sky-500/30 text-sky-400'}`}>
@@ -368,7 +368,7 @@ const ResourceManagement = () => {
                 <button onClick={() => setShowDetailModal(false)} className="flex-1 py-5 rounded-3xl bg-slate-900 border border-white/5 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 hover:text-white transition-all shadow-inner">
                   Close Dashboard
                 </button>
-                <button onClick={() => {setShowDetailModal(false); handleEditResource(selectedResource);}} className="flex-1 py-5 rounded-3xl bg-sky-500 text-slate-950 text-[10px] font-black uppercase tracking-[0.3em] shadow-2xl shadow-sky-500/20 hover:bg-sky-400 transition-all">
+                <button onClick={() => { setShowDetailModal(false); handleEditResource(selectedResource); }} className="flex-1 py-5 rounded-3xl bg-sky-500 text-slate-950 text-[10px] font-black uppercase tracking-[0.3em] shadow-2xl shadow-sky-500/20 hover:bg-sky-400 transition-all">
                   Modify Tactical Data
                 </button>
               </div>
@@ -379,15 +379,15 @@ const ResourceManagement = () => {
 
       {/* --- ADD/EDIT MODAL --- */}
       {showAddModal && (
-        <motion.div 
-          className="fixed inset-0 z-140 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" 
+        <motion.div
+          className="fixed inset-0 z-140 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
           onClick={closeAddModal}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
         >
-          <motion.div 
-            className="w-full max-w-2xl bg-slate-950 border border-white/10 rounded-[40px] p-8 shadow-2xl" 
+          <motion.div
+            className="w-full max-w-2xl bg-slate-950 border border-white/10 rounded-[40px] p-8 shadow-2xl"
             onClick={e => e.stopPropagation()}
             initial={{ scale: 0.9, y: 50 }}
             animate={{ scale: 1, y: 0 }}
@@ -395,7 +395,7 @@ const ResourceManagement = () => {
           >
             <div className="flex justify-between items-center mb-8 pb-4 border-b border-white/5">
               <h2 className="text-2xl font-black uppercase tracking-tighter text-white">{isEditing ? 'Update' : 'Initialize'} <span className="text-sky-400">Resource</span></h2>
-              <button onClick={closeAddModal} className="text-slate-400 hover:text-white"><X/></button>
+              <button onClick={closeAddModal} className="text-slate-400 hover:text-white"><X /></button>
             </div>
             <form onSubmit={handleAddResource} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <InputField label="Name" name="name" value={formValues.name} onChange={handleInputChange} />
@@ -406,11 +406,11 @@ const ResourceManagement = () => {
               <div className="sm:col-span-2">
                 <label className="text-[10px] font-black uppercase text-slate-600 tracking-widest ml-2">Condition Status</label>
                 <select name="status" value={formValues.status} onChange={handleInputChange} className="w-full bg-slate-900 border border-white/5 rounded-2xl px-6 py-4 text-sm text-white focus:border-sky-500 outline-none mt-1">
-                   <option value="">Select Level</option>
-                   <option value="OPERATIONAL">OPERATIONAL</option>
-                   <option value="CRITICAL FILL">CRITICAL FILL</option>
-                   <option value="STAGING">STAGING</option>
-                   <option value="DEPLOYED">DEPLOYED</option>
+                  <option value="">Select Level</option>
+                  <option value="OPERATIONAL">OPERATIONAL</option>
+                  <option value="CRITICAL FILL">CRITICAL FILL</option>
+                  <option value="STAGING">STAGING</option>
+                  <option value="DEPLOYED">DEPLOYED</option>
                 </select>
               </div>
               <div className="sm:col-span-2 flex justify-end gap-4 mt-4">
@@ -424,20 +424,20 @@ const ResourceManagement = () => {
 
       {/* --- DELETE CONFIRMATION --- */}
       {showDeleteConfirm && (
-        <motion.div 
+        <motion.div
           className="fixed inset-0 z-160 flex items-center justify-center bg-black/90 p-4 backdrop-blur-lg"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
         >
-          <motion.div 
+          <motion.div
             className="max-w-md w-full bg-slate-950 border border-white/10 rounded-[40px] p-10 text-center shadow-2xl"
             initial={{ scale: 0.8, y: 50 }}
             animate={{ scale: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.1 }}
           >
             <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-red-500/20 text-red-500 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
-              <Trash2 size={36}/>
+              <Trash2 size={36} />
             </div>
             <h3 className="text-2xl font-black text-white mb-3 uppercase tracking-tighter">Confirm Deletion</h3>
             <p className="text-sm text-slate-500 mb-10 leading-relaxed uppercase tracking-widest text-[10px]">Irreversible Purge: <span className="text-white font-bold">{selectedResource?.name}</span></p>

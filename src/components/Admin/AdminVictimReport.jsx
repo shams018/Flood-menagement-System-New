@@ -89,7 +89,7 @@ const AdminVictimReport = () => {
   });
 
   return (
-    <motion.section 
+    <motion.section
       className="flex h-screen w-full bg-[#0a0a0a] text-white overflow-hidden font-sans"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -110,7 +110,7 @@ const AdminVictimReport = () => {
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 h-full flex flex-col relative overflow-hidden pl-9">
         {/* HEADER - Jo aapne pehle use kiya tha */}
-        <Header/>
+        <Header />
 
         {/* CONTENT CONTAINER (Scrollable) */}
         <div className="flex-1 overflow-y-auto p-4 lg:p-8 bg-[#0a0a0a] no-scrollbar">
@@ -195,15 +195,14 @@ const AdminVictimReport = () => {
                           </td>
                           <td className="p-6">
                             <span
-                              className={`text-[9px] font-black uppercase px-4 py-1.5 rounded-full border ${
-                                victim.status === "Pending"
+                              className={`text-[9px] font-black uppercase px-4 py-1.5 rounded-full border ${victim.status === "Pending"
                                   ? "bg-yellow-500/5 text-yellow-500 border-yellow-500/20"
                                   : victim.status === "Approved"
                                     ? "bg-green-500/5 text-green-500 border-green-500/20"
                                     : victim.status === "Responded"
                                       ? "bg-blue-500/5 text-blue-400 border-blue-500/20"
                                       : "bg-red-500/5 text-red-500 border-red-500/20"
-                              }`}
+                                }`}
                             >
                               {victim.status}
                             </span>
@@ -273,13 +272,12 @@ const AdminVictimReport = () => {
                     {/* Victim Card */}
                     <div className="bg-[#1e1e1e]/80 border border-white/10 rounded-[40px] p-8 md:p-10 backdrop-blur-xl relative overflow-hidden shadow-2xl">
                       <div
-                        className={`absolute top-0 right-0 w-48 h-1.5 ${
-                          selectedVictim.status === "Approved"
+                        className={`absolute top-0 right-0 w-48 h-1.5 ${selectedVictim.status === "Approved"
                             ? "bg-green-500"
                             : selectedVictim.status === "Rejected"
                               ? "bg-red-500"
                               : "bg-yellow-500"
-                        }`}
+                          }`}
                       />
 
                       <div className="flex flex-col md:flex-row justify-between items-start mb-12 gap-6">

@@ -171,7 +171,7 @@ const NGOPortal = () => {
             </div>
           </div>
         </div>
-    </motion.aside>
+      </motion.aside>
       <div className="flex-1 flex flex-col min-w-0 relative h-full">
         {/* Superior Header */}
         <motion.header className="h-24 border-b border-white/5 flex items-center justify-between px-8 md:px-12 shrink-0 bg-[#05070a]/60 backdrop-blur-xl z-40"
@@ -301,8 +301,8 @@ const DashboardView = ({ tasks }) => (
               <div className="flex items-center gap-6">
                 <div
                   className={`w-12 h-12 rounded-2xl flex items-center justify-center border border-white/5 shadow-inner ${task.status === "Completed"
-                      ? "bg-green-500/10 text-green-500"
-                      : "bg-sky-500/10 text-sky-400"
+                    ? "bg-green-500/10 text-green-500"
+                    : "bg-sky-500/10 text-sky-400"
                     }`}
                 >
                   <ClipboardCheck size={20} />
@@ -325,8 +325,8 @@ const DashboardView = ({ tasks }) => (
               <div className="flex items-center gap-6">
                 <span
                   className={`text-[9px] font-black px-4 py-2 rounded-xl uppercase tracking-widest border ${task.priority === "Critical"
-                      ? "bg-red-500/10 text-red-500 border-red-500/20"
-                      : "bg-slate-900 text-slate-400 border-white/5"
+                    ? "bg-red-500/10 text-red-500 border-red-500/20"
+                    : "bg-slate-900 text-slate-400 border-white/5"
                     }`}
                 >
                   {task.priority}
@@ -439,8 +439,8 @@ const SidebarLink = ({ icon, label, active, onClick }) => (
   <button
     onClick={onClick}
     className={`w-full flex items-center gap-5 px-6 py-4.5 rounded-[22px] transition-all duration-300 group relative ${active
-        ? "bg-gradient-to-r from-sky-500 to-blue-600 text-slate-950 font-bold shadow-lg shadow-sky-500/20"
-        : "text-slate-500 hover:bg-white/[0.03] hover:text-slate-200"
+      ? "bg-gradient-to-r from-sky-500 to-blue-600 text-slate-950 font-bold shadow-lg shadow-sky-500/20"
+      : "text-slate-500 hover:bg-white/[0.03] hover:text-slate-200"
       }`}
   >
     <span
