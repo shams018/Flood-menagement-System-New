@@ -1,4 +1,9 @@
-function Sidebar() {
+const CHANNELS = [
+  { id: "general", label: "General", hint: "All logged-in operators" },
+  { id: "support", label: "Support & HQ", hint: "Reach our response team" },
+];
+
+function Sidebar({ activeChannel, onSelectChannel }) {
   return (
     <div className="w-64 bg-slate-800/50 p-4 flex flex-col justify-between">
       <div>
@@ -7,20 +12,32 @@ function Sidebar() {
         </h1>
         <p className="text-xs text-gray-500 mb-6">Flood Monitoring</p>
 
-        <div className="space-y-3">
-          <div className="bg-gray-700 px-3 py-2 rounded-lg">General</div>
-          <div className="flex justify-between">
-            <span>Help Requests</span>
-            <span className="bg-red-500 text-xs px-2 rounded-full">12</span>
-          </div>
-          <div>Rescue</div>
-          <div>NGO Coordination</div>
+        <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-2">
+          Channels
+        </p>
+        <div className="space-y-2">
+          {CHANNELS.map((ch) => (
+            <button
+              key={ch.id}
+              type="button"
+              onClick={() => onSelectChannel(ch.id)}
+              className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                activeChannel === ch.id
+                  ? "bg-blue-600/30 text-blue-300 border border-blue-500/40"
+                  : "bg-gray-800/80 text-gray-300 hover:bg-gray-700 border border-transparent"
+              }`}
+            >
+              <span className="text-sm font-semibold block">#{ch.label}</span>
+              <span className="text-[10px] text-gray-500">{ch.hint}</span>
+            </button>
+          ))}
         </div>
       </div>
 
-      <button className="bg-gray-700 py-2 rounded-lg mt-6">
-        REPORT INCIDENT
-      </button>
+      <p className="text-[10px] text-gray-500 leading-relaxed mt-6">
+        Messages are stored on the server and broadcast live to everyone in the
+        same channel — use Support for coordination with HQ.
+      </p>
     </div>
   );
 }

@@ -2,14 +2,20 @@
 export const ROUTES = {
   home: "/",
   login: "/login",
+<<<<<<< HEAD
 
   //user routes
+=======
+  alerts: "/alerts",
+  floodCheck: "/flood-check",
+>>>>>>> upstream/main
   dashboard: "/dashboard",
   alerts: "/alerts",
   liveMap: "/live-map",
   ngoCoordination: "/ngo-coordination",
   victimRegistration: "/victim-registration",
   chat: "/chat",
+<<<<<<< HEAD
 
   //admin routes
   adminDashboard: "/admin-dashboard",
@@ -21,4 +27,8 @@ export const ROUTES = {
   ngoPortal: "/ngo-portal",
   ngoAdminLogin: "/ngo-admin-login",
   manageAlerts: "/manage-alerts",
+=======
+  emergencySos: "/emergency-sos",
+  notifications: "/notifications",
+>>>>>>> upstream/main
 };
