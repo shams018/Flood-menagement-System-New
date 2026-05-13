@@ -27,7 +27,7 @@ export function createVictimsRouter({ requireAuth, optionalAuth }) {
 
   router.post(
     "/",
-    optionalAuth,
+    requireAuth,
     upload.array("photos", 8),
     async (req, res, next) => {
       try {
@@ -40,9 +40,7 @@ export function createVictimsRouter({ requireAuth, optionalAuth }) {
         const photoPaths =
           req.files?.map((f) => `/uploads/victims/${f.filename}`) || [];
         const doc = await VictimRegistration.create({
-          user: req.user?.id
-            ? new mongoose.Types.ObjectId(req.user.id)
-            : null,
+          user: req.user?.id ? new mongoose.Types.ObjectId(req.user.id) : null,
           incident_location: String(incidentLocation),
           loss_type: String(lossType),
           description: description ? String(description) : null,

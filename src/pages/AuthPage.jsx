@@ -2,39 +2,56 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ROUTES } from "../routes";
 import { useAuth } from "../context/AuthContext";
+import { apiFetch } from "../lib/api";
 
 function AuthPage() {
   const [tab, setTab] = useState("login");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+    confirmPassword: "",
     fullName: "",
     phone: "",
     role: "User",
   });
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotError, setForgotError] = useState("");
+  const [forgotMessage, setForgotMessage] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const { login, register } = useAuth();
-  const redirectTo =
-    location.state?.from?.pathname &&
-    location.state.from.pathname !== ROUTES.login
-      ? location.state.from.pathname
-      : ROUTES.dashboard;
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const getDefaultRedirect = (role) => {
+    if (String(role || "").toLowerCase() === "admin") {
+      return ROUTES.adminDashboard;
+    }
+    if (
+      location.state?.from?.pathname &&
+      location.state.from.pathname !== ROUTES.login
+    ) {
+      return location.state.from.pathname;
+    }
+    return ROUTES.dashboard;
+  };
+
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.email || !formData.password) {
+      setError("Please enter both email and password.");
+      return;
+    }
     setError("");
     setPending(true);
     try {
-      await login(formData.email, formData.password);
-      navigate(redirectTo, { replace: true });
+      const data = await login(formData.email, formData.password);
+      navigate(getDefaultRedirect(data.user?.role), { replace: true });
     } catch (err) {
       setError(err.message || "Login failed");
     } finally {
@@ -44,21 +61,70 @@ function AuthPage() {
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.fullName || !formData.email || !formData.password) {
+      setError("Full name, email, and password are required.");
+      return;
+    }
+    if (formData.password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
     setError("");
     setPending(true);
     try {
-      await register({
+      const data = await register({
         email: formData.email,
         password: formData.password,
         fullName: formData.fullName,
         phone: formData.phone,
         role: formData.role,
       });
-      navigate(redirectTo, { replace: true });
+      navigate(getDefaultRedirect(data.user?.role), { replace: true });
     } catch (err) {
       setError(err.message || "Registration failed");
     } finally {
       setPending(false);
+    }
+  };
+
+  const handleForgotPasswordOpen = () => {
+    setForgotEmail(formData.email || "");
+    setForgotError("");
+    setForgotMessage("");
+    setShowForgotModal(true);
+  };
+
+  const handleForgotPasswordClose = () => {
+    setShowForgotModal(false);
+    setForgotEmail("");
+    setForgotError("");
+    setForgotMessage("");
+  };
+
+  const handleForgotPasswordSubmit = async (e) => {
+    e.preventDefault();
+    setForgotError("");
+    setForgotMessage("");
+    if (!forgotEmail) {
+      setForgotError("Please enter your email address.");
+      return;
+    }
+    try {
+      const res = await apiFetch("/api/auth/forgot-password", {
+        method: "POST",
+        body: JSON.stringify({ email: forgotEmail }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Unable to process request");
+      setForgotMessage(
+        data.message || "If the email exists, reset instructions were sent.",
+      );
+    } catch (err) {
+      setForgotError(err.message || "Failed to send reset instructions");
     }
   };
 
@@ -156,9 +222,10 @@ function AuthPage() {
                 />
               </div>
 
-              <div className="flex justify-end">
+              <div className="flex justify-between items-center gap-3">
                 <button
                   type="button"
+                  onClick={handleForgotPasswordOpen}
                   className="text-xs text-blue-400 hover:text-blue-300 font-bold uppercase transition-colors"
                 >
                   FORGOT PASSWORD?
@@ -255,8 +322,7 @@ function AuthPage() {
                     className="w-full px-4 py-3 bg-slate-900/50 text-white border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
                   >
                     <option value="User">User</option>
-                    <option value="Organization">Organization</option>
-                    <option value="Emergency Services">Emergency Services</option>
+                    <option value="Admin">Admin</option>
                   </select>
                 </div>
               </div>
@@ -269,6 +335,20 @@ function AuthPage() {
                   type="password"
                   name="password"
                   value={formData.password}
+                  onChange={handleInputChange}
+                  placeholder="••••••••••"
+                  className="w-full px-4 py-3 bg-slate-900/50 text-white border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors placeholder-gray-600"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
+                  CONFIRM PASSWORD
+                </label>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
                   onChange={handleInputChange}
                   placeholder="••••••••••"
                   className="w-full px-4 py-3 bg-slate-900/50 text-white border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors placeholder-gray-600"
@@ -296,6 +376,69 @@ function AuthPage() {
             </form>
           )}
         </div>
+        {showForgotModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-8">
+            <div className="w-full max-w-md rounded-3xl border border-slate-700 bg-slate-900 p-8 shadow-2xl">
+              <div className="flex items-start justify-between gap-4 mb-6">
+                <div>
+                  <h3 className="text-xl font-bold text-white">
+                    Forgot Password
+                  </h3>
+                  <p className="text-sm text-gray-400">
+                    Enter the email address for your Sentinel account.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleForgotPasswordClose}
+                  className="text-gray-400 hover:text-white"
+                >
+                  Close
+                </button>
+              </div>
+              <form onSubmit={handleForgotPasswordSubmit} className="space-y-4">
+                {forgotMessage ? (
+                  <p className="text-sm text-green-300 bg-green-950/40 border border-green-800/60 rounded-xl px-4 py-3">
+                    {forgotMessage}
+                  </p>
+                ) : null}
+                {forgotError ? (
+                  <p className="text-sm text-red-300 bg-red-950/40 border border-red-800/60 rounded-xl px-4 py-3">
+                    {forgotError}
+                  </p>
+                ) : null}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
+                    EMAIL
+                  </label>
+                  <input
+                    type="email"
+                    name="forgotEmail"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    placeholder="email@protocol.sentinel"
+                    className="w-full px-4 py-3 bg-slate-900/50 text-white border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors placeholder-gray-600"
+                  />
+                </div>
+                <div className="flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={handleForgotPasswordClose}
+                    className="px-4 py-3 rounded-lg border border-slate-700 text-slate-200 hover:bg-slate-800 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors"
+                  >
+                    Send Reset Link
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
         {/* Footer Links */}
         <div className="flex gap-6 justify-center mt-8 text-xs text-gray-400">

@@ -28,11 +28,9 @@ export function createAuthRouter(jwtSecret) {
         role: String(role || "User"),
       });
       const safe = user.toJSON();
-      const token = jwt.sign(
-        { sub: safe.id, email: safe.email },
-        jwtSecret,
-        { expiresIn: "7d" },
-      );
+      const token = jwt.sign({ sub: safe.id, email: safe.email }, jwtSecret, {
+        expiresIn: "7d",
+      });
       return res.status(201).json({ token, user: safe });
     } catch (e) {
       if (e.code === 11000) {
@@ -51,19 +49,41 @@ export function createAuthRouter(jwtSecret) {
       const user = await User.findOne({
         email: String(email).toLowerCase().trim(),
       }).select("+password_hash");
-      if (
-        !user ||
-        !bcrypt.compareSync(String(password), user.password_hash)
-      ) {
+      if (!user || !bcrypt.compareSync(String(password), user.password_hash)) {
         return res.status(401).json({ error: "Invalid email or password" });
       }
       const safe = user.toJSON();
-      const token = jwt.sign(
-        { sub: safe.id, email: safe.email },
-        jwtSecret,
-        { expiresIn: "7d" },
-      );
+      const token = jwt.sign({ sub: safe.id, email: safe.email }, jwtSecret, {
+        expiresIn: "7d",
+      });
       res.json({ token, user: safe });
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  router.post("/forgot-password", async (req, res, next) => {
+    try {
+      const { email } = req.body || {};
+      if (!email) {
+        return res.status(400).json({ error: "Email is required" });
+      }
+      const normalizedEmail = String(email).toLowerCase().trim();
+      const user = await User.findOne({ email: normalizedEmail });
+      if (!user) {
+        return res.status(200).json({
+          message:
+            "If that email exists in our system, a password reset link has been sent.",
+        });
+      }
+
+      console.log(
+        `[sentinel-backend] forgot-password requested for ${normalizedEmail}`,
+      );
+      return res.status(200).json({
+        message:
+          "If that email exists in our system, a password reset link has been sent.",
+      });
     } catch (e) {
       next(e);
     }

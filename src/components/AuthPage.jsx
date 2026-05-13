@@ -51,20 +51,22 @@ function AuthPage() {
             <button
               type="button"
               onClick={() => setTab("login")}
-              className={`flex-1 py-4 px-6 font-bold uppercase text-sm tracking-wide transition-all duration-300 ${tab === "login"
+              className={`flex-1 py-4 px-6 font-bold uppercase text-sm tracking-wide transition-all duration-300 ${
+                tab === "login"
                   ? "bg-blue-600/20 text-blue-400 border-b-2 border-blue-400"
                   : "text-gray-400 hover:text-white"
-                }`}
+              }`}
             >
               LOGIN
             </button>
             <button
               type="button"
               onClick={() => setTab("register")}
-              className={`flex-1 py-4 px-6 font-bold uppercase text-sm tracking-wide transition-all duration-300 ${tab === "register"
+              className={`flex-1 py-4 px-6 font-bold uppercase text-sm tracking-wide transition-all duration-300 ${
+                tab === "register"
                   ? "bg-blue-600/20 text-blue-400 border-b-2 border-blue-400"
                   : "text-gray-400 hover:text-white"
-                }`}
+              }`}
             >
               REGISTER
             </button>
@@ -214,8 +216,7 @@ function AuthPage() {
                     className="w-full px-4 py-3 bg-slate-900/50 text-white border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
                   >
                     <option>User</option>
-                    <option>Organization</option>
-                    <option>Emergency Services</option>
+                    <option>Admin</option>
                   </select>
                 </div>
               </div>

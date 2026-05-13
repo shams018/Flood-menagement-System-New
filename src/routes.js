@@ -2,22 +2,19 @@
 export const ROUTES = {
   home: "/",
   login: "/login",
-<<<<<<< HEAD
 
-  //user routes
-=======
+  // User routes
   alerts: "/alerts",
   floodCheck: "/flood-check",
->>>>>>> upstream/main
+  emergencySos: "/emergency-sos",
+  notifications: "/notifications",
   dashboard: "/dashboard",
-  alerts: "/alerts",
   liveMap: "/live-map",
   ngoCoordination: "/ngo-coordination",
   victimRegistration: "/victim-registration",
   chat: "/chat",
-<<<<<<< HEAD
 
-  //admin routes
+  // Admin routes
   adminDashboard: "/admin-dashboard",
   adminMap: "/admin-map",
   adminResourceManagement: "/admin-resources",
@@ -27,8 +24,4 @@ export const ROUTES = {
   ngoPortal: "/ngo-portal",
   ngoAdminLogin: "/ngo-admin-login",
   manageAlerts: "/manage-alerts",
-=======
-  emergencySos: "/emergency-sos",
-  notifications: "/notifications",
->>>>>>> upstream/main
 };

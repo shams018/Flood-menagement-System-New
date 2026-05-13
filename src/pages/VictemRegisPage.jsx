@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Home,
   Package,
@@ -11,7 +11,10 @@ import {
   CheckCircle2,
   Maximize2,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../lib/api";
+import { useAuth } from "../context/AuthContext";
+import { ROUTES } from "../routes";
 
 const LOSS_TYPES = [
   { icon: Home, label: "House", value: "House" },
@@ -29,16 +32,44 @@ const VictemRegisPage = () => {
   const [files, setFiles] = useState([]);
   const [status, setStatus] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const { isAuthenticated, booting } = useAuth();
+
+  useEffect(() => {
+    if (!booting && !isAuthenticated) {
+      navigate(ROUTES.login, { replace: true });
+    }
+  }, [booting, isAuthenticated, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus("");
+    setError("");
+
+    if (!incidentLocation.trim()) {
+      setError("Incident location is required.");
+      return;
+    }
+    if (!lossType) {
+      setError("Please select the type of loss.");
+      return;
+    }
+    if (!description.trim()) {
+      setError("Please enter a description of the damage.");
+      return;
+    }
+    if (files.length === 0) {
+      setError("Please upload at least one photo as evidence.");
+      return;
+    }
+
     setSubmitting(true);
     try {
       const fd = new FormData();
-      fd.append("incidentLocation", incidentLocation);
+      fd.append("incidentLocation", incidentLocation.trim());
       fd.append("lossType", lossType);
-      if (description) fd.append("description", description);
+      fd.append("description", description.trim());
       files.forEach((file) => fd.append("photos", file));
       const res = await apiFetch("/api/victims", { method: "POST", body: fd });
       const data = await res.json().catch(() => ({}));
@@ -47,7 +78,7 @@ const VictemRegisPage = () => {
       setDescription("");
       setFiles([]);
     } catch (err) {
-      setStatus(err.message || "Could not submit");
+      setError(err.message || "Could not submit");
     } finally {
       setSubmitting(false);
     }
@@ -103,6 +134,11 @@ const VictemRegisPage = () => {
                   }`}
                 >
                   {status}
+                </p>
+              ) : null}
+              {error ? (
+                <p className="text-sm text-red-300 bg-red-950/40 border border-red-800/60 rounded-2xl px-4 py-3">
+                  {error}
                 </p>
               ) : null}
 
@@ -177,9 +213,7 @@ const VictemRegisPage = () => {
                     accept="image/*"
                     multiple
                     className="hidden"
-                    onChange={(e) =>
-                      setFiles(Array.from(e.target.files || []))
-                    }
+                    onChange={(e) => setFiles(Array.from(e.target.files || []))}
                   />
                 </label>
                 {files.length > 0 ? (
