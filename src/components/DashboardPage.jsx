@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../routes";
+import Header from "./Admin/Header";
 
 function DashboardPage() {
   const navigate = useNavigate();
@@ -33,6 +34,7 @@ function DashboardPage() {
             <button
               className="py-3 px-4 text-gray-400 rounded font-semibold uppercase text-sm tracking-wide text-left hover:bg-slate-700/50 transition-colors"
               type="button"
+              onClick={() => navigate(ROUTES.victimRegistration)}
             >
               VICTIM REPORTS
             </button>
@@ -73,6 +75,7 @@ function DashboardPage() {
       </aside>
 
       <main className="flex-1 flex flex-col overflow-hidden">
+        <Header />
         <div className="flex-1 overflow-y-auto p-8">
           <div className="grid grid-cols-3 gap-6 auto-rows-max">
             <section className="col-span-2 bg-slate-800 rounded-lg p-6 border border-slate-700">

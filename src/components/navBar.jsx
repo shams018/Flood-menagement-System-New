@@ -117,15 +117,25 @@ function Navbar() {
       >
         SENTINEL
       </button>
+<<<<<<< HEAD
+      <nav className="flex gap-8 items-center" aria-label="Main navigation">
+=======
 
       <nav
         className="flex gap-5 md:gap-8 items-center flex-wrap justify-end"
         aria-label="Main navigation"
       >
+>>>>>>> upstream/main
         {navItems.map((item) => (
           <a
             key={item}
             href={getItemRoute(item)}
+<<<<<<< HEAD
+            className={`cursor-pointer transition-colors ${isActive(item)
+                ? "text-blue-400 border-b-2 border-blue-400 pb-1"
+                : "text-gray-300 hover:text-white"
+              }`}
+=======
             className={`cursor-pointer transition-colors text-sm md:text-base ${
               item === "SESSION"
                 ? "text-gray-500 cursor-default pointer-events-none"
@@ -133,6 +143,7 @@ function Navbar() {
                   ? "text-blue-400 border-b-2 border-blue-400 pb-1"
                   : "text-gray-300 hover:text-white"
             }`}
+>>>>>>> upstream/main
             aria-current={isActive(item) ? "page" : undefined}
             onClick={(event) => handleClick(event, item)}
           >
