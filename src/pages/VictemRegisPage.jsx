@@ -10,6 +10,7 @@ import {
   Zap,
   CheckCircle2,
   Maximize2,
+  X,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../lib/api";
@@ -33,6 +34,7 @@ const VictemRegisPage = () => {
   const [status, setStatus] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [showThermalModal, setShowThermalModal] = useState(false);
   const navigate = useNavigate();
   const { isAuthenticated, booting } = useAuth();
 
@@ -297,29 +299,401 @@ const VictemRegisPage = () => {
             </section>
 
             <section className="relative overflow-hidden rounded-[32px] border border-white/5 aspect-video bg-black">
-              <img
-                src="https://images.unsplash.com/photo-1551288560-1996948c3b6f?auto=format&fit=crop&q=80&w=800"
-                alt="Thermal Satellite View"
-                className="absolute inset-0 h-full w-full object-cover opacity-80 mix-blend-lighten"
-              />
+              <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 via-orange-800/20 to-yellow-600/20"></div>
+
+              {/* Simulated Thermal Satellite View */}
+              <div className="absolute inset-0">
+                <svg
+                  viewBox="0 0 400 225"
+                  className="w-full h-full"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  {/* Base terrain */}
+                  <defs>
+                    <radialGradient
+                      id="thermalGradient"
+                      cx="50%"
+                      cy="50%"
+                      r="50%"
+                    >
+                      <stop offset="0%" stopColor="#ff0000" stopOpacity="0.8" />
+                      <stop
+                        offset="30%"
+                        stopColor="#ff6600"
+                        stopOpacity="0.7"
+                      />
+                      <stop
+                        offset="60%"
+                        stopColor="#ffaa00"
+                        stopOpacity="0.6"
+                      />
+                      <stop
+                        offset="100%"
+                        stopColor="#ffff00"
+                        stopOpacity="0.5"
+                      />
+                    </radialGradient>
+                    <filter id="thermalBlur">
+                      <feGaussianBlur stdDeviation="2" />
+                    </filter>
+                  </defs>
+
+                  {/* River/Lake areas - cooler blue tones */}
+                  <path
+                    d="M50,100 Q100,80 150,100 Q200,120 250,100 Q300,80 350,100 L350,225 L50,225 Z"
+                    fill="#0066cc"
+                    fillOpacity="0.6"
+                    filter="url(#thermalBlur)"
+                  />
+
+                  {/* Flooded areas - warmer red/orange tones */}
+                  <path
+                    d="M80,120 Q120,110 160,125 Q200,140 240,130 Q280,120 320,135 L320,225 L80,225 Z"
+                    fill="#ff3300"
+                    fillOpacity="0.7"
+                    filter="url(#thermalBlur)"
+                  />
+
+                  {/* Urban areas - mixed temperatures */}
+                  <rect
+                    x="100"
+                    y="80"
+                    width="40"
+                    height="20"
+                    fill="#ff6600"
+                    fillOpacity="0.5"
+                  />
+                  <rect
+                    x="200"
+                    y="90"
+                    width="35"
+                    height="15"
+                    fill="#ffaa00"
+                    fillOpacity="0.6"
+                  />
+                  <rect
+                    x="280"
+                    y="85"
+                    width="30"
+                    height="18"
+                    fill="#ff4400"
+                    fillOpacity="0.5"
+                  />
+
+                  {/* Thermal hotspots */}
+                  <circle
+                    cx="150"
+                    cy="110"
+                    r="8"
+                    fill="#ff0000"
+                    fillOpacity="0.9"
+                    filter="url(#thermalBlur)"
+                  />
+                  <circle
+                    cx="220"
+                    cy="125"
+                    r="6"
+                    fill="#ff3300"
+                    fillOpacity="0.8"
+                    filter="url(#thermalBlur)"
+                  />
+                  <circle
+                    cx="300"
+                    cy="115"
+                    r="7"
+                    fill="#ff2200"
+                    fillOpacity="0.85"
+                    filter="url(#thermalBlur)"
+                  />
+
+                  {/* Grid overlay for satellite effect */}
+                  <defs>
+                    <pattern
+                      id="grid"
+                      width="20"
+                      height="20"
+                      patternUnits="userSpaceOnUse"
+                    >
+                      <path
+                        d="M 20 0 L 0 0 0 20"
+                        fill="none"
+                        stroke="#ffffff"
+                        strokeWidth="0.5"
+                        opacity="0.3"
+                      />
+                    </pattern>
+                  </defs>
+                  <rect width="100%" height="100%" fill="url(#grid)" />
+                </svg>
+              </div>
+
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
               <div className="absolute bottom-4 left-4">
-                <p className="text-[9px] uppercase tracking-[0.3em] text-blue-400 mb-1">
-                  Live Sector View
+                <p className="text-[9px] uppercase tracking-[0.3em] text-red-400 mb-1">
+                  Thermal Satellite View
                 </p>
                 <h4 className="text-sm font-bold tracking-tight">
                   INCIDENT: ALPHA-902
                 </h4>
+                <p className="text-[8px] text-gray-400 mt-1">
+                  Live thermal data • {new Date().toLocaleTimeString()}
+                </p>
               </div>
+
+              {/* Thermal Legend */}
+              <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm rounded-lg p-2">
+                <div className="flex items-center gap-1 mb-1">
+                  <div className="w-3 h-1 bg-red-500 rounded"></div>
+                  <span className="text-[8px] text-white">Hot</span>
+                </div>
+                <div className="flex items-center gap-1 mb-1">
+                  <div className="w-3 h-1 bg-orange-500 rounded"></div>
+                  <span className="text-[8px] text-white">Warm</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-1 bg-blue-500 rounded"></div>
+                  <span className="text-[8px] text-white">Cool</span>
+                </div>
+              </div>
+
               <button
                 type="button"
                 className="absolute bottom-4 right-4 rounded-md bg-black/50 p-2 backdrop-blur-md transition-colors hover:bg-white/10"
+                title="Expand thermal view"
+                onClick={() => setShowThermalModal(true)}
               >
                 <Maximize2 className="h-4 w-4 text-white" />
               </button>
             </section>
           </aside>
         </div>
+
+        {/* Thermal View Modal */}
+        {showThermalModal && (
+          <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="relative w-full max-w-6xl max-h-[90vh] bg-slate-900 rounded-2xl border border-slate-700 overflow-hidden">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-6 border-b border-slate-700">
+                <div>
+                  <h3 className="text-xl font-bold text-white mb-1">
+                    Thermal Satellite Analysis
+                  </h3>
+                  <p className="text-sm text-gray-400">
+                    INCIDENT: ALPHA-902 • Live thermal data •{" "}
+                    {new Date().toLocaleTimeString()}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowThermalModal(false)}
+                  className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
+                  title="Close thermal view"
+                >
+                  <X className="h-6 w-6 text-white" />
+                </button>
+              </div>
+
+              {/* Expanded Thermal View */}
+              <div className="relative aspect-video bg-black">
+                <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 via-orange-800/20 to-yellow-600/20"></div>
+
+                {/* Larger Thermal Satellite View */}
+                <div className="absolute inset-0 p-4">
+                  <svg
+                    viewBox="0 0 800 450"
+                    className="w-full h-full"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    {/* Base terrain - larger scale */}
+                    <defs>
+                      <radialGradient
+                        id="thermalGradientModal"
+                        cx="50%"
+                        cy="50%"
+                        r="50%"
+                      >
+                        <stop
+                          offset="0%"
+                          stopColor="#ff0000"
+                          stopOpacity="0.8"
+                        />
+                        <stop
+                          offset="30%"
+                          stopColor="#ff6600"
+                          stopOpacity="0.7"
+                        />
+                        <stop
+                          offset="60%"
+                          stopColor="#ffaa00"
+                          stopOpacity="0.6"
+                        />
+                        <stop
+                          offset="100%"
+                          stopColor="#ffff00"
+                          stopOpacity="0.5"
+                        />
+                      </radialGradient>
+                      <filter id="thermalBlurModal">
+                        <feGaussianBlur stdDeviation="3" />
+                      </filter>
+                    </defs>
+
+                    {/* River/Lake areas - cooler blue tones */}
+                    <path
+                      d="M100,200 Q200,160 300,200 Q400,240 500,200 Q600,160 700,200 L700,450 L100,450 Z"
+                      fill="#0066cc"
+                      fillOpacity="0.6"
+                      filter="url(#thermalBlurModal)"
+                    />
+
+                    {/* Flooded areas - warmer red/orange tones */}
+                    <path
+                      d="M160,240 Q240,220 320,250 Q400,280 480,260 Q560,240 640,270 L640,450 L160,450 Z"
+                      fill="#ff3300"
+                      fillOpacity="0.7"
+                      filter="url(#thermalBlurModal)"
+                    />
+
+                    {/* Urban areas - mixed temperatures */}
+                    <rect
+                      x="200"
+                      y="160"
+                      width="80"
+                      height="40"
+                      fill="#ff6600"
+                      fillOpacity="0.5"
+                    />
+                    <rect
+                      x="400"
+                      y="180"
+                      width="70"
+                      height="30"
+                      fill="#ffaa00"
+                      fillOpacity="0.6"
+                    />
+                    <rect
+                      x="560"
+                      y="170"
+                      width="60"
+                      height="36"
+                      fill="#ff4400"
+                      fillOpacity="0.5"
+                    />
+
+                    {/* Thermal hotspots - larger */}
+                    <circle
+                      cx="300"
+                      cy="220"
+                      r="16"
+                      fill="#ff0000"
+                      fillOpacity="0.9"
+                      filter="url(#thermalBlurModal)"
+                    />
+                    <circle
+                      cx="440"
+                      cy="250"
+                      r="12"
+                      fill="#ff3300"
+                      fillOpacity="0.8"
+                      filter="url(#thermalBlurModal)"
+                    />
+                    <circle
+                      cx="600"
+                      cy="230"
+                      r="14"
+                      fill="#ff2200"
+                      fillOpacity="0.85"
+                      filter="url(#thermalBlurModal)"
+                    />
+
+                    {/* Additional hotspots */}
+                    <circle
+                      cx="180"
+                      cy="280"
+                      r="10"
+                      fill="#ff5500"
+                      fillOpacity="0.75"
+                      filter="url(#thermalBlurModal)"
+                    />
+                    <circle
+                      cx="520"
+                      cy="260"
+                      r="11"
+                      fill="#ff1100"
+                      fillOpacity="0.8"
+                      filter="url(#thermalBlurModal)"
+                    />
+
+                    {/* Grid overlay for satellite effect */}
+                    <defs>
+                      <pattern
+                        id="gridModal"
+                        width="40"
+                        height="40"
+                        patternUnits="userSpaceOnUse"
+                      >
+                        <path
+                          d="M 40 0 L 0 0 0 40"
+                          fill="none"
+                          stroke="#ffffff"
+                          strokeWidth="1"
+                          opacity="0.4"
+                        />
+                      </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#gridModal)" />
+                  </svg>
+                </div>
+
+                {/* Enhanced Thermal Legend */}
+                <div className="absolute top-6 right-6 bg-black/80 backdrop-blur-sm rounded-lg p-4 border border-slate-600">
+                  <h4 className="text-sm font-bold text-white mb-3">
+                    Thermal Scale
+                  </h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-4 h-2 bg-red-500 rounded"></div>
+                      <span className="text-xs text-white">
+                        Hot Areas (≥35°C)
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-4 h-2 bg-orange-500 rounded"></div>
+                      <span className="text-xs text-white">
+                        Warm Areas (25-35°C)
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-4 h-2 bg-yellow-500 rounded"></div>
+                      <span className="text-xs text-white">
+                        Moderate (15-25°C)
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-4 h-2 bg-blue-500 rounded"></div>
+                      <span className="text-xs text-white">
+                        Cool Areas (≤15°C)
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Analysis Info */}
+                <div className="absolute bottom-6 left-6 bg-black/80 backdrop-blur-sm rounded-lg p-4 border border-slate-600 max-w-md">
+                  <h4 className="text-sm font-bold text-white mb-2">
+                    Analysis Summary
+                  </h4>
+                  <div className="space-y-1 text-xs text-gray-300">
+                    <p>• 3 major thermal hotspots detected</p>
+                    <p>• Flooded areas showing elevated temperatures</p>
+                    <p>• Urban heat islands identified in Sector 4-B</p>
+                    <p>• River systems maintaining baseline temperatures</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );

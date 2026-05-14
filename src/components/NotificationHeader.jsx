@@ -13,8 +13,8 @@ export default function NotificationHeader() {
           onClick={() => navigate(ROUTES.home)}
           className="hover:text-blue-400 transition-colors cursor-pointer"
         >
-          <h1 className="text-white font-black tracking-tighter text-xl italic uppercase">
-            Sentinel Protocol
+          <h1 className="text-white font-black tracking-tighter text-xl  uppercase">
+            Sentinel
           </h1>
         </button>
         <nav className="hidden md:flex gap-8 text-[11px] font-bold uppercase tracking-widest text-gray-500">

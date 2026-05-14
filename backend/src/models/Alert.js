@@ -6,7 +6,7 @@ const alertSchema = new mongoose.Schema({
   payload: { type: mongoose.Schema.Types.Mixed, required: true },
   source: {
     type: String,
-    enum: ["seed", "automated"],
+    enum: ["seed", "automated", "user"],
     default: "seed",
   },
   regionKey: { type: String, default: null },

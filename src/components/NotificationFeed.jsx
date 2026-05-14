@@ -1,7 +1,7 @@
 import { ChevronRight, Download, MessageSquare } from "lucide-react";
 import NotificationCard from "./NotificationCard";
 
-export default function NotificationFeed({ notifications }) {
+export default function NotificationFeed({ notifications, onAction }) {
   return (
     <div className="space-y-4">
       {notifications.map((notification) => (
@@ -22,6 +22,8 @@ export default function NotificationFeed({ notifications }) {
                   : null
           }
           accentColor={notification.accentColor}
+          read={notification.read}
+          onAction={() => onAction?.(notification)}
         />
       ))}
     </div>

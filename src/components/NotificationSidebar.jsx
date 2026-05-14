@@ -1,7 +1,11 @@
 import { ShieldAlert, Settings, Users } from "lucide-react";
 import NavItem from "./NavItem";
 
-export default function NotificationSidebar({ onMarkAllRead }) {
+export default function NotificationSidebar({
+  activeCategory,
+  onCategorySelect,
+  onMarkAllRead,
+}) {
   return (
     <aside className="w-64 border-r border-white/5 p-6 min-h-[calc(100vh-64px)] flex flex-col justify-between bg-slate-800/50">
       <div>
@@ -9,9 +13,31 @@ export default function NotificationSidebar({ onMarkAllRead }) {
           Notifications
         </h2>
         <div className="space-y-1">
-          <NavItem icon={ShieldAlert} label="Emergency" active badge />
-          <NavItem icon={Settings} label="System" />
-          <NavItem icon={Users} label="Social" />
+          <NavItem
+            icon={ShieldAlert}
+            label="Emergency"
+            active={activeCategory === "emergency"}
+            onClick={() => onCategorySelect?.("emergency")}
+            badge
+          />
+          <NavItem
+            icon={Settings}
+            label="System"
+            active={activeCategory === "system"}
+            onClick={() => onCategorySelect?.("system")}
+          />
+          <NavItem
+            icon={Users}
+            label="Social"
+            active={activeCategory === "social"}
+            onClick={() => onCategorySelect?.("social")}
+          />
+          <NavItem
+            icon={Users}
+            label="All"
+            active={activeCategory === "all"}
+            onClick={() => onCategorySelect?.("all")}
+          />
         </div>
       </div>
       <button

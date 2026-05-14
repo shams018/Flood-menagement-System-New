@@ -1,5 +1,6 @@
-const NavItem = ({ icon: Icon, label, active, badge }) => (
+const NavItem = ({ icon: Icon, label, active, badge, onClick }) => (
   <div
+    onClick={onClick}
     className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${
       active
         ? "bg-white/10 text-white shadow-sm"

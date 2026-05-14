@@ -1,13 +1,43 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE } from "../lib/config";
 import { ROUTES } from "../routes";
 
+const MapMarker = ({ lat, lng, text }) => (
+  <div
+    style={{
+      position: "absolute",
+      transform: "translate(-50%, -50%)",
+      fontSize: "20px",
+      color: "#ef4444",
+      fontWeight: "bold",
+      textShadow: "0 0 8px rgba(0, 0, 0, 0.8)",
+    }}
+  >
+    📍
+  </div>
+);
+
 function MapAlertsSection() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [mapCenter, setMapCenter] = useState({ lat: 31.5204, lng: 74.3587 });
+  const [zoomLevel, setZoomLevel] = useState(6);
 
   const navigate = useNavigate();
+
+  const mapSrc = useMemo(() => {
+    const delta = Math.max(0.12, 0.7 - zoomLevel * 0.04);
+    const left = mapCenter.lng - delta;
+    const right = mapCenter.lng + delta;
+    const top = mapCenter.lat + delta;
+    const bottom = mapCenter.lat - delta;
+    const url = new URL("https://www.openstreetmap.org/export/embed.html");
+    url.searchParams.set("bbox", `${left},${bottom},${right},${top}`);
+    url.searchParams.set("layer", "mapnik");
+    url.searchParams.set("marker", `${mapCenter.lat},${mapCenter.lng}`);
+    return url.toString();
+  }, [mapCenter, zoomLevel]);
 
   useEffect(() => {
     let cancelled = false;
@@ -41,40 +71,55 @@ function MapAlertsSection() {
   }, []);
 
   return (
-    <section className="flex gap-6 py-8 px-6 bg-slate-900">
+    <section className="flex flex-col lg:flex-row items-stretch gap-6 py-8 px-6 bg-slate-900">
       {/* MAP SECTION */}
-      <article className="flex-1 bg-slate-800 rounded-lg p-6 border border-slate-700 relative">
-        <div className="flex items-center gap-3 bg-slate-700 rounded-lg p-4 w-fit">
+      <article className="flex-1 bg-slate-800 rounded-lg p-6 border border-slate-700 relative min-h-[32rem] lg:min-h-[36rem] overflow-hidden flex flex-col">
+        <div className="absolute top-6 left-6 z-10 flex items-center gap-3 bg-slate-700/80 backdrop-blur rounded-lg p-4 w-fit">
           <span className="text-2xl font-bold text-blue-400">o</span>
-
           <div className="flex flex-col">
             <small className="text-xs text-gray-400 uppercase tracking-widest">
-              COORDINATION CENTER
+              FLOOD MONITORING ZONE
             </small>
-
-            <strong className="text-white text-sm">Zone Alpha-9</strong>
+            <strong className="text-white text-sm">Pakistan Sector</strong>
           </div>
         </div>
 
-        <div className="absolute top-6 right-6 flex flex-col gap-2">
+        <div className="absolute top-6 right-6 z-10 flex flex-col gap-2">
           <button
             type="button"
+            onClick={() => setZoomLevel(Math.min(zoomLevel + 1, 18))}
             className="w-10 h-10 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-lg transition-colors"
           >
             +
           </button>
-
           <button
             type="button"
+            onClick={() => setZoomLevel(Math.max(zoomLevel - 1, 2))}
             className="w-10 h-10 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-lg transition-colors"
           >
             −
           </button>
         </div>
+
+        <div className="relative flex-1 mt-4 overflow-hidden rounded-xl border border-slate-700">
+          <iframe
+            title="Flood monitoring live map"
+            src={mapSrc}
+            className="w-full h-full"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            style={{ border: 0, minHeight: "100%" }}
+          />
+          <div className="absolute bottom-4 left-4 z-10 bg-slate-900/70 px-3 py-2 rounded-lg text-xs text-white">
+            {items.length > 0
+              ? `${items.length} automated alerts shown`
+              : "Live flood monitoring map"}
+          </div>
+        </div>
       </article>
 
       {/* ALERT SECTION */}
-      <aside className="w-80 bg-slate-800 rounded-lg p-6 border border-slate-700 flex flex-col">
+      <aside className="w-full lg:w-80 bg-slate-800 rounded-lg p-6 border border-slate-700 flex flex-col min-h-[32rem] lg:min-h-[36rem]">
         <header className="flex justify-between items-center mb-6 pb-4 border-b border-slate-700">
           <h3 className="text-lg font-bold text-white uppercase tracking-wider">
             WEATHER RISK FEED

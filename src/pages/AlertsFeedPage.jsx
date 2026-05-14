@@ -2,12 +2,16 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../routes";
 import { API_BASE } from "../lib/config";
+import { useAuth } from "../context/AuthContext";
 
 function AlertsFeedPage() {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [alerts, setAlerts] = useState([]);
   const [total, setTotal] = useState(0);
   const [error, setError] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
+  const [subscriptionMessage, setSubscriptionMessage] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -28,6 +32,20 @@ function AlertsFeedPage() {
       cancelled = true;
     };
   }, []);
+
+  const handleSubscribe = () => {
+    if (!isAuthenticated) {
+      setSubscriptionMessage("Please login to subscribe to alerts.");
+      navigate(ROUTES.login);
+      return;
+    }
+
+    setSubscribed(true);
+    setSubscriptionMessage(
+      "You are now subscribed to alerts. Check notifications for updates.",
+    );
+    navigate(ROUTES.notifications);
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-900 text-white">
@@ -76,9 +94,15 @@ function AlertsFeedPage() {
             <button
               className="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold uppercase text-xs rounded transition-colors"
               type="button"
+              onClick={handleSubscribe}
             >
-              Subscribe to Alerts
+              {subscribed ? "Subscribed to Alerts" : "Subscribe to Alerts"}
             </button>
+            {subscriptionMessage ? (
+              <p className="mt-3 text-sm text-cyan-300">
+                {subscriptionMessage}
+              </p>
+            ) : null}
           </aside>
         </div>
 

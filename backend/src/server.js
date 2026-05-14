@@ -18,6 +18,7 @@ import { createNgosRouter } from "./routes/ngos.js";
 import { createChatRouter } from "./routes/chat.js";
 import { createFloodRouter } from "./routes/flood.js";
 import { createNotificationsRouter } from "./routes/notifications.js";
+import { createSosRouter } from "./routes/sos.js";
 import { User } from "./models/User.js";
 import { ChatMessage } from "./models/ChatMessage.js";
 import { Alert } from "./models/Alert.js";
@@ -71,6 +72,7 @@ app.use("/api/ngos", createNgosRouter());
 app.use("/api/flood", createFloodRouter());
 app.use("/api/chat", createChatRouter({ requireAuth }, emitChatMessage));
 app.use("/api/notifications", createNotificationsRouter({ requireAuth }));
+app.use("/api/sos", createSosRouter({ requireAuth }, emitChatMessage));
 
 app.get("/api/health", (_req, res) => {
   res.json({

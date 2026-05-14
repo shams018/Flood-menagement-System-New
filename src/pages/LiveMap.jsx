@@ -39,7 +39,10 @@ const ResourceCard = ({
           {status} {capacity && `- ${capacity}`}
         </span>
       </div>
-      <button type="button" className="p-2 rounded-lg bg-white/10 hover:bg-white/20">
+      <button
+        type="button"
+        className="p-2 rounded-lg bg-white/10 hover:bg-white/20"
+      >
         <Navigation size={16} className="text-white opacity-80" />
       </button>
     </div>
@@ -48,6 +51,8 @@ const ResourceCard = ({
 
 const LiveMap = () => {
   const navigate = useNavigate();
+  const liveMapEmbedUrl =
+    "https://www.openstreetmap.org/export/embed.html?bbox=-74.1,40.64,-73.9,40.78&layer=mapnik&marker=40.7128,-74.0060";
   const [mapTab, setMapTab] = useState("shelters");
   const [resources, setResources] = useState([]);
   const [loadError, setLoadError] = useState("");
@@ -144,8 +149,15 @@ const LiveMap = () => {
       </aside>
 
       <main className="flex-1 relative overflow-hidden bg-slate-900 font-sans text-gray-200">
-        <div className="absolute inset-0 opacity-40 grayscale contrast-125">
-          <div className="w-full h-full bg-[url('https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/-74.006,40.7128,12/1200x800?access_token=YOUR_TOKEN')] bg-cover" />
+        <div className="absolute inset-0 opacity-80">
+          <iframe
+            title="Live map"
+            src={liveMapEmbedUrl}
+            className="w-full h-full"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            style={{ border: 0 }}
+          />
         </div>
 
         <div className="absolute top-8 left-1/2 -translate-x-1/2 w-full max-w-lg px-4 z-20">

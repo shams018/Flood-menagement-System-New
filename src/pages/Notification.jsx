@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import NotificationHeader from "../components/NotificationHeader";
 import NotificationSidebar from "../components/NotificationSidebar";
 import NotificationFilters from "../components/NotificationFilters";
@@ -7,12 +8,15 @@ import NotificationStats from "../components/NotificationStats";
 import NotificationRegions from "../components/NotificationRegions";
 import { API_BASE } from "../lib/config";
 import { useAuth } from "../context/AuthContext";
+import { ROUTES } from "../routes";
 
 // --- Main Dashboard ---
 
 const NotificationsPage = () => {
+  const navigate = useNavigate();
   const { token } = useAuth();
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState("All");
+  const [category, setCategory] = useState("all");
   const [notifications, setNotifications] = useState([]);
   const [stats, setStats] = useState({ total: 0, unread: 0, critical: 0 });
   const [regions, setRegions] = useState([]);
@@ -21,7 +25,7 @@ const NotificationsPage = () => {
 
   useEffect(() => {
     fetchNotifications();
-  }, [filter, token]);
+  }, [filter, category, token]);
 
   const fetchNotifications = async () => {
     if (!token) return;
@@ -29,7 +33,7 @@ const NotificationsPage = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `${API_BASE}/api/notifications?filter=${filter}`,
+        `${API_BASE}/api/notifications?filter=${filter.toLowerCase()}&category=${category}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -93,13 +97,52 @@ const NotificationsPage = () => {
       );
 
       if (response.ok) {
-        // Update local state
         setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
         setStats((prev) => ({ ...prev, unread: 0 }));
       }
     } catch (err) {
       console.error("Error marking all notifications as read:", err);
     }
+  };
+
+  const downloadNotificationPdf = (notification) => {
+    const fileName = `${
+      notification.title.replace(/[\\/:*?"<>|]/g, "").slice(0, 40) ||
+      "notification"
+    }.pdf`;
+    const contents = `Notification: ${notification.title}\n\n${notification.body}\n\n${notification.time}`;
+    const blob = new Blob([contents], { type: "application/pdf" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = fileName;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleNotificationAction = async (notification) => {
+    if (!notification.read) {
+      await markAsRead(notification.id);
+    }
+
+    if (notification.actionText === "View Alert") {
+      navigate(ROUTES.alerts);
+      return;
+    }
+
+    if (notification.actionText === "Go To Chat") {
+      navigate(ROUTES.chat);
+      return;
+    }
+
+    if (notification.actionText === "Download PDF") {
+      downloadNotificationPdf(notification);
+      return;
+    }
+
+    navigate(ROUTES.notifications);
   };
 
   if (loading) {
@@ -133,20 +176,39 @@ const NotificationsPage = () => {
     <div className="min-h-screen bg-slate-900 text-gray-400 font-sans selection:bg-blue-500/30">
       <NotificationHeader />
       <div className="flex">
-        <NotificationSidebar onMarkAllRead={markAllAsRead} />
+        <NotificationSidebar
+          activeCategory={category}
+          onCategorySelect={setCategory}
+          onMarkAllRead={markAllAsRead}
+        />
         <main className="flex-1 p-10 max-w-5xl">
           <div className="mb-10">
             <h1 className="text-5xl font-black text-white tracking-tighter mb-4">
               Notifications
             </h1>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-4">
               <p className="text-gray-500 text-sm">
                 Operational flow and tactical warnings from Sector 4 - Sector 9.
               </p>
               <NotificationFilters filter={filter} onFilterChange={setFilter} />
             </div>
           </div>
-          <NotificationFeed notifications={notifications} />
+          {notifications.length ? (
+            <NotificationFeed
+              notifications={notifications}
+              onAction={handleNotificationAction}
+            />
+          ) : (
+            <div className="rounded-3xl border border-white/10 bg-slate-800/60 p-12 text-center">
+              <p className="text-gray-400 text-lg font-semibold">
+                No notifications available right now.
+              </p>
+              <p className="mt-3 text-sm text-gray-500">
+                Subscribe to alerts or wait for new incident updates to appear
+                here.
+              </p>
+            </div>
+          )}
         </main>
         <aside className="w-80 p-8 space-y-8 bg-slate-800/50">
           <NotificationStats stats={stats} />

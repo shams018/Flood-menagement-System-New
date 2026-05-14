@@ -34,18 +34,18 @@ function App() {
   const isAdminRoute = () => {
     return (
       location.pathname.startsWith("/admin") ||
-      [
-        ROUTES.ngoPortal,
-        ROUTES.ngoAdminLogin,
-        ROUTES.manageAlerts,
-      ].includes(location.pathname)
+      [ROUTES.ngoPortal, ROUTES.ngoAdminLogin, ROUTES.manageAlerts].includes(
+        location.pathname,
+      )
     );
   };
 
   return (
     <main className="min-h-screen bg-slate-900 text-white">
       <div className="flex min-h-screen flex-col">
-        {!isAdminRoute() && location.pathname !== ROUTES.notifications && <Navbar />}
+        {!isAdminRoute() && location.pathname !== ROUTES.notifications && (
+          <Navbar />
+        )}
 
         <div className="flex-1">
           <Routes>
@@ -55,7 +55,14 @@ function App() {
             {/* User Routes */}
             <Route path={ROUTES.alerts} element={<AlertsFeedPage />} />
             <Route path={ROUTES.floodCheck} element={<FloodPredictPage />} />
-            <Route path={ROUTES.emergencySos} element={<EmergencySos />} />
+            <Route
+              path={ROUTES.emergencySos}
+              element={
+                <ProtectedRoute>
+                  <EmergencySos />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path={ROUTES.notifications}
               element={

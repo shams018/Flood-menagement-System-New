@@ -13,6 +13,8 @@ const NotificationCard = ({
   actionText,
   actionIcon: ActionIcon,
   accentColor,
+  read,
+  onAction,
 }) => {
   const colorMap = {
     red: "border-red-500 bg-red-500/5",
@@ -38,8 +40,15 @@ const NotificationCard = ({
         {iconMap[accentColor]}
       </div>
       <div className="flex-1">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="text-white font-bold tracking-tight">{title}</h3>
+        <div className="flex flex-wrap justify-between items-start gap-3 mb-2">
+          <div>
+            <h3 className="text-white font-bold tracking-tight">{title}</h3>
+            {!read ? (
+              <span className="inline-flex mt-2 rounded-full bg-blue-600 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-white">
+                Unread
+              </span>
+            ) : null}
+          </div>
           <span className="text-[10px] uppercase text-gray-500 font-mono tracking-widest">
             {time}
           </span>
@@ -47,7 +56,11 @@ const NotificationCard = ({
         <p className="text-gray-400 text-sm leading-relaxed mb-4 max-w-2xl">
           {body}
         </p>
-        <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-white group-hover:text-blue-400 transition-colors">
+        <button
+          type="button"
+          onClick={onAction}
+          className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-white group-hover:text-blue-400 transition-colors"
+        >
           {actionText} {ActionIcon && <ActionIcon size={12} />}
         </button>
       </div>
