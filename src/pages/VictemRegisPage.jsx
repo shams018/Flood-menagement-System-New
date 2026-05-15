@@ -11,6 +11,8 @@ import {
   CheckCircle2,
   Maximize2,
   X,
+  User,
+  Phone,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../lib/api";
@@ -28,6 +30,15 @@ const VictemRegisPage = () => {
   const [incidentLocation, setIncidentLocation] = useState(
     "Indus Basin District, Sector 4-B",
   );
+  const [victimName, setVictimName] = useState("");
+  const [fatherName, setFatherName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [gender, setGender] = useState("");
+  const [age, setAge] = useState("");
+  const [cnicNumber, setCnicNumber] = useState("");
+  const [governmentIdNumber, setGovernmentIdNumber] = useState("");
+  const [idFrontFile, setIdFrontFile] = useState(null);
+  const [idBackFile, setIdBackFile] = useState(null);
   const [lossType, setLossType] = useState("House");
   const [description, setDescription] = useState("");
   const [files, setFiles] = useState([]);
@@ -49,6 +60,39 @@ const VictemRegisPage = () => {
     setStatus("");
     setError("");
 
+    if (!victimName.trim()) {
+      setError("Victim name is required.");
+      return;
+    }
+    if (!fatherName.trim()) {
+      setError("Father name is required.");
+      return;
+    }
+    if (!phoneNumber.trim()) {
+      setError("Phone number is required.");
+      return;
+    }
+    if (!/^\d{10,15}$/.test(phoneNumber.trim())) {
+      setError("Please enter a valid phone number (10-15 digits).");
+      return;
+    }
+    if (!gender) {
+      setError("Please select gender.");
+      return;
+    }
+    if (!age.trim()) {
+      setError("Age is required.");
+      return;
+    }
+    const ageNum = parseInt(age.trim());
+    if (isNaN(ageNum) || ageNum < 1 || ageNum > 120) {
+      setError("Please enter a valid age (1-120).");
+      return;
+    }
+    if (!cnicNumber.trim()) {
+      setError("CNIC number is required.");
+      return;
+    }
     if (!incidentLocation.trim()) {
       setError("Incident location is required.");
       return;
@@ -61,6 +105,12 @@ const VictemRegisPage = () => {
       setError("Please enter a description of the damage.");
       return;
     }
+    if (!idFrontFile || !idBackFile) {
+      setError(
+        "Please upload both front and back images of the government-issued ID.",
+      );
+      return;
+    }
     if (files.length === 0) {
       setError("Please upload at least one photo as evidence.");
       return;
@@ -69,14 +119,34 @@ const VictemRegisPage = () => {
     setSubmitting(true);
     try {
       const fd = new FormData();
+      fd.append("victimName", victimName.trim());
+      fd.append("fatherName", fatherName.trim());
+      fd.append("phoneNumber", phoneNumber.trim());
+      fd.append("gender", gender);
+      fd.append("age", age.trim());
+      fd.append("cnicNumber", cnicNumber.trim());
       fd.append("incidentLocation", incidentLocation.trim());
       fd.append("lossType", lossType);
       fd.append("description", description.trim());
+      fd.append("idType", "CNIC");
+      fd.append("idPhotos", idFrontFile);
+      fd.append("idPhotos", idBackFile);
       files.forEach((file) => fd.append("photos", file));
       const res = await apiFetch("/api/victims", { method: "POST", body: fd });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Submission failed");
       setStatus("Registration saved. Reference ID: " + data.registration.id);
+      setVictimName("");
+      setFatherName("");
+      setPhoneNumber("");
+      setGender("");
+      setAge("");
+      setCnicNumber("");
+      setGovernmentIdNumber("");
+      setIdFrontFile(null);
+      setIdBackFile(null);
+      setIncidentLocation("Indus Basin District, Sector 4-B");
+      setLossType("House");
       setDescription("");
       setFiles([]);
     } catch (err) {
@@ -106,7 +176,7 @@ const VictemRegisPage = () => {
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div className="flex items-center gap-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-600 text-sm font-mono text-gray-400">
-                    02
+                    01
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-[0.3em] text-gray-500 font-bold">
@@ -118,7 +188,7 @@ const VictemRegisPage = () => {
                   </div>
                 </div>
                 <span className="text-xs uppercase tracking-[0.3em] text-gray-500 font-bold">
-                  Step 2 of 3
+                  Step 1 of 1
                 </span>
               </div>
               <div className="mt-6 h-1 w-full overflow-hidden rounded-full bg-white/10">
@@ -126,118 +196,355 @@ const VictemRegisPage = () => {
               </div>
             </div>
 
-            <form className="space-y-10" onSubmit={handleSubmit}>
+            <form className="space-y-12" onSubmit={handleSubmit}>
               {status ? (
-                <p
-                  className={`text-sm rounded-2xl px-4 py-3 border ${
-                    status.startsWith("Registration saved")
-                      ? "text-green-300 border-green-800/50 bg-green-950/30"
-                      : "text-red-300 border-red-800/50 bg-red-950/30"
-                  }`}
-                >
-                  {status}
-                </p>
+                <div className="rounded-2xl border border-green-800/50 bg-green-950/30 p-4">
+                  <p className="text-sm text-green-300">{status}</p>
+                </div>
               ) : null}
               {error ? (
-                <p className="text-sm text-red-300 bg-red-950/40 border border-red-800/60 rounded-2xl px-4 py-3">
-                  {error}
-                </p>
+                <div className="rounded-2xl border border-red-800/60 bg-red-950/40 p-4">
+                  <p className="text-sm text-red-300">{error}</p>
+                </div>
               ) : null}
 
-              <div>
-                <label className="block text-[10px] uppercase tracking-[0.4em] text-gray-500 font-bold mb-3">
-                  Incident Location
-                </label>
-                <div className="relative">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    name="incidentLocation"
-                    value={incidentLocation}
-                    onChange={(e) => setIncidentLocation(e.target.value)}
-                    className="w-full rounded-[20px] border border-gray-700 bg-[#1E1E1E] px-4 py-4 pl-14 text-gray-100 outline-none transition-colors focus:border-blue-500"
-                  />
+              {/* Personal Information Section */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+                    <User className="h-4 w-4 text-blue-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">
+                    Personal Information
+                  </h3>
                 </div>
-              </div>
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Victim Full Name
+                    </label>
+                    <div className="relative">
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        type="text"
+                        name="victimName"
+                        value={victimName}
+                        onChange={(e) => setVictimName(e.target.value)}
+                        placeholder="Enter full name"
+                        className="w-full rounded-xl border border-gray-700 bg-[#1E1E1E] px-4 py-3 pl-12 text-gray-100 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
 
-              <div>
-                <label className="block text-[10px] uppercase tracking-[0.4em] text-gray-500 font-bold mb-3">
-                  Type of Loss
-                </label>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  {LOSS_TYPES.map((item) => (
-                    <button
-                      key={item.value}
-                      type="button"
-                      onClick={() => setLossType(item.value)}
-                      className={`flex flex-col items-center justify-center gap-3 rounded-2xl border px-4 py-6 text-center transition-all ${
-                        lossType === item.value
-                          ? "border-blue-500 bg-blue-500/10 text-white"
-                          : "border-transparent bg-[#1E1E1E] text-gray-400 hover:border-slate-700 hover:bg-[#252525]"
-                      }`}
-                    >
-                      <item.icon className="h-6 w-6" />
-                      <span className="text-[10px] uppercase tracking-[0.3em] font-bold">
-                        {item.label}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Father Name
+                    </label>
+                    <div className="relative">
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        type="text"
+                        name="fatherName"
+                        value={fatherName}
+                        onChange={(e) => setFatherName(e.target.value)}
+                        placeholder="Enter father's name"
+                        className="w-full rounded-xl border border-gray-700 bg-[#1E1E1E] px-4 py-3 pl-12 text-gray-100 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Phone Number
+                    </label>
+                    <div className="relative">
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        type="tel"
+                        name="phoneNumber"
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        placeholder="Enter phone number"
+                        className="w-full rounded-xl border border-gray-700 bg-[#1E1E1E] px-4 py-3 pl-12 text-gray-100 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Gender
+                    </label>
+                    <div className="relative">
+                      <select
+                        name="gender"
+                        value={gender}
+                        onChange={(e) => setGender(e.target.value)}
+                        className="w-full rounded-xl border border-gray-700 bg-[#1E1E1E] px-4 py-3 text-gray-100 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      >
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Age
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        name="age"
+                        value={age}
+                        onChange={(e) => setAge(e.target.value)}
+                        placeholder="Enter age"
+                        min="1"
+                        max="120"
+                        className="w-full rounded-xl border border-gray-700 bg-[#1E1E1E] px-4 py-3 text-gray-100 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      CNIC Number
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+                        CNIC
                       </span>
-                    </button>
-                  ))}
+                      <input
+                        type="text"
+                        name="cnicNumber"
+                        value={cnicNumber}
+                        onChange={(e) => setCnicNumber(e.target.value)}
+                        placeholder="12345-1234567-1"
+                        className="w-full rounded-xl border border-gray-700 bg-[#1E1E1E] px-4 py-3 pl-16 text-gray-100 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[10px] uppercase tracking-[0.4em] text-gray-500 font-bold mb-3">
-                  Detailed Description
-                </label>
-                <textarea
-                  name="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe the current situation and damage incurred..."
-                  className="min-h-[10rem] w-full rounded-[24px] border border-gray-700 bg-[#1E1E1E] p-5 text-gray-100 outline-none transition-colors focus:border-blue-500 resize-none"
-                />
+              {/* Identity Verification Section */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                    <CheckCircle2 className="h-4 w-4 text-green-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">
+                    Identity Verification
+                  </h3>
+                </div>
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-3">
+                      Government ID Front
+                    </label>
+                    <label className="group relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-700 bg-[#1A1A1A] p-8 text-center transition-all duration-300 ease-in-out hover:border-blue-500/50 hover:bg-blue-500/[0.02] hover:shadow-[0_0_20px_rgba(59,130,246,0.1)] cursor-pointer overflow-hidden">
+                      {/* Decorative Background Glow */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                      {/* Icon and Content */}
+                      <div className="relative z-10 transition-transform duration-300 group-hover:scale-105">
+                        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-800/50 text-gray-400 group-hover:bg-blue-500/10 group-hover:text-blue-400 transition-colors">
+                          <Upload className="h-6 w-6" />
+                        </div>
+
+                        <p className="text-sm font-semibold text-gray-200 mb-1 tracking-wide">
+                          Upload Front Image
+                        </p>
+                        <p className="text-xs text-gray-500 group-hover:text-gray-400 transition-colors">
+                          CNIC / Government ID (Face Side)
+                        </p>
+                      </div>
+
+                      {/* Hidden Input - Using peer or absolute fill without interfering with padding */}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="absolute inset-0 z-20 h-full w-full cursor-pointer opacity-0"
+                        onChange={(e) =>
+                          setIdFrontFile(e.target.files?.[0] || null)
+                        }
+                      />
+                    </label>
+                    {idFrontFile && (
+                      <p className="text-xs text-blue-400 mt-2 truncate">
+                        {idFrontFile.name}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <div className="flex flex-col w-full">
+                      <label className="block text-sm font-medium text-gray-300 mb-3 ml-1">
+                        Government ID Back
+                      </label>
+
+                      <label className="group relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-700 bg-[#1A1A1A] p-8 text-center transition-all duration-300 ease-in-out hover:border-blue-500/50 hover:bg-blue-500/[0.02] hover:shadow-[0_0_20px_rgba(59,130,246,0.1)] cursor-pointer overflow-hidden">
+                        {/* Soft Blue Glow on Hover */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                        {/* Content Container */}
+                        <div className="relative z-10 transition-transform duration-300 group-hover:scale-105">
+                          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-800/50 text-gray-400 group-hover:bg-blue-500/10 group-hover:text-blue-400 transition-colors">
+                            <Upload className="h-6 w-6" />
+                          </div>
+
+                          <p className="text-sm font-semibold text-gray-200 mb-1 tracking-wide">
+                            Upload Back Image
+                          </p>
+                          <p className="text-xs text-gray-500 group-hover:text-gray-400 transition-colors">
+                            CNIC / Government ID (Reverse Side)
+                          </p>
+                        </div>
+
+                        {/* Invisible Input Layer */}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="absolute inset-0 z-20 h-full w-full cursor-pointer opacity-0"
+                          onChange={(e) =>
+                            setIdBackFile(e.target.files?.[0] || null)
+                          }
+                        />
+                      </label>
+                    </div>
+                    {idBackFile && (
+                      <p className="text-xs text-blue-400 mt-2 truncate">
+                        {idBackFile.name}
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-[10px] uppercase tracking-[0.4em] text-gray-500 font-bold mb-3">
-                  Visual Evidence (Upload Photos)
-                </label>
-                <label className="group rounded-[32px] border-2 border-dashed border-gray-800 bg-[#1A1A1A]/50 p-12 text-center transition-colors hover:bg-[#1A1A1A] cursor-pointer block">
-                  <Upload className="mx-auto mb-4 h-8 w-8 text-gray-500 transition-colors group-hover:text-blue-400" />
-                  <p className="text-sm font-medium text-gray-200 mb-1">
-                    Click to upload or drag and drop
-                  </p>
-                  <p className="text-[10px] uppercase tracking-tight text-gray-500">
-                    JPEG, PNG up to 10MB each
-                  </p>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    className="hidden"
-                    onChange={(e) => setFiles(Array.from(e.target.files || []))}
-                  />
-                </label>
-                {files.length > 0 ? (
-                  <p className="text-xs text-gray-500 mt-2">
-                    {files.length} file(s) selected
-                  </p>
-                ) : null}
+              {/* Incident Details Section */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-full bg-orange-500/20 flex items-center justify-center">
+                    <MapPin className="h-4 w-4 text-orange-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">
+                    Incident Details
+                  </h3>
+                </div>
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Incident Location
+                    </label>
+                    <div className="relative">
+                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        type="text"
+                        name="incidentLocation"
+                        value={incidentLocation}
+                        onChange={(e) => setIncidentLocation(e.target.value)}
+                        className="w-full rounded-xl border border-gray-700 bg-[#1E1E1E] px-4 py-3 pl-12 text-gray-100 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-3">
+                      Type of Loss
+                    </label>
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                      {LOSS_TYPES.map((item) => (
+                        <button
+                          key={item.value}
+                          type="button"
+                          onClick={() => setLossType(item.value)}
+                          className={`flex flex-col items-center justify-center gap-2 rounded-xl border px-4 py-4 text-center transition-all ${
+                            lossType === item.value
+                              ? "border-blue-500 bg-blue-500/10 text-white shadow-lg"
+                              : "border-gray-600 bg-[#1E1E1E] text-gray-400 hover:border-gray-500 hover:bg-[#252525]"
+                          }`}
+                        >
+                          <item.icon className="h-5 w-5" />
+                          <span className="text-xs font-medium">
+                            {item.label}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Detailed Description
+                    </label>
+                    <textarea
+                      name="description"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Describe the current situation and damage incurred..."
+                      className="min-h-[120px] w-full rounded-xl border border-gray-700 bg-[#1E1E1E] p-4 text-gray-100 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none"
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              {/* Evidence Section */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-full bg-purple-500/20 flex items-center justify-center">
+                    <Satellite className="h-4 w-4 text-purple-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">
+                    Visual Evidence
+                  </h3>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-3">
+                    Upload Damage Photos
+                  </label>
+                  <label className="group rounded-xl border-2 border-dashed border-gray-600 bg-[#1A1A1A] p-8 text-center cursor-pointer transition-all hover:border-blue-500 hover:bg-blue-500/5 block">
+                    <Upload className="mx-auto mb-4 h-10 w-10 text-gray-400 group-hover:text-blue-400 transition-colors" />
+                    <p className="text-base font-medium text-gray-200 mb-2">
+                      Click to upload or drag and drop
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      JPEG, PNG up to 10MB each
+                    </p>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={(e) =>
+                        setFiles(Array.from(e.target.files || []))
+                      }
+                    />
+                  </label>
+                  {files.length > 0 && (
+                    <div className="mt-4 p-3 bg-[#1E1E1E] rounded-lg">
+                      <p className="text-sm text-gray-300">
+                        {files.length} file(s) selected:{" "}
+                        {files.map((f) => f.name).join(", ")}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pt-6 border-t border-gray-700">
                 <button
                   type="button"
-                  className="text-[11px] font-bold uppercase tracking-[0.3em] text-gray-500 transition-colors hover:text-white"
+                  className="text-sm font-medium text-gray-400 hover:text-white transition-colors"
                 >
                   Previous Step
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-blue-600 to-blue-400 px-10 py-4 text-[11px] font-bold uppercase tracking-[0.3em] text-slate-950 shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                  className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-400 px-8 py-3 text-sm font-bold text-slate-950 shadow-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {submitting ? "Submitting…" : "Initialize Next Step"}
+                  {submitting ? "Submitting…" : "Submit Registration"}
                 </button>
               </div>
             </form>

@@ -11,6 +11,7 @@ const chatMessageSchema = new mongoose.Schema(
     author_label: { type: String, required: true },
     body: { type: String, required: true },
     is_own_highlight: { type: Boolean, default: false },
+    is_ai_message: { type: Boolean, default: false },
   },
   { timestamps: { createdAt: "created_at", updatedAt: false } },
 );

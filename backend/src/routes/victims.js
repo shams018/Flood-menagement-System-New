@@ -22,29 +22,95 @@ export function createVictimsRouter({ requireAuth, optionalAuth }) {
   });
   const upload = multer({
     storage,
-    limits: { fileSize: 10 * 1024 * 1024, files: 8 },
+    limits: { fileSize: 10 * 1024 * 1024, files: 10 },
   });
 
   router.post(
     "/",
     requireAuth,
-    upload.array("photos", 8),
+    upload.fields([
+      { name: "photos", maxCount: 8 },
+      { name: "idPhotos", maxCount: 2 },
+    ]),
     async (req, res, next) => {
       try {
-        const { incidentLocation, lossType, description } = req.body || {};
+        const {
+          incidentLocation,
+          lossType,
+          description,
+          victimName,
+          fatherName,
+          phoneNumber,
+          gender,
+          age,
+          cnicNumber,
+          idType,
+        } = req.body || {};
+
+        if (
+          !victimName ||
+          !fatherName ||
+          !phoneNumber ||
+          !gender ||
+          !age ||
+          !cnicNumber
+        ) {
+          return res.status(400).json({
+            error: "All personal information fields are required",
+          });
+        }
+        if (!/^\d{10,15}$/.test(phoneNumber)) {
+          return res.status(400).json({
+            error: "Please enter a valid phone number (10-15 digits)",
+          });
+        }
+        const ageNum = parseInt(age);
+        if (isNaN(ageNum) || ageNum < 1 || ageNum > 120) {
+          return res.status(400).json({
+            error: "Please enter a valid age (1-120)",
+          });
+        }
+        if (!["Male", "Female", "Other"].includes(gender)) {
+          return res.status(400).json({
+            error: "Please select a valid gender",
+          });
+        }
         if (!incidentLocation || !lossType) {
           return res.status(400).json({
             error: "Incident location and type of loss are required",
           });
         }
+
         const photoPaths =
-          req.files?.map((f) => `/uploads/victims/${f.filename}`) || [];
+          req.files?.photos?.map((f) => `/uploads/victims/${f.filename}`) || [];
+        const idPhotos = req.files?.idPhotos || [];
+
+        if (idPhotos.length !== 2) {
+          return res.status(400).json({
+            error:
+              "Please upload both front and back images of the government-issued ID",
+          });
+        }
+
+        const [idFront, idBack] = idPhotos;
+        const idFrontPath = `/uploads/victims/${idFront.filename}`;
+        const idBackPath = `/uploads/victims/${idBack.filename}`;
+
         const doc = await VictimRegistration.create({
           user: req.user?.id ? new mongoose.Types.ObjectId(req.user.id) : null,
+          victim_name: String(victimName),
+          father_name: String(fatherName),
+          phone_number: String(phoneNumber),
+          gender: String(gender),
+          age: ageNum,
+          cnic_number: String(cnicNumber),
+          government_id_type: idType ? String(idType) : "CNIC",
           incident_location: String(incidentLocation),
           loss_type: String(lossType),
           description: description ? String(description) : null,
           photo_paths: photoPaths,
+          id_front_path: idFrontPath,
+          id_back_path: idBackPath,
         });
         const row = doc.toJSON();
         res.status(201).json({ registration: row });
@@ -63,10 +129,19 @@ export function createVictimsRouter({ requireAuth, optionalAuth }) {
       const registrations = rows.map((r) => ({
         id: r._id.toString(),
         user_id: r.user ? r.user.toString() : null,
+        victim_name: r.victim_name,
+        father_name: r.father_name,
+        phone_number: r.phone_number,
+        gender: r.gender,
+        age: r.age,
+        cnic_number: r.cnic_number,
+        government_id_type: r.government_id_type,
         incident_location: r.incident_location,
         loss_type: r.loss_type,
         description: r.description,
         photo_paths: r.photo_paths || [],
+        id_front_path: r.id_front_path,
+        id_back_path: r.id_back_path,
         created_at: r.created_at?.toISOString?.() || null,
       }));
       res.json({ registrations });

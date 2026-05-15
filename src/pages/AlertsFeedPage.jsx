@@ -1,8 +1,19 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../routes";
 import { API_BASE } from "../lib/config";
 import { useAuth } from "../context/AuthContext";
+
+const pageVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { staggerChildren: 0.08, delayChildren: 0.15 } },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" } },
+};
 
 function AlertsFeedPage() {
   const navigate = useNavigate();
@@ -48,8 +59,16 @@ function AlertsFeedPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-900 text-white">
-      <section className="bg-slate-800/50 border-b border-slate-700 px-8 py-12">
+    <motion.div
+      className="flex flex-col min-h-screen bg-slate-900 text-white"
+      initial="hidden"
+      animate="visible"
+      variants={pageVariants}
+    >
+      <motion.section
+        className="bg-slate-800/50 border-b border-slate-700 px-8 py-12"
+        variants={itemVariants}
+      >
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-xs text-blue-400 uppercase tracking-widest font-bold mb-4">
@@ -67,11 +86,11 @@ function AlertsFeedPage() {
             </p>
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      <section className="px-8 py-8">
+      <motion.section className="px-8 py-8" variants={itemVariants}>
         <div className="grid grid-cols-3 gap-8 mb-8">
-          <div className="col-span-2">
+          <motion.div variants={itemVariants} className="col-span-2">
             <p className="text-xs text-blue-400 uppercase tracking-widest font-bold mb-4">
               ALERT OVERVIEW
             </p>
@@ -80,8 +99,13 @@ function AlertsFeedPage() {
               Use the dashboard to track flood zones and response readiness in
               real time.
             </p>
-          </div>
-          <aside className="bg-slate-700 rounded-lg p-6 border border-slate-600 flex flex-col justify-between">
+          </motion.div>
+          <motion.aside
+            className="bg-slate-700 rounded-lg p-6 border border-slate-600 flex flex-col justify-between"
+            variants={itemVariants}
+            whileHover={{ y: -4, scale: 1.01 }}
+            transition={{ duration: 0.25 }}
+          >
             <div>
               <p className="text-xs text-gray-400 uppercase tracking-widest font-bold mb-4">
                 GLOBAL ALERT STATUS
@@ -103,7 +127,7 @@ function AlertsFeedPage() {
                 {subscriptionMessage}
               </p>
             ) : null}
-          </aside>
+          </motion.aside>
         </div>
 
         <div className="flex items-center justify-between bg-slate-900/50 px-6 py-4 rounded border border-slate-700">
@@ -151,11 +175,12 @@ function AlertsFeedPage() {
             <span className="w-2 h-2 rounded-full bg-red-500" />
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      <section
+      <motion.section
         className="flex-1 px-8 py-8 space-y-6"
         aria-label="Live incident reports"
+        variants={itemVariants}
       >
         {error ? (
           <p className="text-red-400 text-sm border border-red-800/50 rounded-lg p-4">
@@ -178,9 +203,11 @@ function AlertsFeedPage() {
                       ? "bg-amber-600"
                       : "bg-green-600";
             return (
-              <article
+              <motion.article
                 key={alert.id}
-                className="bg-slate-800 rounded-lg border border-cyan-700/40 overflow-hidden"
+                className="bg-slate-800 rounded-lg border border-cyan-700/40 overflow-hidden transition-transform duration-300 hover:-translate-y-2 hover:shadow-[0_25px_80px_rgba(14,165,233,0.12)]"
+                variants={itemVariants}
+                whileHover={{ y: -5, scale: 1.007 }}
               >
                 <div className="h-40 bg-gradient-to-br from-cyan-900/50 to-slate-900 flex flex-wrap items-start justify-between gap-3 p-6">
                   <span
@@ -223,14 +250,16 @@ function AlertsFeedPage() {
                     {p.dataSource} · {p.assessedAt}
                   </p>
                 </div>
-              </article>
+              </motion.article>
             );
           }
           if (alert.kind === "emergency_hero") {
             return (
-              <article
+              <motion.article
                 key={alert.id}
-                className="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden"
+                className="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden transition-transform duration-300 hover:-translate-y-2 hover:shadow-[0_25px_60px_rgba(15,23,42,0.2)]"
+                variants={itemVariants}
+                whileHover={{ y: -5, scale: 1.007 }}
               >
                 <div className="h-48 bg-gradient-to-br from-blue-600/20 to-cyan-600/20 relative flex items-start justify-between p-6">
                   <span className="px-3 py-1 bg-red-600 text-white text-xs font-bold uppercase rounded">
@@ -273,14 +302,16 @@ function AlertsFeedPage() {
                     </span>
                   </div>
                 </div>
-              </article>
+              </motion.article>
             );
           }
           if (alert.kind === "warning_card") {
             return (
-              <article
+              <motion.article
                 key={alert.id}
-                className="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden"
+                className="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden transition-transform duration-300 hover:-translate-y-2 hover:shadow-[0_25px_60px_rgba(15,23,42,0.2)]"
+                variants={itemVariants}
+                whileHover={{ y: -5, scale: 1.007 }}
               >
                 <div className="h-40 bg-gradient-to-br from-green-600/20 to-emerald-600/20 relative flex items-start justify-start p-6">
                   <span className="px-3 py-1 bg-yellow-600 text-white text-xs font-bold uppercase rounded">
@@ -304,14 +335,16 @@ function AlertsFeedPage() {
                     </button>
                   </div>
                 </div>
-              </article>
+              </motion.article>
             );
           }
           if (alert.kind === "watch_card") {
             return (
-              <article
+              <motion.article
                 key={alert.id}
-                className="bg-slate-800 rounded-lg border border-slate-700 p-6"
+                className="bg-slate-800 rounded-lg border border-slate-700 p-6 transition-transform duration-300 hover:-translate-y-2 hover:shadow-[0_25px_60px_rgba(15,23,42,0.2)]"
+                variants={itemVariants}
+                whileHover={{ y: -5, scale: 1.007 }}
               >
                 <div className="flex justify-between items-start mb-4">
                   <span className="px-3 py-1 bg-blue-600 text-white text-xs font-bold uppercase rounded">
@@ -332,14 +365,16 @@ function AlertsFeedPage() {
                     Read More
                   </button>
                 </div>
-              </article>
+              </motion.article>
             );
           }
           if (alert.kind === "priority_full") {
             return (
-              <article
+              <motion.article
                 key={alert.id}
-                className="bg-slate-800 rounded-lg border border-red-600/50 overflow-hidden"
+                className="bg-slate-800 rounded-lg border border-red-600/50 overflow-hidden transition-transform duration-300 hover:-translate-y-2 hover:shadow-[0_30px_80px_rgba(220,38,38,0.15)]"
+                variants={itemVariants}
+                whileHover={{ y: -5, scale: 1.007 }}
               >
                 <div className="h-48 bg-gradient-to-br from-red-600/20 to-orange-600/20" />
                 <div className="p-6">
@@ -367,14 +402,17 @@ function AlertsFeedPage() {
                     </button>
                   </div>
                 </div>
-              </article>
+              </motion.article>
             );
           }
           return null;
         })}
-      </section>
+      </motion.section>
 
-      <div className="border-t border-slate-700 py-8 px-8 flex flex-col items-center gap-6">
+      <motion.div
+        className="border-t border-slate-700 py-8 px-8 flex flex-col items-center gap-6"
+        variants={itemVariants}
+      >
         <div className="w-full h-1 bg-slate-700 rounded-full overflow-hidden">
           <div className="h-full w-1/3 bg-blue-500" />
         </div>
@@ -391,8 +429,8 @@ function AlertsFeedPage() {
             ⌄
           </span>
         </button>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
