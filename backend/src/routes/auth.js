@@ -2,9 +2,17 @@ import { Router } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { User } from "../models/User.js";
+import { Admin } from "../models/Admin.js";
 
 export function createAuthRouter(jwtSecret) {
   const router = Router();
+
+  const getJwt = (safe) =>
+    jwt.sign(
+      { sub: safe.id, email: safe.email, role: safe.role || "User" },
+      jwtSecret,
+      { expiresIn: "7d" },
+    );
 
   router.post("/register", async (req, res, next) => {
     try {
@@ -20,17 +28,28 @@ export function createAuthRouter(jwtSecret) {
           .json({ error: "Password must be at least 8 characters" });
       }
       const password_hash = bcrypt.hashSync(String(password), 10);
-      const user = await User.create({
-        email: String(email).toLowerCase().trim(),
+      const normalizedRole = String(role || "User").trim();
+      const normalizedEmail = String(email).toLowerCase().trim();
+      const isAdminRole = normalizedRole.toLowerCase() === "admin";
+
+      const existingUser =
+        (await Admin.findOne({ email: normalizedEmail })) ||
+        (await User.findOne({ email: normalizedEmail }));
+      if (existingUser) {
+        return res.status(409).json({ error: "Email already registered" });
+      }
+
+      const model = isAdminRole ? Admin : User;
+      const record = await model.create({
+        email: normalizedEmail,
         password_hash,
         full_name: String(fullName).trim(),
         phone: phone ? String(phone) : null,
-        role: String(role || "User"),
+        role: isAdminRole ? "Admin" : "User",
       });
-      const safe = user.toJSON();
-      const token = jwt.sign({ sub: safe.id, email: safe.email }, jwtSecret, {
-        expiresIn: "7d",
-      });
+
+      const safe = record.toJSON();
+      const token = getJwt(safe);
       return res.status(201).json({ token, user: safe });
     } catch (e) {
       if (e.code === 11000) {
@@ -46,17 +65,22 @@ export function createAuthRouter(jwtSecret) {
       if (!email || !password) {
         return res.status(400).json({ error: "Email and password required" });
       }
-      const user = await User.findOne({
-        email: String(email).toLowerCase().trim(),
-      }).select("+password_hash");
+      const normalizedEmail = String(email).toLowerCase().trim();
+      let user = await Admin.findOne({ email: normalizedEmail }).select(
+        "+password_hash",
+      );
+      let source = user ? "admin" : "user";
+      if (!user) {
+        user = await User.findOne({ email: normalizedEmail }).select(
+          "+password_hash",
+        );
+      }
       if (!user || !bcrypt.compareSync(String(password), user.password_hash)) {
         return res.status(401).json({ error: "Invalid email or password" });
       }
       const safe = user.toJSON();
-      const token = jwt.sign({ sub: safe.id, email: safe.email }, jwtSecret, {
-        expiresIn: "7d",
-      });
-      res.json({ token, user: safe });
+      const token = getJwt(safe);
+      res.json({ token, user: safe, source });
     } catch (e) {
       next(e);
     }
@@ -69,7 +93,9 @@ export function createAuthRouter(jwtSecret) {
         return res.status(400).json({ error: "Email is required" });
       }
       const normalizedEmail = String(email).toLowerCase().trim();
-      const user = await User.findOne({ email: normalizedEmail });
+      const user =
+        (await Admin.findOne({ email: normalizedEmail })) ||
+        (await User.findOne({ email: normalizedEmail }));
       if (!user) {
         return res.status(200).json({
           message:
@@ -96,8 +122,19 @@ export function createAuthRouter(jwtSecret) {
     }
     try {
       const payload = jwt.verify(header.slice(7), jwtSecret);
-      const user = await User.findById(payload.sub);
-      if (!user) return res.status(401).json({ error: "User not found" });
+      const prefersAdmin =
+        String(payload.role || "User").toLowerCase() === "admin";
+      let user = prefersAdmin
+        ? await Admin.findById(payload.sub)
+        : await User.findById(payload.sub);
+      if (!user) {
+        user = prefersAdmin
+          ? await User.findById(payload.sub)
+          : await Admin.findById(payload.sub);
+      }
+      if (!user) {
+        return res.status(401).json({ error: "User not found" });
+      }
       res.json({ user: user.toJSON() });
     } catch (e) {
       if (e instanceof jwt.JsonWebTokenError) {

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Header from "./Header";
 import SideBar from "./SideBar";
 import { motion } from "framer-motion";
+import { apiFetch } from "../../lib/api";
 import {
   Users,
   MapPin,
@@ -18,39 +19,57 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-
 const AdminVictimReport = () => {
   // --- DATA STATE ---
-  const [victims, setVictims] = useState([
-    {
-      id: "SOS-882910",
-      name: "Ahmed Khan",
-      cnic: "42101-1234567-1",
-      phone: "0300-1234567",
-      email: "ahmed@example.com",
-      location: "Sector 4-B, Indus District",
-      status: "Pending",
-      needs: ["Water", "Medical Aid"],
-      family: [
-        { name: "Saira", category: "Child (0-12)" },
-        { name: "Bilal", category: "Senior (60+)" },
-      ],
-    },
-    {
-      id: "SOS-112039",
-      name: "Sara Bibi",
-      cnic: "35202-9876543-2",
-      phone: "0321-7654321",
-      email: "sara@test.com",
-      location: "Village Jallo, Punjab",
-      status: "Responded",
-      needs: ["Food", "Shelter"],
-      family: [{ name: "Ali", category: "Teenager (13-17)" }],
-    },
-  ]);
-
+  const [victims, setVictims] = useState([]);
   const [selectedVictim, setSelectedVictim] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState("");
+
+  useEffect(() => {
+    const fetchVictims = async () => {
+      setIsLoading(true);
+      setFetchError("");
+
+      try {
+        const response = await apiFetch("/api/victims");
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to load victim reports");
+        }
+
+        setVictims(
+          (Array.isArray(data.registrations) ? data.registrations : []).map(
+            (victim) => ({
+              id: victim.id ?? victim._id?.toString() ?? "",
+              name: victim.victim_name ?? victim.name ?? "Unknown",
+              cnic: victim.cnic_number ?? victim.cnic ?? "",
+              phone: victim.phone_number ?? victim.phone ?? "",
+              location:
+                victim.incident_location ?? victim.location ?? "Unknown",
+              status: victim.status ?? "Pending",
+              needs: [victim.loss_type ?? victim.lossType ?? "Unknown"],
+              family: Array.isArray(victim.family) ? victim.family : [],
+              fatherName: victim.father_name ?? victim.fatherName ?? "",
+              gender: victim.gender ?? "",
+              age: victim.age ?? null,
+              description: victim.description ?? "",
+              idFrontPath: victim.id_front_path ?? victim.idFrontPath ?? "",
+              idBackPath: victim.id_back_path ?? victim.idBackPath ?? "",
+              createdAt: victim.created_at ?? victim.createdAt ?? "",
+            }),
+          ),
+        );
+      } catch (error) {
+        setFetchError(error.message || "Unable to fetch victim reports");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchVictims();
+  }, []);
 
   // --- KEYBOARD FEATURE: ESCAPE KEY TO GO BACK ---
   useEffect(() => {
@@ -77,9 +96,9 @@ const AdminVictimReport = () => {
   // --- SEARCH/FILTER LOGIC ---
   const filteredVictims = victims.filter((victim) => {
     const query = searchTerm.toLowerCase().replace(/[^a-z0-9]/g, "");
-    const cleanCNIC = victim.cnic.replace(/[^0-9]/g, "");
-    const cleanID = victim.id.toLowerCase().replace(/[^a-z0-9]/g, "");
-    const cleanName = victim.name.toLowerCase();
+    const cleanCNIC = (victim.cnic || "").replace(/[^0-9]/g, "");
+    const cleanID = (victim.id || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+    const cleanName = (victim.name || "").toLowerCase();
 
     return (
       cleanName.includes(searchTerm.toLowerCase()) ||
@@ -160,84 +179,119 @@ const AdminVictimReport = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
-                      {filteredVictims.map((victim, index) => (
-                        <motion.tr
-                          key={victim.id}
-                          className="hover:bg-white/[0.03] transition-all group"
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.3, delay: index * 0.05 }}
-                          whileHover={{ scale: 1.01 }}
-                        >
-                          <td className="p-6">
-                            <span className="font-mono text-blue-400 text-xs font-bold bg-blue-500/5 px-3 py-1 rounded-lg border border-blue-500/10 tracking-widest uppercase">
-                              {victim.id}
-                            </span>
+                      {isLoading ? (
+                        <tr>
+                          <td
+                            colSpan={5}
+                            className="p-10 text-center text-sm text-gray-400"
+                          >
+                            Loading victim reports...
                           </td>
-                          <td className="p-6">
-                            <div className="font-bold text-white text-lg group-hover:text-blue-400 transition-colors">
-                              {victim.name}
-                            </div>
-                            <div className="text-[11px] text-gray-500 font-mono mt-1 tracking-tighter italic">
-                              {victim.cnic}
-                            </div>
+                        </tr>
+                      ) : fetchError ? (
+                        <tr>
+                          <td
+                            colSpan={5}
+                            className="p-10 text-center text-sm text-red-400"
+                          >
+                            {fetchError}
                           </td>
-                          <td className="p-6">
-                            <div className="flex items-start gap-2 text-sm text-gray-400 max-w-[200px]">
-                              <MapPin
-                                size={16}
-                                className="text-red-500 shrink-0 mt-0.5"
-                              />
-                              <span className="leading-snug">
-                                {victim.location}
-                              </span>
-                            </div>
+                        </tr>
+                      ) : filteredVictims.length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan={5}
+                            className="p-10 text-center text-sm text-gray-400"
+                          >
+                            No victim reports found yet.
                           </td>
-                          <td className="p-6">
-                            <span
-                              className={`text-[9px] font-black uppercase px-4 py-1.5 rounded-full border ${victim.status === "Pending"
-                                  ? "bg-yellow-500/5 text-yellow-500 border-yellow-500/20"
-                                  : victim.status === "Approved"
-                                    ? "bg-green-500/5 text-green-500 border-green-500/20"
-                                    : victim.status === "Responded"
-                                      ? "bg-blue-500/5 text-blue-400 border-blue-500/20"
-                                      : "bg-red-500/5 text-red-500 border-red-500/20"
-                                }`}
+                        </tr>
+                      ) : (
+                        filteredVictims.map((victim, index) => {
+                          return (
+                            <motion.tr
+                              key={victim.id}
+                              className="hover:bg-white/[0.03] transition-all group"
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{
+                                duration: 0.3,
+                                delay: index * 0.05,
+                              }}
+                              whileHover={{ scale: 1.01 }}
                             >
-                              {victim.status}
-                            </span>
-                          </td>
-                          <td className="p-6 text-right">
-                            <div className="flex justify-end gap-3 opacity-80 group-hover:opacity-100 transition-opacity">
-                              <button
-                                onClick={() =>
-                                  updateStatus(victim.id, "Approved")
-                                }
-                                className="p-2.5 text-green-500 hover:bg-green-500/10 rounded-xl transition-all"
-                                title="Approve"
-                              >
-                                <CheckCircle size={20} />
-                              </button>
-                              <button
-                                onClick={() =>
-                                  updateStatus(victim.id, "Rejected")
-                                }
-                                className="p-2.5 text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
-                                title="Reject"
-                              >
-                                <XCircle size={20} />
-                              </button>
-                              <button
-                                onClick={() => setSelectedVictim(victim)}
-                                className="bg-blue-600 text-white p-2.5 rounded-xl hover:bg-blue-500 transition-all shadow-lg shadow-blue-500/20 ml-2"
-                                title="View Full Report"
-                              >
-                                <Eye size={20} />
-                              </button>
-                            </div>
-                          </td>
-                        </motion.tr>
-                      ))}
+                              <td className="p-6">
+                                <span className="font-mono text-blue-400 text-xs font-bold bg-blue-500/5 px-3 py-1 rounded-lg border border-blue-500/10 tracking-widest uppercase">
+                                  {victim.id}
+                                </span>
+                              </td>
+                              <td className="p-6">
+                                <div className="font-bold text-white text-lg group-hover:text-blue-400 transition-colors">
+                                  {victim.name}
+                                </div>
+                                <div className="text-[11px] text-gray-500 font-mono mt-1 tracking-tighter italic">
+                                  {victim.cnic}
+                                </div>
+                              </td>
+                              <td className="p-6">
+                                <div className="flex items-start gap-2 text-sm text-gray-400 max-w-[200px]">
+                                  <MapPin
+                                    size={16}
+                                    className="text-red-500 shrink-0 mt-0.5"
+                                  />
+                                  <span className="leading-snug">
+                                    {victim.location}
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="p-6">
+                                <span
+                                  className={`text-[9px] font-black uppercase px-4 py-1.5 rounded-full border ${
+                                    victim.status === "Pending"
+                                      ? "bg-yellow-500/5 text-yellow-500 border-yellow-500/20"
+                                      : victim.status === "Approved"
+                                        ? "bg-green-500/5 text-green-500 border-green-500/20"
+                                        : victim.status === "Responded"
+                                          ? "bg-blue-500/5 text-blue-400 border-blue-500/20"
+                                          : "bg-red-500/5 text-red-500 border-red-500/20"
+                                  }`}
+                                >
+                                  {victim.status}
+                                </span>
+                              </td>
+                              <td className="p-6 text-right">
+                                <div className="flex justify-end gap-3 opacity-80 group-hover:opacity-100 transition-opacity">
+                                  <button
+                                    onClick={() =>
+                                      updateStatus(victim.id, "Approved")
+                                    }
+                                    className="p-2.5 text-green-500 hover:bg-green-500/10 rounded-xl transition-all"
+                                    title="Approve"
+                                  >
+                                    <CheckCircle size={20} />
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      updateStatus(victim.id, "Rejected")
+                                    }
+                                    className="p-2.5 text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
+                                    title="Reject"
+                                  >
+                                    <XCircle size={20} />
+                                  </button>
+                                  <button
+                                    onClick={() => setSelectedVictim(victim)}
+                                    className="bg-blue-600 text-white p-2.5 rounded-xl hover:bg-blue-500 transition-all shadow-lg shadow-blue-500/20 ml-2"
+                                    title="View Full Report"
+                                  >
+                                    <Eye size={20} />
+                                  </button>
+                                </div>
+                              </td>
+                            </motion.tr>
+                          );
+                        })
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -272,12 +326,13 @@ const AdminVictimReport = () => {
                     {/* Victim Card */}
                     <div className="bg-[#1e1e1e]/80 border border-white/10 rounded-[40px] p-8 md:p-10 backdrop-blur-xl relative overflow-hidden shadow-2xl">
                       <div
-                        className={`absolute top-0 right-0 w-48 h-1.5 ${selectedVictim.status === "Approved"
+                        className={`absolute top-0 right-0 w-48 h-1.5 ${
+                          selectedVictim.status === "Approved"
                             ? "bg-green-500"
                             : selectedVictim.status === "Rejected"
                               ? "bg-red-500"
                               : "bg-yellow-500"
-                          }`}
+                        }`}
                       />
 
                       <div className="flex flex-col md:flex-row justify-between items-start mb-12 gap-6">

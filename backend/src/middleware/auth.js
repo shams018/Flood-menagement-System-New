@@ -9,7 +9,11 @@ export function createAuthMiddleware(jwtSecret) {
     const token = header.slice(7);
     try {
       const payload = jwt.verify(token, jwtSecret);
-      req.user = { id: payload.sub, email: payload.email };
+      req.user = {
+        id: payload.sub,
+        email: payload.email,
+        role: payload.role || "User",
+      };
       next();
     } catch {
       return res.status(401).json({ error: "Invalid or expired session" });
@@ -24,7 +28,11 @@ export function createAuthMiddleware(jwtSecret) {
     }
     try {
       const payload = jwt.verify(header.slice(7), jwtSecret);
-      req.user = { id: payload.sub, email: payload.email };
+      req.user = {
+        id: payload.sub,
+        email: payload.email,
+        role: payload.role || "User",
+      };
     } catch {
       req.user = null;
     }
