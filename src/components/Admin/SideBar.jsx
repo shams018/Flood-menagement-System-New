@@ -52,19 +52,20 @@ function SideBar() {
               label: "Victim Reports",
             },
             {
-              route: ROUTES.ngoAdminLogin,
+              route: ROUTES.ngoPortal,
               icon: Users,
-              label: "NGO Coordination"
+              label: "NGO Coordination",
             },
           ].map((item, index) => (
             <motion.button
               key={item.route}
               type="button"
               onClick={() => navigate(item.route)}
-              className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition ${activeRoute(item.route)
+              className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition ${
+                activeRoute(item.route)
                   ? "bg-slate-900 text-slate-100"
                   : "text-slate-400 hover:text-slate-100 hover:bg-slate-900/70"
-                }`}
+              }`}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.3, delay: index * 0.1 }}
@@ -82,19 +83,6 @@ function SideBar() {
       </div>
 
       <div className="px-6 pb-8">
-        <motion.button
-          type="button"
-          onClick={() => navigate(ROUTES.victimRegistration)}
-          className="w-full rounded-3xl bg-sky-400 text-slate-950 font-semibold py-3 shadow-lg shadow-sky-500/20 transition hover:bg-sky-300"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          Report Incident
-        </motion.button>
-
         {location.pathname === ROUTES.ngoPortal ? (
           <div className="mt-8 p-4 bg-slate-800 rounded-2xl">
             <div className="flex items-center gap-3 mb-3">

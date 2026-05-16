@@ -158,32 +158,94 @@ function AdminDashboard() {
   ];
   const victimsByRegion = overview?.victimsByRegion || [];
 
-  const downloadCsv = (rows) => {
-    const headers = [
-      "Victim Name",
-      "Location",
-      "Loss Type",
-      "Reported At",
-      "Status",
-    ];
-    const escapeValue = (value) =>
-      `"${String(value ?? "").replace(/"/g, '""')}"`;
-    const csvRows = rows.map((row) => [
-      row.victim_name,
-      row.incident_location,
-      row.loss_type,
-      row.created_at ? new Date(row.created_at).toLocaleString() : "",
-      row.status || "New",
-    ]);
-    const csvContent = [headers, ...csvRows]
-      .map((row) => row.map(escapeValue).join(","))
-      .join("\n");
+  const createDashboardReportHTML = (rows) => {
+    const formatDate = (dateString) =>
+      dateString
+        ? new Date(dateString).toLocaleString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : "N/A";
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const reportRows = rows
+      .map(
+        (row, index) => `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${row.victim_name || "N/A"}</td>
+          <td>${row.incident_location || "N/A"}</td>
+          <td>${row.loss_type || "N/A"}</td>
+          <td>${formatDate(row.created_at)}</td>
+          <td>${row.status || "New"}</td>
+        </tr>`,
+      )
+      .join("");
+
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Recent Victim Reports</title>
+<style>
+  body { margin: 0; font-family: Arial, sans-serif; background: #f4f5f7; color: #1f2937; }
+  .page { max-width: 1000px; margin: 0 auto; padding: 40px; background: #fff; }
+  .header { text-align: center; padding-bottom: 18px; border-bottom: 4px solid #1d4ed8; }
+  .header-title { font-size: 24px; font-weight: 800; color: #1d4ed8; margin-bottom: 6px; }
+  .header-subtitle { color: #4b5563; font-size: 14px; margin-bottom: 8px; }
+  .meta { text-align: right; color: #6b7280; font-size: 12px; margin-bottom: 24px; }
+  .section-title { display: inline-block; background: #1d4ed8; color: #fff; padding: 10px 14px; border-radius: 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+  th, td { padding: 14px 12px; border: 1px solid #e5e7eb; font-size: 13px; }
+  th { background: #eff6ff; color: #1e3a8a; text-align: left; }
+  tr:nth-child(even) { background: #f8fafc; }
+  .status-chip { display: inline-flex; padding: 6px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+  .status-new { background: #ede9fe; color: #5b21b6; }
+  .status-approved { background: #dcfce7; color: #166534; }
+  .status-rejected { background: #fee2e2; color: #991b1b; }
+  .footer { margin-top: 32px; padding-top: 18px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 12px; text-align: center; }
+  @media print { body { background: white; } .page { box-shadow: none; margin: 0; } .no-print { display: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div class="header-title">Victim Incident Report</div>
+    <div class="header-subtitle">Recent victim reports compiled for official review.</div>
+  </div>
+  <div class="meta">Generated: ${new Date().toLocaleString()}</div>
+  <div class="section-title">Recent Victim Reports</div>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Victim Name</th>
+        <th>Location</th>
+        <th>Loss Type</th>
+        <th>Reported At</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${reportRows}
+    </tbody>
+  </table>
+  <div class="footer">Total reports: ${rows.length}. Flood Management System — official dashboard export.</div>
+</div>
+</body>
+</html>`;
+  };
+
+  const downloadReports = (rows) => {
+    const htmlContent = createDashboardReportHTML(rows);
+    const blob = new Blob([htmlContent], { type: "text/html;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", "recent-victim-reports.csv");
+    link.setAttribute("download", "recent-victim-reports.html");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -192,7 +254,7 @@ function AdminDashboard() {
 
   const handleDownloadReports = () => {
     if (!recentRows.length) return;
-    downloadCsv(recentRows);
+    downloadReports(recentRows);
   };
 
   return (

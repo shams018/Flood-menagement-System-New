@@ -5,6 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import mongoose from "mongoose";
 import { VictimRegistration } from "../models/VictimRegistration.js";
+import { Notification } from "../models/Notification.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -135,6 +136,7 @@ export function createVictimsRouter({ requireAuth, optionalAuth }) {
         gender: r.gender,
         age: r.age,
         cnic_number: r.cnic_number,
+        status: r.status || "Pending",
         government_id_type: r.government_id_type,
         incident_location: r.incident_location,
         loss_type: r.loss_type,
@@ -145,6 +147,49 @@ export function createVictimsRouter({ requireAuth, optionalAuth }) {
         created_at: r.created_at?.toISOString?.() || null,
       }));
       res.json({ registrations });
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  router.put("/:id/status", requireAuth, async (req, res, next) => {
+    try {
+      if (String(req.user.role || "").toLowerCase() !== "admin") {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      const status = String(req.body.status || "").trim();
+      if (!["Pending", "Approved", "Rejected", "Responded"].includes(status)) {
+        return res.status(400).json({ error: "Invalid status value" });
+      }
+
+      const victim = await VictimRegistration.findById(req.params.id).lean();
+      if (!victim) {
+        return res.status(404).json({ error: "Victim registration not found" });
+      }
+
+      const updated = await VictimRegistration.findByIdAndUpdate(
+        req.params.id,
+        { status },
+        { new: true, lean: true },
+      );
+
+      if (status === "Approved" && victim.user) {
+        await Notification.create({
+          user: victim.user,
+          type: "system",
+          title: "Registration Approved",
+          body: `Your victim registration has been approved by the administration.`,
+          actionText: "View Notification",
+          accentColor: "blue",
+          route: "/notifications",
+          read: false,
+          priority: 50,
+          time: new Date().toLocaleString(),
+        });
+      }
+
+      res.json({ registration: updated });
     } catch (e) {
       next(e);
     }

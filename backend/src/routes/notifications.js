@@ -96,7 +96,9 @@ export function createNotificationsRouter({ requireAuth }) {
 
       const filter = String(req.query.filter || "all").toLowerCase();
       const category = String(req.query.category || "all").toLowerCase();
-      const query = {};
+      const query = {
+        $or: [{ user: null }, { user: req.user.id }],
+      };
 
       if (filter === "unread") query.read = false;
       if (category !== "all") query.type = category;
@@ -111,10 +113,14 @@ export function createNotificationsRouter({ requireAuth }) {
         );
       }
 
-      const total = await Notification.countDocuments();
-      const unread = await Notification.countDocuments({ read: false });
+      const total = await Notification.countDocuments({
+        $or: [{ user: null }, { user: req.user.id }],
+      });
+      const unread = await Notification.countDocuments({
+        $and: [{ $or: [{ user: null }, { user: req.user.id }] }, { read: false }],
+      });
       const critical = await Notification.countDocuments({
-        accentColor: "red",
+        $and: [{ $or: [{ user: null }, { user: req.user.id }] }, { accentColor: "red" }],
       });
 
       const alertRows = await Alert.find({}).lean();
@@ -136,6 +142,9 @@ export function createNotificationsRouter({ requireAuth }) {
       if (!notification) {
         return res.status(404).json({ error: "Notification not found" });
       }
+      if (notification.user && String(notification.user) !== req.user.id) {
+        return res.status(403).json({ error: "Not authorized" });
+      }
       notification.read = true;
       await notification.save();
       res.json({ success: true });
@@ -146,7 +155,10 @@ export function createNotificationsRouter({ requireAuth }) {
 
   router.put("/mark-all-read", requireAuth, async (req, res, next) => {
     try {
-      await Notification.updateMany({ read: false }, { $set: { read: true } });
+      await Notification.updateMany(
+        { $and: [{ $or: [{ user: null }, { user: req.user.id }] }, { read: false }] },
+        { $set: { read: true } },
+      );
       res.json({ success: true });
     } catch (e) {
       next(e);

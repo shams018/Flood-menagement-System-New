@@ -34,9 +34,12 @@ function App() {
   const isAdminRoute = () => {
     return (
       location.pathname.startsWith("/admin") ||
-      [ROUTES.ngoPortal, ROUTES.ngoAdminLogin, ROUTES.manageAlerts].includes(
-        location.pathname,
-      )
+      [
+        ROUTES.adminVictimReport,
+        ROUTES.ngoPortal,
+        ROUTES.ngoAdminLogin,
+        ROUTES.manageAlerts,
+      ].includes(location.pathname)
     );
   };
 

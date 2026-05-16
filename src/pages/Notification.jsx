@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import NotificationHeader from "../components/NotificationHeader";
 import NotificationSidebar from "../components/NotificationSidebar";
@@ -22,10 +22,46 @@ const NotificationsPage = () => {
   const [regions, setRegions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const prevUnreadCount = useRef(0);
+  const firstLoad = useRef(true);
+
+  const playNotificationSound = () => {
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const audioCtx = new AudioContext();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      oscillator.type = "sine";
+      oscillator.frequency.value = 880;
+      gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 0.13);
+    } catch (err) {
+      console.error("Unable to play notification sound", err);
+    }
+  };
 
   useEffect(() => {
     fetchNotifications();
   }, [filter, category, token]);
+
+  useEffect(() => {
+    if (loading || error) return;
+
+    const currentUnread = notifications.filter((n) => !n.read).length;
+    if (firstLoad.current) {
+      if (currentUnread > 0) {
+        playNotificationSound();
+      }
+      firstLoad.current = false;
+    } else if (currentUnread > prevUnreadCount.current) {
+      playNotificationSound();
+    }
+
+    prevUnreadCount.current = currentUnread;
+  }, [notifications, loading, error]);
 
   const fetchNotifications = async () => {
     if (!token) return;
