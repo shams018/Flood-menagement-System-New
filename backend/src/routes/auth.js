@@ -144,5 +144,37 @@ export function createAuthRouter(jwtSecret) {
     }
   });
 
+  router.put("/me", async (req, res, next) => {
+    const header = req.headers.authorization;
+    if (!header?.startsWith("Bearer ")) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    try {
+      const payload = jwt.verify(header.slice(7), jwtSecret);
+      const prefersAdmin =
+        String(payload.role || "User").toLowerCase() === "admin";
+      let user = prefersAdmin
+        ? await Admin.findById(payload.sub)
+        : await User.findById(payload.sub);
+      if (!user) {
+        user = prefersAdmin
+          ? await User.findById(payload.sub)
+          : await Admin.findById(payload.sub);
+      }
+      if (!user) return res.status(401).json({ error: "User not found" });
+
+      const { fullName, phone } = req.body || {};
+      if (fullName) user.full_name = String(fullName).trim();
+      if (phone !== undefined) user.phone = phone ? String(phone).trim() : null;
+      await user.save();
+      res.json({ user: user.toJSON() });
+    } catch (e) {
+      if (e instanceof jwt.JsonWebTokenError) {
+        return res.status(401).json({ error: "Invalid or expired session" });
+      }
+      next(e);
+    }
+  });
+
   return router;
 }

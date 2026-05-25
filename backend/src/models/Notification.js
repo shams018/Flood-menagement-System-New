@@ -35,6 +35,14 @@ const notificationSchema = new mongoose.Schema(
   },
 );
 
+notificationSchema.index(
+  {
+    title: "text",
+    body: "text",
+  },
+  { default_language: "english", name: "NotificationTextIndex" },
+);
+
 notificationSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,

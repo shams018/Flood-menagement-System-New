@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Droplets, MapPin, AlertTriangle, CheckCircle } from "lucide-react";
+import {
+  Search,
+  Droplets,
+  MapPin,
+  AlertTriangle,
+  CheckCircle,
+} from "lucide-react";
 import { API_BASE } from "../lib/config";
 import { ROUTES } from "../routes";
 
@@ -44,158 +50,250 @@ function FloodPredictPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white">
-      <section className="border-b border-slate-700 bg-gradient-to-br from-slate-900 via-blue-950/40 to-slate-900 px-6 py-16">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.35em] text-blue-400 mb-4">
-            Live weather · Open-Meteo
-          </p>
-          <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-4">
-            Flood risk for{" "}
-            <span className="text-cyan-400">any place</span>
-          </h1>
-          <p className="text-gray-400 text-lg leading-relaxed mb-2">
-            We geocode your search, pull a real 7-day precipitation forecast, and
-            apply Sentinel rule thresholds (rainfall &gt; X mm → tiered risk).
-            Results also update the live Alerts feed when risk is elevated.
-          </p>
-          <p className="text-xs text-gray-500 uppercase tracking-widest">
-            Not a replacement for official government warnings — use for planning
-            and situational awareness only.
-          </p>
+    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 text-slate-100">
+      <div className="mx-auto max-w-7xl px-6 py-12">
+        <div className="rounded-[2rem] border border-white/10 bg-slate-950/80 p-10 shadow-2xl shadow-slate-950/30 mb-10">
+          <div className="max-w-4xl">
+            <p className="text-xs font-bold uppercase tracking-[0.35em] text-blue-300 mb-4">
+              Live weather · Open-Meteo
+            </p>
+            <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-4 text-white">
+              Flood risk assessment for{" "}
+              <span className="text-cyan-300">any location</span>
+            </h1>
+            <p className="text-slate-300 text-lg leading-8">
+              Geocode a region, fetch the latest seven-day precipitation
+              forecast, and evaluate flood risk using Sentinel’s tiered hazard
+              rules. Designed for situational awareness with a premium dashboard
+              look.
+            </p>
+          </div>
         </div>
-      </section>
 
-      <div className="mx-auto max-w-3xl px-6 py-12">
-        <form
-          onSubmit={runSearch}
-          className="flex flex-col sm:flex-row gap-3 mb-10"
-        >
-          <div className="relative flex-1">
-            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="e.g. Karachi, London, Houston…"
-              className="w-full rounded-xl border border-slate-600 bg-slate-800/80 py-4 pl-12 pr-4 text-white placeholder-gray-500 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 px-8 py-4 font-bold uppercase tracking-wider text-sm"
-          >
-            <Search className="w-4 h-4" />
-            {loading ? "Analyzing…" : "Check risk"}
-          </button>
-        </form>
+        <div className="grid gap-8 lg:grid-cols-[1.7fr_1fr]">
+          <section className="space-y-8">
+            <div className="rounded-[2rem] border border-white/10 bg-slate-950/80 p-8 shadow-2xl shadow-slate-950/20">
+              <form onSubmit={runSearch} className="grid gap-4">
+                <label className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">
+                  Search Flood Risk
+                </label>
+                <div className="relative">
+                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                  <input
+                    type="text"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="e.g. Karachi, London, Houston…"
+                    className="w-full h-14 rounded-2xl border border-slate-700 bg-slate-900/90 px-4 pl-14 pr-4 text-white placeholder:text-slate-500 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-400 px-6 py-4 text-sm font-bold text-slate-950 shadow-lg transition hover:opacity-95 disabled:opacity-60"
+                >
+                  <Search className="h-4 w-4" />
+                  {loading ? "Analyzing…" : "Check risk"}
+                </button>
+              </form>
+            </div>
 
-        {error ? (
-          <div className="mb-8 flex items-start gap-3 rounded-xl border border-red-800/60 bg-red-950/30 p-4 text-red-200">
-            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
-            <p className="text-sm">{error}</p>
-          </div>
-        ) : null}
+            {error ? (
+              <div className="rounded-2xl border border-red-800/60 bg-red-950/30 p-4 text-red-200 shadow-lg shadow-red-950/20">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="h-5 w-5 shrink-0 text-red-300 mt-0.5" />
+                  <p className="text-sm leading-relaxed">{error}</p>
+                </div>
+              </div>
+            ) : null}
 
-        {result ? (
-          <article
-            className={`rounded-2xl border-2 p-8 shadow-xl ${riskStyles[result.riskLevel] || riskStyles.LOW}`}
-          >
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-              <div>
-                <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                  <Droplets className="w-7 h-7" />
-                  {result.placeLabel}
+            {result ? (
+              <article className="rounded-[2rem] border border-white/10 bg-slate-950/80 p-8 shadow-2xl shadow-slate-950/20">
+                <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.35em] text-slate-400 mb-2">
+                      Flood assessment result
+                    </p>
+                    <h2 className="text-3xl font-black text-white flex items-center gap-3">
+                      <Droplets className="h-8 w-8 text-cyan-300" />
+                      {result.placeLabel}
+                    </h2>
+                    <p className="text-sm text-slate-400 mt-2">
+                      {result.dataSource}
+                    </p>
+                  </div>
+                  <div className="rounded-3xl border border-white/10 bg-slate-900/80 px-6 py-4 text-right">
+                    <p className="text-[10px] uppercase tracking-[0.35em] text-slate-400">
+                      Risk level
+                    </p>
+                    <p className="text-4xl font-black text-white">
+                      {result.riskLevel}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-3 mb-8">
+                  <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-5">
+                    <p className="text-[10px] uppercase tracking-[0.35em] text-slate-400 mb-3">
+                      Rain (24h)
+                    </p>
+                    <p className="text-3xl font-bold text-white">
+                      {result.metrics.rain24hMm} mm
+                    </p>
+                  </div>
+                  <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-5">
+                    <p className="text-[10px] uppercase tracking-[0.35em] text-slate-400 mb-3">
+                      Rain (48h)
+                    </p>
+                    <p className="text-3xl font-bold text-white">
+                      {result.metrics.rain48hMm} mm
+                    </p>
+                  </div>
+                  <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-5">
+                    <p className="text-[10px] uppercase tracking-[0.35em] text-slate-400 mb-3">
+                      Peak day
+                    </p>
+                    <p className="text-3xl font-bold text-white">
+                      {result.metrics.maxDaily7Mm} mm
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-2 mb-8">
+                  <div className="rounded-3xl border border-white/10 bg-black/25 p-6">
+                    <h3 className="text-xs font-bold uppercase tracking-[0.35em] text-slate-400 mb-3">
+                      Rule factors
+                    </h3>
+                    <ul className="space-y-3 text-sm text-slate-100">
+                      {result.factors.map((factor, idx) => (
+                        <li key={idx} className="flex gap-3 leading-relaxed">
+                          <span className="mt-1 text-cyan-300">▸</span>
+                          <span>{factor}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="rounded-3xl border border-white/10 bg-black/25 p-6">
+                    <h3 className="text-xs font-bold uppercase tracking-[0.35em] text-slate-400 mb-3 flex items-center gap-2">
+                      {result.hasFloodConcern ? (
+                        <AlertTriangle className="h-4 w-4 text-red-400" />
+                      ) : (
+                        <CheckCircle className="h-4 w-4 text-emerald-400" />
+                      )}
+                      Recommendation
+                    </h3>
+                    <p className="text-sm text-slate-100 leading-relaxed">
+                      {result.recommendation}
+                    </p>
+                  </div>
+                </div>
+
+                <p className="text-[10px] uppercase tracking-[0.35em] text-slate-500">
+                  Assessed {new Date(result.assessedAt).toLocaleString()} ·
+                  Rules {result.rulesVersion}
+                </p>
+              </article>
+            ) : (
+              <div className="rounded-[2rem] border border-white/10 bg-slate-950/80 p-8 shadow-2xl shadow-slate-950/20">
+                <p className="text-sm uppercase tracking-[0.35em] text-blue-300 mb-4">
+                  Ready to assess
+                </p>
+                <h2 className="text-3xl font-black text-white mb-4">
+                  Search a location to reveal flood risk and preparedness
+                  guidance.
                 </h2>
-                <p className="text-sm opacity-80 mt-1">{result.dataSource}</p>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {[
+                    {
+                      label: "Fast insight",
+                      value: "Live forecast + risk tier",
+                    },
+                    { label: "Actionable", value: "Prep advice and alerts" },
+                  ].map((item) => (
+                    <div
+                      key={item.label}
+                      className="rounded-3xl border border-white/10 bg-slate-900/70 p-5"
+                    >
+                      <p className="text-xs uppercase tracking-[0.35em] text-slate-400 mb-2">
+                        {item.label}
+                      </p>
+                      <p className="text-white/80 text-sm leading-relaxed">
+                        {item.value}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="text-right">
-                <p className="text-[10px] uppercase tracking-widest opacity-70">
-                  Risk level
-                </p>
-                <p className="text-3xl font-black">{result.riskLevel}</p>
-              </div>
-            </div>
+            )}
+          </section>
 
-            <div className="grid sm:grid-cols-3 gap-4 mb-8">
-              <div className="rounded-xl bg-black/20 p-4 border border-white/10">
-                <p className="text-[10px] uppercase tracking-widest opacity-60 mb-1">
-                  Rain (~24h)
-                </p>
-                <p className="text-2xl font-bold">{result.metrics.rain24hMm} mm</p>
-              </div>
-              <div className="rounded-xl bg-black/20 p-4 border border-white/10">
-                <p className="text-[10px] uppercase tracking-widest opacity-60 mb-1">
-                  Rain (~48h)
-                </p>
-                <p className="text-2xl font-bold">{result.metrics.rain48hMm} mm</p>
-              </div>
-              <div className="rounded-xl bg-black/20 p-4 border border-white/10">
-                <p className="text-[10px] uppercase tracking-widest opacity-60 mb-1">
-                  Peak day (7d)
-                </p>
-                <p className="text-2xl font-bold">{result.metrics.maxDaily7Mm} mm</p>
-              </div>
-            </div>
-
-            <div className="mb-6">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-white/80 mb-3">
-                Rule factors
+          <aside className="space-y-6">
+            <div className="rounded-[2rem] border border-white/10 bg-slate-950/80 p-6 shadow-2xl shadow-slate-950/20">
+              <h3 className="text-sm uppercase tracking-[0.35em] text-slate-400 mb-4">
+                Flood risk legend
               </h3>
-              <ul className="space-y-2">
-                {result.factors.map((f, i) => (
-                  <li
-                    key={i}
-                    className="flex gap-2 text-sm text-white/90 leading-relaxed"
+              <div className="space-y-3">
+                {[
+                  { label: "Critical", badge: "bg-red-500/10 text-red-300" },
+                  { label: "High", badge: "bg-orange-500/10 text-orange-300" },
+                  {
+                    label: "Moderate",
+                    badge: "bg-yellow-500/10 text-yellow-300",
+                  },
+                  {
+                    label: "Elevated",
+                    badge: "bg-amber-500/10 text-amber-300",
+                  },
+                  { label: "Low", badge: "bg-emerald-500/10 text-emerald-300" },
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    className="flex items-center justify-between rounded-3xl border border-white/10 bg-slate-900/70 p-4"
                   >
-                    <span className="text-cyan-400 shrink-0">▸</span>
-                    {f}
-                  </li>
+                    <span className="text-sm text-slate-100">{item.label}</span>
+                    <span
+                      className={`rounded-full px-3 py-1 text-[11px] font-bold ${item.badge}`}
+                    >
+                      {item.label}
+                    </span>
+                  </div>
                 ))}
+              </div>
+            </div>
+
+            <div className="rounded-[2rem] border border-white/10 bg-slate-950/80 p-6 shadow-2xl shadow-slate-950/20">
+              <h3 className="text-sm uppercase tracking-[0.35em] text-slate-400 mb-4">
+                Please note
+              </h3>
+              <ul className="space-y-3 text-sm text-slate-200 leading-relaxed">
+                <li>
+                  • Use this assessment for awareness, not as a formal warning.
+                </li>
+                <li>• Combine with local alerts and official advisories.</li>
+                <li>• Higher rainfall forecasts can change quickly.</li>
               </ul>
             </div>
+          </aside>
+        </div>
 
-            <div className="rounded-xl bg-black/25 p-5 border border-white/10">
-              <h3 className="text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-2 text-white">
-                {result.hasFloodConcern ? (
-                  <AlertTriangle className="w-4 h-4" />
-                ) : (
-                  <CheckCircle className="w-4 h-4 text-green-400" />
-                )}
-                Recommendation
-              </h3>
-              <p className="text-sm leading-relaxed text-white/90">
-                {result.recommendation}
-              </p>
-            </div>
-
-            <p className="text-[10px] uppercase tracking-widest text-white/40 mt-6">
-              Assessed {new Date(result.assessedAt).toLocaleString()} · Rules{" "}
-              {result.rulesVersion}
-            </p>
-          </article>
-        ) : null}
-
-        <div className="mt-12 flex flex-wrap gap-4 justify-center">
+        <div className="mt-10 flex flex-wrap justify-center gap-4 text-sm">
           <button
             type="button"
             onClick={() => navigate(ROUTES.alerts)}
-            className="text-sm text-blue-400 hover:text-blue-300 font-semibold uppercase tracking-wider"
+            className="rounded-2xl border border-blue-500/30 bg-blue-500/10 px-5 py-3 text-blue-300 hover:bg-blue-500/15 transition"
           >
             Open alerts feed
           </button>
-          <span className="text-gray-600">·</span>
           <button
             type="button"
             onClick={() => navigate(ROUTES.home)}
-            className="text-sm text-gray-400 hover:text-white font-semibold uppercase tracking-wider"
+            className="rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-slate-200 hover:bg-white/10 transition"
           >
             Home
           </button>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 

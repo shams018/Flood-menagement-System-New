@@ -16,6 +16,7 @@ function ChatArea({ channel }) {
   const typingTimeoutRef = useRef(null);
   const channelRef = useRef(channel);
   const messagesEndRef = useRef(null);
+  const messageContainerRef = useRef(null);
   channelRef.current = channel;
 
   const setTypingState = (active) => {
@@ -43,7 +44,11 @@ function ChatArea({ channel }) {
   }, []);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (!messageContainerRef.current) return;
+    messageContainerRef.current.scrollTo({
+      top: messageContainerRef.current.scrollHeight,
+      behavior: "smooth",
+    });
   };
 
   const headerTitle =
@@ -157,30 +162,77 @@ function ChatArea({ channel }) {
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-between p-6 min-w-0">
-      <div>
-        <h2 className="text-lg font-semibold">{headerTitle}</h2>
-        <div className="flex items-center gap-3 mt-1">
-          <p className="text-xs text-gray-400">
-            {connected ? "LIVE · CONNECTED" : "RECONNECTING…"}
-            {user?.full_name
-              ? ` · ${user.full_name}`
-              : user?.email
-                ? ` · ${user.email}`
-                : ""}
-          </p>
-          {["support", "general"].includes(channel) && (
-            <div className="flex items-center gap-1.5 px-2 py-0.5 bg-cyan-500/20 border border-cyan-500/30 rounded text-xs">
-              <Bot size={12} className="text-cyan-400" />
-              <span className="text-cyan-400">
-                {aiAvailable ? "AI Active" : "Fallback Mode"}
-              </span>
-            </div>
-          )}
+    <div className="flex h-full min-h-0 flex-col rounded-3xl border border-white/10 bg-slate-950/90 p-6 shadow-2xl shadow-black/20">
+      <div className="mb-6 flex flex-col gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[0.32em] text-cyan-300">
+              Chat Dashboard
+            </p>
+            <h2 className="text-2xl font-semibold text-white">{headerTitle}</h2>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-semibold ${connected ? "bg-emerald-500/15 text-emerald-300" : "bg-amber-500/15 text-amber-300"} border ${connected ? "border-emerald-500/30" : "border-amber-500/30"}`}
+            >
+              {connected ? "Connected" : "Reconnecting"}
+            </span>
+            <span className="rounded-full bg-slate-900/80 px-3 py-1 text-xs text-gray-300 border border-white/10">
+              {user?.full_name || user?.email || "Guest"}
+            </span>
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="rounded-3xl border border-slate-700/80 bg-slate-900/90 p-4">
+            <p className="text-[10px] uppercase tracking-[0.3em] text-gray-500">
+              Current Channel
+            </p>
+            <p className="mt-2 text-sm font-semibold text-white">
+              {headerTitle}
+            </p>
+          </div>
+          <div className="rounded-3xl border border-slate-700/80 bg-slate-900/90 p-4">
+            <p className="text-[10px] uppercase tracking-[0.3em] text-gray-500">
+              AI Status
+            </p>
+            <p className="mt-2 text-sm font-semibold text-white">
+              {aiAvailable ? "Online" : "Offline"}
+            </p>
+          </div>
+          <div className="rounded-3xl border border-slate-700/80 bg-slate-900/90 p-4">
+            <p className="text-[10px] uppercase tracking-[0.3em] text-gray-500">
+              Messages
+            </p>
+            <p className="mt-2 text-sm font-semibold text-white">
+              {messages.length} in view
+            </p>
+          </div>
         </div>
       </div>
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-xs text-gray-400">
+          {connected ? "LIVE · CONNECTED" : "RECONNECTING…"}
+          {user?.full_name
+            ? ` · ${user.full_name}`
+            : user?.email
+              ? ` · ${user.email}`
+              : ""}
+        </p>
+        {["support", "general"].includes(channel) && (
+          <div className="flex items-center gap-1.5 px-2 py-0.5 bg-cyan-500/20 border border-cyan-500/30 rounded text-xs">
+            <Bot size={12} className="text-cyan-400" />
+            <span className="text-cyan-400">
+              {aiAvailable ? "AI Active" : "Fallback Mode"}
+            </span>
+          </div>
+        )}
+      </div>
 
-      <div className="flex-1 overflow-y-auto rounded-3xl border border-slate-700 bg-slate-950/60 p-5 shadow-inner shadow-black/20">
+      <div
+        ref={messageContainerRef}
+        className="flex-1 min-h-0 overflow-y-auto rounded-3xl border border-slate-700 bg-slate-950/60 p-5 shadow-inner shadow-black/20 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-900"
+      >
         {messages.length === 0 ? (
           <div className="mx-auto my-20 max-w-md rounded-3xl border border-dashed border-slate-700 bg-slate-900/80 p-10 text-center text-gray-400">
             <p className="text-sm font-semibold text-gray-200 mb-2">

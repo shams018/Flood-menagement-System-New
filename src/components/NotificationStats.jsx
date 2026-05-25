@@ -1,23 +1,23 @@
 export default function NotificationStats({ stats }) {
   return (
     <section>
-      <h2 className="text-[12px] font-black uppercase tracking-[0.2em] text-white mb-6">
+      <h2 className="text-[12px] font-black uppercase tracking-[0.2em] text-blue-300 mb-6">
         Notification Stats
       </h2>
       <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="bg-slate-900 p-4 rounded-2xl border border-white/5">
+        <div className="bg-slate-900/90 p-5 rounded-3xl border border-white/10">
           <p className="text-3xl text-white font-black font-mono">
             {stats.unread}
           </p>
-          <p className="text-[9px] uppercase font-bold text-gray-600 mt-1">
+          <p className="text-[9px] uppercase font-bold text-slate-400 mt-1">
             Unread
           </p>
         </div>
-        <div className="bg-slate-900 p-4 rounded-2xl border border-white/5">
-          <p className="text-3xl text-red-500 font-black font-mono">
+        <div className="bg-slate-900/90 p-5 rounded-3xl border border-white/10">
+          <p className="text-3xl text-red-400 font-black font-mono">
             {stats.critical}
           </p>
-          <p className="text-[9px] uppercase font-bold text-gray-600 mt-1">
+          <p className="text-[9px] uppercase font-bold text-slate-400 mt-1">
             Critical
           </p>
         </div>

@@ -117,10 +117,16 @@ export function createNotificationsRouter({ requireAuth }) {
         $or: [{ user: null }, { user: req.user.id }],
       });
       const unread = await Notification.countDocuments({
-        $and: [{ $or: [{ user: null }, { user: req.user.id }] }, { read: false }],
+        $and: [
+          { $or: [{ user: null }, { user: req.user.id }] },
+          { read: false },
+        ],
       });
       const critical = await Notification.countDocuments({
-        $and: [{ $or: [{ user: null }, { user: req.user.id }] }, { accentColor: "red" }],
+        $and: [
+          { $or: [{ user: null }, { user: req.user.id }] },
+          { accentColor: "red" },
+        ],
       });
 
       const alertRows = await Alert.find({}).lean();
@@ -156,7 +162,12 @@ export function createNotificationsRouter({ requireAuth }) {
   router.put("/mark-all-read", requireAuth, async (req, res, next) => {
     try {
       await Notification.updateMany(
-        { $and: [{ $or: [{ user: null }, { user: req.user.id }] }, { read: false }] },
+        {
+          $and: [
+            { $or: [{ user: null }, { user: req.user.id }] },
+            { read: false },
+          ],
+        },
         { $set: { read: true } },
       );
       res.json({ success: true });

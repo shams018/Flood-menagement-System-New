@@ -16,6 +16,10 @@ import Notification from "./pages/Notification";
 import VictimRegisPage from "./pages/VictemRegisPage";
 import FloodPredictPage from "./pages/FloodPredictPage";
 import EmergencySos from "./pages/EmergencySos";
+import Analytics from "./pages/Analytics";
+import Assets from "./pages/Assets";
+import Settings from "./pages/Settings";
+import SearchResults from "./pages/SearchResults";
 
 import { ROUTES } from "./routes";
 
@@ -87,6 +91,38 @@ function App() {
               element={
                 <ProtectedRoute>
                   <LiveMap />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.analytics}
+              element={
+                <ProtectedRoute>
+                  <Analytics />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.assets}
+              element={
+                <ProtectedRoute>
+                  <Assets />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.settings}
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.search}
+              element={
+                <ProtectedRoute>
+                  <SearchResults />
                 </ProtectedRoute>
               }
             />

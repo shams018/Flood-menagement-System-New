@@ -30,6 +30,17 @@ const victimRegistrationSchema = new mongoose.Schema(
   { timestamps: { createdAt: "created_at", updatedAt: false } },
 );
 
+victimRegistrationSchema.index(
+  {
+    victim_name: "text",
+    father_name: "text",
+    incident_location: "text",
+    description: "text",
+    cnic_number: "text",
+  },
+  { default_language: "english", name: "VictimTextIndex" },
+);
+
 victimRegistrationSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,

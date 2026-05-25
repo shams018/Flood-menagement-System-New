@@ -6,7 +6,6 @@ import { Menu, X } from "lucide-react";
 
 const baseNavItems = [
   "DASHBOARD",
-  "ALERTS",
   "FLOOD",
   "SOS",
   "NOTIFICATIONS",
@@ -45,9 +44,6 @@ function Navbar() {
       case "DASHBOARD":
         navigate(ROUTES.dashboard);
         break;
-      case "ALERTS":
-        navigate(ROUTES.alerts);
-        break;
       case "FLOOD":
         navigate(ROUTES.floodCheck);
         break;
@@ -72,8 +68,6 @@ function Navbar() {
     switch (item) {
       case "DASHBOARD":
         return ROUTES.dashboard;
-      case "ALERTS":
-        return ROUTES.alerts;
       case "FLOOD":
         return ROUTES.floodCheck;
       case "SOS":

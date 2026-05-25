@@ -10,6 +10,15 @@ const ngoSchema = new mongoose.Schema({
   is_active: { type: Boolean, default: true },
 });
 
+ngoSchema.index(
+  {
+    name: "text",
+    type: "text",
+    location: "text",
+  },
+  { default_language: "english", name: "NgoTextIndex" },
+);
+
 ngoSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,

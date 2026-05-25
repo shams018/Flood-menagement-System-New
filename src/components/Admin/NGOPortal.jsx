@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { API_BASE } from "../../lib/config";
 import { motion } from "framer-motion";
 import {
   LayoutDashboard,
@@ -28,6 +29,103 @@ import {
 const NGOPortal = () => {
   const [activeView, setActiveView] = useState("dashboard");
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [formState, setFormState] = useState({
+    name: "",
+    type: "",
+    contact: "",
+    status: "Active",
+    status_color_class: "bg-green-400",
+    location: "",
+    is_active: true,
+  });
+  const [formStatus, setFormStatus] = useState({ message: "", type: "" });
+  const [ngos, setNgos] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState("");
+
+  const fetchNgos = async () => {
+    setIsLoading(true);
+    setLoadError("");
+    try {
+      const response = await fetch(`${API_BASE}/api/ngos`);
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to load NGO records.");
+      }
+      setNgos(data.ngos || []);
+    } catch (error) {
+      setLoadError(error.message || "Unable to load NGO records.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNgos();
+  }, []);
+
+  const updateFormField = (key, value) => {
+    setFormState((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handleRegisterNgo = async (event) => {
+    event.preventDefault();
+    setFormStatus({ message: "", type: "" });
+
+    const { name, type, contact, status, status_color_class, location } =
+      formState;
+    if (
+      !name ||
+      !type ||
+      !contact ||
+      !status ||
+      !status_color_class ||
+      !location
+    ) {
+      setFormStatus({
+        message: "Please complete all required fields.",
+        type: "error",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE}/api/ngos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formState),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create NGO entry.");
+      }
+
+      setFormStatus({
+        message:
+          "NGO added successfully. Coordination dashboard will refresh shortly.",
+        type: "success",
+      });
+      setFormState({
+        name: "",
+        type: "",
+        contact: "",
+        status: "Active",
+        status_color_class: "bg-green-400",
+        location: "",
+        is_active: true,
+      });
+      await fetchNgos();
+    } catch (error) {
+      setFormStatus({
+        message: error.message || "Unable to register NGO.",
+        type: "error",
+      });
+    }
+  };
 
   // --- TACTICAL DATA ---
   const tasks = [
@@ -142,12 +240,12 @@ const NGOPortal = () => {
             <SidebarLink
               icon={<Settings size={18} />}
               label="Configurations"
-              onClick={() => { }}
+              onClick={() => {}}
             />
             <SidebarLink
               icon={<HelpCircle size={18} />}
               label="Tech Support"
-              onClick={() => { }}
+              onClick={() => {}}
             />
           </div>
         </nav>
@@ -174,7 +272,8 @@ const NGOPortal = () => {
       </motion.aside>
       <div className="flex-1 flex flex-col min-w-0 relative h-full">
         {/* Superior Header */}
-        <motion.header className="h-24 border-b border-white/5 flex items-center justify-between px-8 md:px-12 shrink-0 bg-[#05070a]/60 backdrop-blur-xl z-40"
+        <motion.header
+          className="h-24 border-b border-white/5 flex items-center justify-between px-8 md:px-12 shrink-0 bg-[#05070a]/60 backdrop-blur-xl z-40"
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.1 }}
@@ -225,9 +324,26 @@ const NGOPortal = () => {
         {/* Tactical Canvas Area */}
         <main className="flex-1 overflow-y-auto p-8 md:p-12 no-scrollbar">
           <div className="max-w-[1500px] mx-auto space-y-12">
-            {activeView === "dashboard" && <DashboardView tasks={tasks} />}
-            {activeView === "reg" && <RegistrationForm />}
-            {activeView === "board" && <MissionBoard tasks={tasks} />}
+            {activeView === "dashboard" && (
+              <DashboardView
+                tasks={tasks}
+                ngos={ngos}
+                isLoading={isLoading}
+                error={loadError}
+                refresh={fetchNgos}
+              />
+            )}
+            {activeView === "reg" && (
+              <RegistrationForm
+                formState={formState}
+                formStatus={formStatus}
+                handleRegisterNgo={handleRegisterNgo}
+                updateFormField={updateFormField}
+              />
+            )}
+            {activeView === "board" && (
+              <MissionBoard tasks={tasks} ngos={ngos} />
+            )}
             {activeView === "news" && <IntelView />}
           </div>
         </main>
@@ -238,148 +354,190 @@ const NGOPortal = () => {
 
 // --- ELITE VIEWS ---
 
-const DashboardView = ({ tasks }) => (
-  <motion.div className="space-y-12"
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.45 }}
-  >
-    {/* Dynamic Stats Grid */}
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <StatCard
-        label="Registered NGOs"
-        value="28"
-        icon={<Users size={20} />}
-        color="sky"
-      />
-      <StatCard
-        label="Active Missions"
-        value="14"
-        icon={<Activity size={20} />}
-        color="blue"
-      />
-      <StatCard
-        label="Completion Rate"
-        value="88%"
-        icon={<CheckCircle size={20} />}
-        color="green"
-      />
-      <StatCard
-        label="Critical Alerts"
-        value="03"
-        icon={<AlertTriangle size={20} />}
-        color="red"
-      />
-    </div>
+const DashboardView = ({ tasks, ngos, isLoading, error, refresh }) => {
+  const activeNgos = ngos.filter((ngo) => ngo.is_active).length;
+  const totalNgos = ngos.length;
+  const criticalCount = ngos.filter((ngo) =>
+    ngo.status?.toLowerCase().includes("critical"),
+  ).length;
+  const completionRate = totalNgos
+    ? Math.round((activeNgos / totalNgos) * 100)
+    : 0;
+  const displayTasks = ngos.length
+    ? ngos.slice(0, 6).map((ngo, idx) => ({
+        id: ngo.id || idx,
+        title: `${ngo.name} Deployment`,
+        ngo: ngo.type || "Partner",
+        status: ngo.is_active ? "Active" : "Inactive",
+        priority: ngo.status_color_class.includes("red")
+          ? "Critical"
+          : ngo.status_color_class.includes("yellow")
+            ? "Medium"
+            : "Normal",
+        region: ngo.location || "Unknown",
+      }))
+    : tasks;
 
-    <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
-      {/* Tasks Panel */}
-      <div className="xl:col-span-8 glass-panel rounded-[40px] p-8 shadow-2xl">
-        <div className="flex items-center justify-between mb-10">
-          <div>
-            <h3 className="text-xs font-black uppercase tracking-[0.4em] text-slate-500">
-              Mission Logs
-            </h3>
-            <p className="text-sm font-bold text-white mt-1 uppercase tracking-tight">
-              Active Deployments
-            </p>
+  return (
+    <motion.div
+      className="space-y-12"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45 }}
+    >
+      {/* Dynamic Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard
+          label="Registered NGOs"
+          value={isLoading ? "..." : totalNgos}
+          icon={<Users size={20} />}
+          color="sky"
+        />
+        <StatCard
+          label="Active Partners"
+          value={isLoading ? "..." : activeNgos}
+          icon={<Activity size={20} />}
+          color="blue"
+        />
+        <StatCard
+          label="Active Ratio"
+          value={isLoading ? "..." : `${completionRate}%`}
+          icon={<CheckCircle size={20} />}
+          color="green"
+        />
+        <StatCard
+          label="Critical Alerts"
+          value={isLoading ? "..." : criticalCount}
+          icon={<AlertTriangle size={20} />}
+          color="red"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+        {/* Tasks Panel */}
+        <div className="xl:col-span-8 glass-panel rounded-[40px] p-8 shadow-2xl">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-10 gap-4">
+            <div>
+              <h3 className="text-xs font-black uppercase tracking-[0.4em] text-slate-500">
+                Mission Logs
+              </h3>
+              <p className="text-sm font-bold text-white mt-1 uppercase tracking-tight">
+                Active Deployments
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={refresh}
+                className="px-4 py-2 rounded-2xl border border-white/10 bg-white/5 text-white text-[11px] uppercase tracking-[0.25em] hover:bg-white/10 transition"
+              >
+                Refresh Data
+              </button>
+              <button className="p-2 text-slate-500 hover:text-white transition-colors">
+                <MoreHorizontal />
+              </button>
+            </div>
           </div>
-          <button className="p-2 text-slate-500 hover:text-white transition-colors">
-            <MoreHorizontal />
-          </button>
-        </div>
-        <div className="space-y-4">
-          {tasks.map((task, index) => (
-            <motion.div
-              key={task.id}
-              className="flex items-center justify-between p-6 rounded-[28px] bg-white/[0.02] border border-white/5 hover:border-sky-500/20 hover:bg-white/[0.04] transition-all group"
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.08 + index * 0.06 }}
-              whileHover={{ scale: 1.01 }}
-            >
-              <div className="flex items-center gap-6">
-                <div
-                  className={`w-12 h-12 rounded-2xl flex items-center justify-center border border-white/5 shadow-inner ${task.status === "Completed"
-                    ? "bg-green-500/10 text-green-500"
-                    : "bg-sky-500/10 text-sky-400"
+          <div className="space-y-4">
+            {displayTasks.map((task, index) => (
+              <motion.div
+                key={task.id}
+                className="flex items-center justify-between p-6 rounded-[28px] bg-white/[0.02] border border-white/5 hover:border-sky-500/20 hover:bg-white/[0.04] transition-all group"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.08 + index * 0.06 }}
+                whileHover={{ scale: 1.01 }}
+              >
+                <div className="flex items-center gap-6">
+                  <div
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center border border-white/5 shadow-inner ${
+                      task.status === "Completed"
+                        ? "bg-green-500/10 text-green-500"
+                        : "bg-sky-500/10 text-sky-400"
                     }`}
-                >
-                  <ClipboardCheck size={20} />
-                </div>
-                <div>
-                  <p className="text-base font-black uppercase tracking-tight text-white">
-                    {task.title}
-                  </p>
-                  <div className="flex items-center gap-3 mt-1.5">
-                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">
-                      {task.ngo}
-                    </span>
-                    <span className="w-1 h-1 rounded-full bg-slate-700"></span>
-                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1">
-                      <MapPin size={10} /> {task.region}
-                    </span>
+                  >
+                    <ClipboardCheck size={20} />
+                  </div>
+                  <div>
+                    <p className="text-base font-black uppercase tracking-tight text-white">
+                      {task.title}
+                    </p>
+                    <div className="flex items-center gap-3 mt-1.5">
+                      <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">
+                        {task.ngo}
+                      </span>
+                      <span className="w-1 h-1 rounded-full bg-slate-700"></span>
+                      <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1">
+                        <MapPin size={10} /> {task.region}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-6">
-                <span
-                  className={`text-[9px] font-black px-4 py-2 rounded-xl uppercase tracking-widest border ${task.priority === "Critical"
-                    ? "bg-red-500/10 text-red-500 border-red-500/20"
-                    : "bg-slate-900 text-slate-400 border-white/5"
+                <div className="flex items-center gap-6">
+                  <span
+                    className={`text-[9px] font-black px-4 py-2 rounded-xl uppercase tracking-widest border ${
+                      task.priority === "Critical"
+                        ? "bg-red-500/10 text-red-500 border-red-500/20"
+                        : "bg-slate-900 text-slate-400 border-white/5"
                     }`}
-                >
-                  {task.priority}
-                </span>
-                <ArrowUpRight
-                  size={18}
-                  className="text-slate-700 group-hover:text-sky-400 transition-all"
-                />
-              </div>
-            </motion.div>
-          ))}
+                  >
+                    {task.priority}
+                  </span>
+                  <ArrowUpRight
+                    size={18}
+                    className="text-slate-700 group-hover:text-sky-400 transition-all"
+                  />
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* Mini Intel Panel */}
+        <div className="xl:col-span-4 space-y-6">
+          <div className="glass-panel rounded-[40px] p-8 bg-gradient-to-br from-sky-500/10 to-transparent border-sky-500/10">
+            <div className="flex items-center gap-3 text-sky-400 mb-6">
+              <Radio size={20} className="animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-[0.3em]">
+                Live Broadcast
+              </span>
+            </div>
+            <p className="text-lg font-bold text-slate-200 leading-tight italic">
+              "Emergency convoy arriving at Sector G-9. All NGOs coordinate for
+              last-mile delivery."
+            </p>
+            <div className="mt-8 pt-8 border-t border-white/5 flex items-center justify-between">
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                Auth: Command Central
+              </span>
+              <span className="text-[9px] font-bold text-sky-500/60 uppercase tracking-widest">
+                12m Ago
+              </span>
+            </div>
+          </div>
+
+          <div className="glass-panel rounded-[40px] p-8">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-6 flex items-center gap-2">
+              <History size={14} /> Node Activity
+            </h4>
+            <div className="space-y-6">
+              <ActivityItem label="NGO Edhi registered" time="2m ago" />
+              <ActivityItem label="Water Task #442 closed" time="18m ago" />
+              <ActivityItem label="Resource request: Medical" time="1h ago" />
+            </div>
+          </div>
         </div>
       </div>
+    </motion.div>
+  );
+};
 
-      {/* Mini Intel Panel */}
-      <div className="xl:col-span-4 space-y-6">
-        <div className="glass-panel rounded-[40px] p-8 bg-gradient-to-br from-sky-500/10 to-transparent border-sky-500/10">
-          <div className="flex items-center gap-3 text-sky-400 mb-6">
-            <Radio size={20} className="animate-pulse" />
-            <span className="text-[10px] font-black uppercase tracking-[0.3em]">
-              Live Broadcast
-            </span>
-          </div>
-          <p className="text-lg font-bold text-slate-200 leading-tight italic">
-            "Emergency convoy arriving at Sector G-9. All NGOs coordinate for
-            last-mile delivery."
-          </p>
-          <div className="mt-8 pt-8 border-t border-white/5 flex items-center justify-between">
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-              Auth: Command Central
-            </span>
-            <span className="text-[9px] font-bold text-sky-500/60 uppercase tracking-widest">
-              12m Ago
-            </span>
-          </div>
-        </div>
-
-        <div className="glass-panel rounded-[40px] p-8">
-          <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-6 flex items-center gap-2">
-            <History size={14} /> Node Activity
-          </h4>
-          <div className="space-y-6">
-            <ActivityItem label="NGO Edhi registered" time="2m ago" />
-            <ActivityItem label="Water Task #442 closed" time="18m ago" />
-            <ActivityItem label="Resource request: Medical" time="1h ago" />
-          </div>
-        </div>
-      </div>
-    </div>
-  </motion.div>
-);
-
-const RegistrationForm = () => (
+const RegistrationForm = ({
+  formState,
+  formStatus,
+  handleRegisterNgo,
+  updateFormField,
+}) => (
   <div className="max-w-3xl mx-auto glass-panel rounded-[48px] p-12 md:p-16 relative overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)]">
     <div className="absolute top-0 right-0 w-64 h-64 bg-sky-500/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
     <div className="text-center mb-16">
@@ -390,35 +548,81 @@ const RegistrationForm = () => (
         Authorize Humanitarian Credentials
       </p>
     </div>
-    <form className="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <form
+      className="grid grid-cols-1 md:grid-cols-2 gap-8"
+      onSubmit={handleRegisterNgo}
+    >
       <div className="md:col-span-2">
         <InputField
           label="Organization Nomenclature"
           placeholder="e.g. Hope Alliance"
           icon={<Globe size={18} />}
+          value={formState.name}
+          onChange={(value) => updateFormField("name", value)}
         />
       </div>
       <InputField
         label="Assigned Lead"
         placeholder="Name of Representative"
         icon={<ShieldCheck size={18} />}
+        value={formState.type}
+        onChange={(value) => updateFormField("type", value)}
       />
       <InputField
         label="Encrypted Comms"
         placeholder="+92 3XX XXXXXXX"
         icon={<Phone size={18} />}
+        value={formState.contact}
+        onChange={(value) => updateFormField("contact", value)}
       />
       <InputField
         label="Service Core"
         placeholder="e.g. Medical / Rescue"
         icon={<Briefcase size={18} />}
+        value={formState.status}
+        onChange={(value) => updateFormField("status", value)}
       />
       <InputField
         label="Operational Zone"
         placeholder="e.g. Sector G-10"
         icon={<MapPin size={18} />}
+        value={formState.location}
+        onChange={(value) => updateFormField("location", value)}
       />
-      <div className="md:col-span-2 pt-8">
+      <div className="space-y-4 md:col-span-2">
+        <div className="rounded-[24px] border border-white/5 bg-slate-950/90 p-5">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-3">
+            Status Settings
+          </p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <SelectField
+              label="Visibility"
+              value={formState.is_active ? "Active" : "Inactive"}
+              options={["Active", "Inactive"]}
+              onChange={(value) =>
+                updateFormField("is_active", value === "Active")
+              }
+            />
+            <SelectField
+              label="Indicator Color"
+              value={formState.status_color_class}
+              options={[
+                { label: "Green", value: "bg-green-400" },
+                { label: "Blue", value: "bg-blue-400" },
+                { label: "Yellow", value: "bg-yellow-400" },
+                { label: "Red", value: "bg-red-400" },
+              ]}
+              onChange={(value) => updateFormField("status_color_class", value)}
+            />
+          </div>
+        </div>
+        {formStatus.message ? (
+          <div
+            className={`rounded-3xl p-4 text-sm ${formStatus.type === "success" ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/20" : "bg-red-500/10 text-red-300 border border-red-500/20"}`}
+          >
+            {formStatus.message}
+          </div>
+        ) : null}
         <button className="w-full bg-white text-slate-950 py-5 rounded-[24px] font-black uppercase tracking-[0.3em] text-[11px] shadow-2xl hover:bg-sky-400 transition-all active:scale-95">
           Establish Protocol
         </button>
@@ -429,6 +633,36 @@ const RegistrationForm = () => (
 
 // --- ATOMIC COMPONENTS ---
 
+const SelectField = ({ label, value, options, onChange }) => (
+  <div className="space-y-3">
+    <label className="text-[10px] font-black uppercase text-slate-600 tracking-[0.3em] ml-4">
+      {label}
+    </label>
+    <div className="relative group">
+      <select
+        value={value}
+        onChange={(e) => onChange?.(e.target.value)}
+        className="w-full bg-slate-950 border border-white/5 rounded-[24px] px-4 py-4 text-sm text-white focus:border-sky-500/40 focus:ring-4 focus:ring-sky-500/5 outline-none transition-all"
+      >
+        {options.map((option) => {
+          if (typeof option === "string") {
+            return (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            );
+          }
+          return (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          );
+        })}
+      </select>
+    </div>
+  </div>
+);
+
 const SectionLabel = ({ label }) => (
   <p className="px-4 text-[9px] font-black uppercase tracking-[0.4em] text-slate-700 mb-4 mt-6">
     {label}
@@ -438,10 +672,11 @@ const SectionLabel = ({ label }) => (
 const SidebarLink = ({ icon, label, active, onClick }) => (
   <button
     onClick={onClick}
-    className={`w-full flex items-center gap-5 px-6 py-4.5 rounded-[22px] transition-all duration-300 group relative ${active
-      ? "bg-gradient-to-r from-sky-500 to-blue-600 text-slate-950 font-bold shadow-lg shadow-sky-500/20"
-      : "text-slate-500 hover:bg-white/[0.03] hover:text-slate-200"
-      }`}
+    className={`w-full flex items-center gap-5 px-6 py-4.5 rounded-[22px] transition-all duration-300 group relative ${
+      active
+        ? "bg-gradient-to-r from-sky-500 to-blue-600 text-slate-950 font-bold shadow-lg shadow-sky-500/20"
+        : "text-slate-500 hover:bg-white/[0.03] hover:text-slate-200"
+    }`}
   >
     <span
       className={`${active ? "text-slate-950" : "group-hover:text-sky-400"} transition-colors`}
@@ -478,7 +713,7 @@ const StatCard = ({ label, value, icon, color }) => {
   );
 };
 
-const InputField = ({ label, placeholder, icon }) => (
+const InputField = ({ label, placeholder, icon, value, onChange }) => (
   <div className="space-y-3">
     <label className="text-[10px] font-black uppercase text-slate-600 tracking-[0.3em] ml-4">
       {label}
@@ -488,6 +723,8 @@ const InputField = ({ label, placeholder, icon }) => (
         {icon}
       </div>
       <input
+        value={value}
+        onChange={(e) => onChange?.(e.target.value)}
         placeholder={placeholder}
         className="w-full bg-slate-950 border border-white/5 rounded-[24px] px-16 py-5 text-sm text-white focus:border-sky-500/40 focus:ring-4 focus:ring-sky-500/5 outline-none transition-all placeholder:text-slate-800 font-medium tracking-wide"
       />
@@ -510,58 +747,76 @@ const ActivityItem = ({ label, time }) => (
 );
 
 // Mission Board and Intel View placeholders...
-const MissionBoard = ({ tasks }) => (
-  <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-    <div className="flex justify-between items-center mb-12">
-      <h2 className="text-3xl font-black uppercase tracking-tighter text-white">
-        Central <span className="text-sky-400">Board</span>
-      </h2>
-      <button className="flex items-center gap-3 bg-white/5 hover:bg-white/10 px-6 py-3 rounded-2xl border border-white/10 transition-all">
-        <ArrowUpRight size={16} className="text-sky-400" />
-        <span className="text-[10px] font-black uppercase tracking-widest">
-          Global Status
-        </span>
-      </button>
-    </div>
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {tasks.map((t) => (
-        <div
-          key={t.id}
-          className="glass-panel p-8 rounded-[40px] hover:border-sky-500/30 transition-all group"
-        >
-          <div className="flex justify-between items-start mb-10">
-            <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">
-              {t.region}
-            </span>
-            <div
-              className={`p-2 rounded-lg ${t.status === "Completed" ? "bg-green-500/10" : "bg-sky-500/10"}`}
-            >
-              {t.status === "Completed" ? (
-                <CheckCircle size={14} className="text-green-500" />
-              ) : (
-                <Activity size={14} className="text-sky-500" />
-              )}
+const MissionBoard = ({ tasks, ngos }) => {
+  const displayTasks =
+    ngos && ngos.length
+      ? ngos.slice(0, 6).map((ngo, idx) => ({
+          id: ngo.id || idx,
+          title: `${ngo.name} Coordination`,
+          ngo: ngo.type || "Partner",
+          status: ngo.is_active ? "Active" : "Inactive",
+          priority: ngo.status_color_class.includes("red")
+            ? "Critical"
+            : ngo.status_color_class.includes("yellow")
+              ? "Medium"
+              : "Normal",
+          region: ngo.location || "Unknown",
+        }))
+      : tasks;
+
+  return (
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex justify-between items-center mb-12">
+        <h2 className="text-3xl font-black uppercase tracking-tighter text-white">
+          Central <span className="text-sky-400">Board</span>
+        </h2>
+        <button className="flex items-center gap-3 bg-white/5 hover:bg-white/10 px-6 py-3 rounded-2xl border border-white/10 transition-all">
+          <ArrowUpRight size={16} className="text-sky-400" />
+          <span className="text-[10px] font-black uppercase tracking-widest">
+            Global Status
+          </span>
+        </button>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {displayTasks.map((t) => (
+          <div
+            key={t.id}
+            className="glass-panel p-8 rounded-[40px] hover:border-sky-500/30 transition-all group"
+          >
+            <div className="flex justify-between items-start mb-10">
+              <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">
+                {t.region}
+              </span>
+              <div
+                className={`p-2 rounded-lg ${t.status === "Completed" ? "bg-green-500/10" : "bg-sky-500/10"}`}
+              >
+                {t.status === "Completed" ? (
+                  <CheckCircle size={14} className="text-green-500" />
+                ) : (
+                  <Activity size={14} className="text-sky-500" />
+                )}
+              </div>
+            </div>
+            <h4 className="text-xl font-black uppercase tracking-tight text-white mb-2 leading-tight group-hover:text-sky-400 transition-colors">
+              {t.title}
+            </h4>
+            <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
+              {t.ngo}
+            </p>
+            <div className="mt-10 pt-10 border-t border-white/5 flex items-center justify-between">
+              <span className="text-[10px] font-black uppercase text-sky-400 tracking-widest">
+                {t.status}
+              </span>
+              <button className="text-[9px] font-black uppercase text-slate-700 hover:text-white transition-colors">
+                Details
+              </button>
             </div>
           </div>
-          <h4 className="text-xl font-black uppercase tracking-tight text-white mb-2 leading-tight group-hover:text-sky-400 transition-colors">
-            {t.title}
-          </h4>
-          <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
-            {t.ngo}
-          </p>
-          <div className="mt-10 pt-10 border-t border-white/5 flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase text-sky-400 tracking-widest">
-              {t.status}
-            </span>
-            <button className="text-[9px] font-black uppercase text-slate-700 hover:text-white transition-colors">
-              Details
-            </button>
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const IntelView = () => (
   <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-700">

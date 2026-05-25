@@ -23,5 +23,55 @@ export function createNgosRouter() {
     }
   });
 
+  router.post("/", async (req, res, next) => {
+    try {
+      const {
+        name,
+        type,
+        status,
+        status_color_class,
+        location,
+        contact,
+        is_active,
+      } = req.body;
+
+      if (
+        !name ||
+        !type ||
+        !status ||
+        !status_color_class ||
+        !location ||
+        !contact
+      ) {
+        return res.status(400).json({ error: "Missing required NGO fields." });
+      }
+
+      const created = await Ngo.create({
+        name,
+        type,
+        status,
+        status_color_class,
+        location,
+        contact,
+        is_active: Boolean(is_active),
+      });
+
+      res.status(201).json({
+        ngo: {
+          id: created._id.toString(),
+          name: created.name,
+          type: created.type,
+          status: created.status,
+          status_color_class: created.status_color_class,
+          location: created.location,
+          contact: created.contact,
+          is_active: Boolean(created.is_active),
+        },
+      });
+    } catch (e) {
+      next(e);
+    }
+  });
+
   return router;
 }

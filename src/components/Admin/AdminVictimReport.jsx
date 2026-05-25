@@ -672,9 +672,7 @@ ${selectedVictim.family.map((member) => `<li class="family-item"><span class="fa
       const updatedStatus = data.registration?.status || newStatus;
 
       setVictims((prev) =>
-        prev.map((v) =>
-          v.id === id ? { ...v, status: updatedStatus } : v,
-        ),
+        prev.map((v) => (v.id === id ? { ...v, status: updatedStatus } : v)),
       );
 
       if (selectedVictim && selectedVictim.id === id) {

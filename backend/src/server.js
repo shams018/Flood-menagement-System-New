@@ -18,6 +18,8 @@ import { createNgosRouter } from "./routes/ngos.js";
 import { createChatRouter } from "./routes/chat.js";
 import { createFloodRouter } from "./routes/flood.js";
 import { createNotificationsRouter } from "./routes/notifications.js";
+import { createSearchRouter } from "./routes/search.js";
+import { createAnalyticsRouter } from "./routes/analytics.js";
 import { createSosRouter } from "./routes/sos.js";
 import { createAdminRouter } from "./routes/admin.js";
 import { User } from "./models/User.js";
@@ -78,6 +80,8 @@ app.use("/api/ngos", createNgosRouter());
 app.use("/api/flood", createFloodRouter());
 app.use("/api/chat", createChatRouter({ requireAuth }, emitChatMessage));
 app.use("/api/notifications", createNotificationsRouter({ requireAuth }));
+app.use("/api/search", createSearchRouter({ requireAuth }));
+app.use("/api/analytics", createAnalyticsRouter({ requireAuth }));
 app.use("/api/admin", createAdminRouter({ requireAuth }));
 app.use("/api/sos", createSosRouter({ requireAuth }, emitChatMessage));
 

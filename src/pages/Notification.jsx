@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NotificationHeader from "../components/NotificationHeader";
 import NotificationSidebar from "../components/NotificationSidebar";
@@ -22,46 +22,10 @@ const NotificationsPage = () => {
   const [regions, setRegions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const prevUnreadCount = useRef(0);
-  const firstLoad = useRef(true);
-
-  const playNotificationSound = () => {
-    try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      const audioCtx = new AudioContext();
-      const oscillator = audioCtx.createOscillator();
-      const gainNode = audioCtx.createGain();
-      oscillator.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
-      oscillator.type = "sine";
-      oscillator.frequency.value = 880;
-      gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
-      oscillator.start();
-      oscillator.stop(audioCtx.currentTime + 0.13);
-    } catch (err) {
-      console.error("Unable to play notification sound", err);
-    }
-  };
 
   useEffect(() => {
     fetchNotifications();
   }, [filter, category, token]);
-
-  useEffect(() => {
-    if (loading || error) return;
-
-    const currentUnread = notifications.filter((n) => !n.read).length;
-    if (firstLoad.current) {
-      if (currentUnread > 0) {
-        playNotificationSound();
-      }
-      firstLoad.current = false;
-    } else if (currentUnread > prevUnreadCount.current) {
-      playNotificationSound();
-    }
-
-    prevUnreadCount.current = currentUnread;
-  }, [notifications, loading, error]);
 
   const fetchNotifications = async () => {
     if (!token) return;
@@ -209,47 +173,95 @@ const NotificationsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-gray-400 font-sans selection:bg-blue-500/30">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 text-slate-100 selection:bg-blue-500/30">
       <NotificationHeader />
-      <div className="flex">
-        <NotificationSidebar
-          activeCategory={category}
-          onCategorySelect={setCategory}
-          onMarkAllRead={markAllAsRead}
-        />
-        <main className="flex-1 p-10 max-w-5xl">
-          <div className="mb-10">
-            <h1 className="text-5xl font-black text-white tracking-tighter mb-4">
-              Notifications
-            </h1>
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <p className="text-gray-500 text-sm">
-                Operational flow and tactical warnings from Sector 4 - Sector 9.
-              </p>
-              <NotificationFilters filter={filter} onFilterChange={setFilter} />
+      <div className="mx-auto max-w-[1600px] px-6 py-8">
+        <div className="grid gap-8 xl:grid-cols-[280px_minmax(0,1fr)_320px]">
+          <NotificationSidebar
+            activeCategory={category}
+            onCategorySelect={setCategory}
+            onMarkAllRead={markAllAsRead}
+          />
+          <main className="space-y-8">
+            <section className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-8 shadow-2xl shadow-slate-950/20">
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                <div className="max-w-3xl">
+                  <p className="text-sm uppercase tracking-[0.35em] text-blue-400/80">
+                    Notification Hub
+                  </p>
+                  <h1 className="mt-4 text-4xl font-black text-white tracking-tight">
+                    Alerts & updates
+                  </h1>
+                  <p className="mt-4 text-sm leading-6 text-slate-400">
+                    Operational flow and tactical warnings from Sector 4 -
+                    Sector 9. Stay informed with the latest incident updates,
+                    safety advisories, and system bulletins.
+                  </p>
+                </div>
+                <NotificationFilters
+                  filter={filter}
+                  onFilterChange={setFilter}
+                />
+              </div>
+            </section>
+
+            <section className="grid gap-6">
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/70 p-6">
+                  <p className="text-sm uppercase tracking-[0.35em] text-slate-500">
+                    Total Alerts
+                  </p>
+                  <p className="mt-4 text-4xl font-black text-white">
+                    {stats.total}
+                  </p>
+                </div>
+                <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/70 p-6">
+                  <p className="text-sm uppercase tracking-[0.35em] text-slate-500">
+                    Unread
+                  </p>
+                  <p className="mt-4 text-4xl font-black text-blue-400">
+                    {stats.unread}
+                  </p>
+                </div>
+                <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/70 p-6">
+                  <p className="text-sm uppercase tracking-[0.35em] text-slate-500">
+                    Critical
+                  </p>
+                  <p className="mt-4 text-4xl font-black text-red-400">
+                    {stats.critical}
+                  </p>
+                </div>
+              </div>
+              {notifications.length ? (
+                <div className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-8 shadow-2xl shadow-slate-950/15">
+                  <NotificationFeed
+                    notifications={notifications}
+                    onAction={handleNotificationAction}
+                  />
+                </div>
+              ) : (
+                <div className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-12 text-center shadow-2xl shadow-slate-950/15">
+                  <p className="text-slate-300 text-lg font-semibold">
+                    No notifications available right now.
+                  </p>
+                  <p className="mt-3 text-sm text-slate-500">
+                    Subscribe to alerts or wait for new incident updates to
+                    appear here.
+                  </p>
+                </div>
+              )}
+            </section>
+          </main>
+
+          <aside className="space-y-8">
+            <div className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-6 shadow-2xl shadow-slate-950/20">
+              <NotificationStats stats={stats} />
             </div>
-          </div>
-          {notifications.length ? (
-            <NotificationFeed
-              notifications={notifications}
-              onAction={handleNotificationAction}
-            />
-          ) : (
-            <div className="rounded-3xl border border-white/10 bg-slate-800/60 p-12 text-center">
-              <p className="text-gray-400 text-lg font-semibold">
-                No notifications available right now.
-              </p>
-              <p className="mt-3 text-sm text-gray-500">
-                Subscribe to alerts or wait for new incident updates to appear
-                here.
-              </p>
+            <div className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-6 shadow-2xl shadow-slate-950/20">
+              <NotificationRegions regions={regions} />
             </div>
-          )}
-        </main>
-        <aside className="w-80 p-8 space-y-8 bg-slate-800/50">
-          <NotificationStats stats={stats} />
-          <NotificationRegions regions={regions} />
-        </aside>
+          </aside>
+        </div>
       </div>
     </div>
   );

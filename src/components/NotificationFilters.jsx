@@ -1,14 +1,14 @@
 export default function NotificationFilters({ filter, onFilterChange }) {
   return (
-    <div className="bg-slate-800/50 p-1 rounded-xl border border-white/5 flex gap-1">
+    <div className="bg-slate-900/80 p-1 rounded-3xl border border-white/10 flex gap-1">
       {["All", "Unread", "Critical"].map((t) => (
         <button
           key={t}
           onClick={() => onFilterChange(t)}
-          className={`px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+          className={`px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${
             filter === t
-              ? "bg-blue-600 text-white shadow-lg shadow-blue-900/20"
-              : "text-gray-500 hover:text-gray-300"
+              ? "bg-blue-500 text-slate-100 shadow-lg shadow-blue-900/25"
+              : "text-slate-300 hover:text-slate-100 hover:bg-white/5"
           }`}
         >
           {t}{" "}

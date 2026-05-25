@@ -20,6 +20,17 @@ alertSchema.index(
   { unique: true, partialFilterExpression: { source: "automated" } },
 );
 
+alertSchema.index(
+  {
+    "payload.title": "text",
+    "payload.body": "text",
+    "payload.subtitle": "text",
+    "payload.badgePrimary": "text",
+    "payload.badgeSecondary": "text",
+  },
+  { default_language: "english", name: "AlertTextIndex" },
+);
+
 alertSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,

@@ -7,11 +7,11 @@ import {
   MapPin,
   AlertCircle,
   Cloud,
-  Users,
   Home,
   Phone,
   ChevronRight,
 } from "lucide-react";
+import PageSidebar from "../components/PageSidebar";
 
 function DashboardPage() {
   const navigate = useNavigate();
@@ -24,9 +24,11 @@ function DashboardPage() {
 
   useEffect(() => {
     let cancelled = false;
+
     const fetchData = async () => {
       setLoading(true);
       setError("");
+
       try {
         const [alertsRes, resourcesRes, floodRes] = await Promise.all([
           apiFetch("/api/alerts"),
@@ -41,20 +43,18 @@ function DashboardPage() {
         const floodData = await floodRes.json().catch(() => ({}));
 
         if (!cancelled) {
-          // Map alerts to have title and description from payload
           const mappedAlerts = (alertsData.alerts || [])
             .map((alert) => ({
               _id: alert.id,
               priority: alert.payload?.priority || 50,
-              title: alert.payload?.title || "Alert",
+              title: alert.payload?.title || "Flood Alert",
               description:
                 alert.payload?.summary ||
                 alert.payload?.subtitle ||
-                "Alert notification",
+                "New flood monitoring alert",
             }))
             .slice(0, 5);
 
-          // Map resources to have simplified structure
           const mappedResources = (resourcesData.resources || [])
             .map((resource) => ({
               _id: resource.id,
@@ -90,332 +90,378 @@ function DashboardPage() {
     return user?.email?.split("@")[0] || "User";
   };
 
-  const getSectorFromLocation = () => {
-    return "Sector 7G";
-  };
+  const getSectorFromLocation = () => "Sector 7G";
 
-  const getAlertColor = (priority) => {
-    if (priority >= 80) return "red";
-    if (priority >= 50) return "yellow";
-    return "green";
-  };
-
-  const getAlertLabel = (priority) => {
-    if (priority >= 80) return "SEVERE";
-    if (priority >= 50) return "MODERATE";
-    return "LOW RISK";
-  };
+  const getWeatherLabel = () =>
+    weatherData?.description || "Light precipitation expected";
 
   return (
-    <div className="flex h-screen bg-slate-900 text-white overflow-hidden">
-      {/* Sidebar */}
-      <aside className="w-72 bg-gradient-to-b from-slate-800 to-slate-900 border-r border-slate-700 flex flex-col overflow-y-auto shadow-xl">
-        <div className="p-6 border-b border-slate-700">
-          <p className="text-xs text-cyan-400 uppercase tracking-widest mb-2 font-semibold">
-            Sentinel Protocol
-          </p>
-          <h2 className="text-2xl font-bold text-white mb-1">Dashboard</h2>
-          <small className="text-xs text-gray-500 uppercase tracking-widest">
-            Real-Time Monitoring
-          </small>
+    <div className="flex min-h-screen bg-slate-950 text-white overflow-hidden lg:pl-72">
+      <PageSidebar />
 
-          <nav className="mt-8 flex flex-col gap-2">
-            <button
-              className="py-3 px-4 bg-cyan-600/30 text-cyan-400 rounded-lg font-semibold uppercase text-sm tracking-wide text-left hover:bg-cyan-600/40 transition-all duration-200 border border-cyan-500/20"
-              type="button"
-            >
-              DASHBOARD
-            </button>
-            <button
-              className="py-3 px-4 text-gray-400 rounded-lg font-semibold uppercase text-sm tracking-wide text-left hover:bg-slate-700/50 transition-all duration-200"
-              type="button"
-              onClick={() => navigate(ROUTES.liveMap)}
-            >
-              LIVE MAP
-            </button>
-            <button
-              className="py-3 px-4 text-gray-400 rounded-lg font-semibold uppercase text-sm tracking-wide text-left hover:bg-slate-700/50 transition-all duration-200"
-              type="button"
-              onClick={() => navigate(ROUTES.alerts)}
-            >
-              ALERTS
-            </button>
-            <button
-              className="py-3 px-4 text-gray-400 rounded-lg font-semibold uppercase text-sm tracking-wide text-left hover:bg-slate-700/50 transition-all duration-200"
-              type="button"
-              onClick={() => navigate(ROUTES.ngoCoordination)}
-            >
-              NGO COORDINATION
-            </button>
-          </nav>
-        </div>
-
-        <div className="p-6 border-t border-slate-700 mt-auto space-y-4">
-          <button
-            className="w-full py-3 px-4 bg-slate-700 hover:bg-slate-600 text-gray-300 rounded-lg text-xs font-semibold uppercase transition-all duration-200"
-            type="button"
-            onClick={() => navigate(ROUTES.chat)}
-          >
-            CHAT SUPPORT
-          </button>
-          <div className="bg-slate-900/80 p-4 rounded-lg border border-slate-700">
-            <h4 className="text-xs font-bold uppercase tracking-widest text-cyan-400 mb-2">
-              System Status
-            </h4>
-            <p className="text-xs text-gray-400 leading-relaxed">
-              {alerts.length > 0
-                ? `${alerts.length} active alert${alerts.length > 1 ? "s" : ""}`
-                : "All systems operational"}
-            </p>
-          </div>
-        </div>
-      </aside>
-
-      {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
         <div className="flex-1 overflow-y-auto p-8">
           {error && (
-            <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-lg text-red-200 text-sm">
+            <div className="mb-6 p-4 rounded-3xl bg-red-500/10 border border-red-500/20 text-red-200 text-sm">
               {error}
             </div>
           )}
 
-          <div className="grid grid-cols-3 gap-6 auto-rows-max animate-fadeIn">
-            {/* Welcome Section */}
-            <section className="col-span-2 bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-8 border border-slate-700 shadow-lg hover:shadow-cyan-500/10 transition-shadow duration-300">
-              <span className="text-xs text-cyan-400 uppercase tracking-widest font-bold">
-                Welcome
-              </span>
-              <h1 className="text-4xl font-bold text-white mt-4 mb-4">
-                Welcome back, {getFirstName()}.
-              </h1>
-              <p className="text-gray-400 mb-6 leading-relaxed">
-                Your current region ({getSectorFromLocation()}) is being
-                monitored in real-time.
-                {alerts.length > 0
-                  ? ` There are ${alerts.length} active alert(s) to review.`
-                  : " No immediate threats detected."}
-              </p>
-              <div className="flex gap-3">
-                <button
-                  className="px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold uppercase text-sm rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
-                  type="button"
-                  onClick={() => navigate(ROUTES.alerts)}
-                >
-                  View All Alerts
-                </button>
-                <button
-                  className="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-gray-300 font-semibold uppercase text-sm rounded-lg border border-slate-600 transition-all duration-200"
-                  type="button"
-                  onClick={() => navigate(ROUTES.floodCheck)}
-                >
-                  Check Flood Risk
-                </button>
+          <div className="grid grid-cols-12 gap-6">
+            <section className="col-span-12 xl:col-span-8 rounded-[32px] border border-slate-700 bg-slate-900/95 p-8 shadow-xl shadow-cyan-500/10 transition duration-300 hover:-translate-y-1">
+              <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                  <div className="space-y-3">
+                    <p className="text-xs text-cyan-300 uppercase tracking-[0.35em] font-semibold">
+                      Flood Risk Monitor
+                    </p>
+                    <h1 className="text-4xl lg:text-5xl font-bold tracking-tight text-white">
+                      Welcome back, {getFirstName()}.
+                    </h1>
+                    <p className="max-w-2xl text-slate-400 leading-relaxed">
+                      Your area ({getSectorFromLocation()}) is monitored in real
+                      time. Keep an eye on alerts, shelter access, and your
+                      local weather at a glance.
+                    </p>
+                  </div>
+
+                  <div className="inline-flex items-center gap-3 rounded-full bg-slate-800/90 border border-cyan-500/20 px-4 py-3 text-sm text-cyan-200 shadow-lg shadow-cyan-500/5">
+                    <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                    Live updates active
+                  </div>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-3">
+                  <MetricCard
+                    title="Active alerts"
+                    value={alerts.length}
+                    subtitle="Monitored in your region"
+                  />
+                  <MetricCard
+                    title="Nearby shelters"
+                    value={resources.length}
+                    subtitle="Safe shelters available"
+                  />
+                  <MetricCard
+                    title="Risk status"
+                    value={
+                      alerts.length === 0
+                        ? "Stable"
+                        : getAlertLabel(
+                            Math.max(
+                              ...alerts.map((alert) => alert.priority || 0),
+                            ),
+                          )
+                    }
+                    subtitle="Latest flood assessment"
+                  />
+                </div>
+
+                <div className="rounded-[30px] border border-slate-700 bg-slate-950/90 p-6 shadow-xl shadow-cyan-500/10">
+                  <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.35em] text-cyan-300 font-semibold">
+                        Situation brief
+                      </p>
+                      <h2 className="mt-3 text-2xl font-bold text-white">
+                        Monitoring your flood zone
+                      </h2>
+                    </div>
+                    <div className="inline-flex items-center gap-3 rounded-full bg-slate-900/90 px-4 py-2 text-sm text-white">
+                      <span className="h-2.5 w-2.5 rounded-full bg-cyan-300 animate-pulse" />
+                      Hazard feed live
+                    </div>
+                  </div>
+
+                  <div className="mt-5 grid gap-4 sm:grid-cols-3">
+                    <StatusCard
+                      label="Today's weather"
+                      value={`${weatherData?.temp ?? weatherData?.temperature ?? "24"}°C`}
+                      detail={getWeatherLabel()}
+                    />
+                    <StatusCard
+                      label="Current sector"
+                      value={getSectorFromLocation()}
+                      detail="Priority monitoring zone."
+                    />
+                    <StatusCard
+                      label="Response team"
+                      value="24/7 Ready"
+                      detail="Assistance available anytime."
+                    />
+                  </div>
+                </div>
               </div>
             </section>
 
-            {/* Weather Card */}
-            <section
-              className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-8 border border-slate-700 shadow-lg hover:shadow-cyan-500/10 transition-all duration-300 animate-slideUp"
-              style={{ animationDelay: "0.1s" }}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <small className="text-xs text-gray-400 uppercase tracking-widest font-bold">
-                  Weather
-                </small>
-                <Cloud className="w-5 h-5 text-cyan-400" />
-              </div>
-              <h3 className="text-lg font-bold text-white mb-2">
-                Current Conditions
-              </h3>
-              <strong className="text-4xl font-black text-cyan-400">
-                {weatherData?.temp || "24"}°C
-              </strong>
-              <p className="text-gray-400 text-sm mt-4">
-                {weatherData?.description || "Light precipitation expected"}
-              </p>
-            </section>
+            <section className="col-span-12 xl:col-span-4 space-y-6">
+              <aside className="rounded-[32px] border border-slate-700 bg-slate-900/95 p-6 shadow-xl shadow-cyan-500/10 transition duration-300 hover:-translate-y-1">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.35em] text-slate-400 font-semibold">
+                      Current Weather
+                    </p>
+                    <h3 className="mt-2 text-3xl font-bold text-white">
+                      {weatherData?.temp ?? weatherData?.temperature ?? "24"}°C
+                    </h3>
+                  </div>
+                  <Cloud className="w-10 h-10 text-cyan-300" />
+                </div>
+                <p className="text-sm text-slate-400 mb-6">
+                  {getWeatherLabel()} in your monitoring area.
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <SmallMetric
+                    label="Humidity"
+                    value={`${weatherData?.humidity ?? "68"}%`}
+                  />
+                  <SmallMetric
+                    label="Wind"
+                    value={`${weatherData?.wind_speed ?? weatherData?.wind ?? "12"} km/h`}
+                  />
+                </div>
+              </aside>
 
-            {/* Active Alerts */}
-            <section className="col-span-2 bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-8 border border-slate-700 shadow-lg">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <AlertCircle className="w-5 h-5 text-red-400" />
-                  Active Alerts
+              <aside className="rounded-[32px] border border-rose-500/20 bg-gradient-to-br from-rose-900/80 via-slate-950/80 to-slate-900 p-6 shadow-xl shadow-rose-500/10 transition duration-300 hover:-translate-y-1">
+                <div className="flex items-center gap-3 text-rose-200 mb-4">
+                  <Phone className="w-5 h-5" />
+                  <span className="text-sm font-semibold uppercase tracking-[0.35em]">
+                    Emergency
+                  </span>
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-3">
+                  Immediate help available
                 </h3>
-                <span className="text-xs bg-red-500/20 text-red-300 px-2 py-1 rounded">
-                  {alerts.length} Alert{alerts.length !== 1 ? "s" : ""}
+                <p className="text-sm text-rose-200/80 mb-6">
+                  If you are in danger, either call emergency services or submit
+                  an SOS report immediately.
+                </p>
+                <button
+                  className="w-full rounded-3xl bg-rose-500 px-4 py-3 text-sm font-bold uppercase text-white transition duration-200 hover:bg-rose-400"
+                  type="button"
+                  onClick={() => navigate(ROUTES.emergencySos)}
+                >
+                  SOS - Get help
+                </button>
+              </aside>
+            </section>
+
+            <section className="col-span-12 lg:col-span-8 rounded-[32px] border border-slate-700 bg-slate-900/95 p-8 shadow-xl shadow-cyan-500/10">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-xl font-bold text-white">
+                    Active Alerts
+                  </h2>
+                  <p className="text-sm text-slate-400 mt-1">
+                    Review the latest flood warnings and recommended actions.
+                  </p>
+                </div>
+                <span className="rounded-full bg-red-500/10 px-3 py-1 text-xs uppercase tracking-[0.35em] text-red-200">
+                  {alerts.length} active
                 </span>
               </div>
-              <div className="space-y-3 max-h-48 overflow-y-auto">
+              <div className="grid gap-4">
                 {loading ? (
-                  <div className="text-center py-4 text-gray-400">
+                  <div className="rounded-[28px] border border-slate-700 bg-slate-950/80 p-6 text-center text-slate-400">
                     Loading alerts...
                   </div>
                 ) : alerts.length === 0 ? (
-                  <div className="text-center py-4 text-gray-400">
-                    No active alerts
+                  <div className="rounded-[28px] border border-slate-700 bg-slate-950/80 p-6 text-center text-slate-400">
+                    No active alerts at this time.
                   </div>
                 ) : (
                   alerts.map((alert, idx) => {
-                    const alertColor = getAlertColor(alert.priority || 50);
-                    const alertLabel = getAlertLabel(alert.priority || 50);
+                    const priority = alert.priority || 50;
+                    const alertColor = getAlertColor(priority);
                     return (
-                      <div
+                      <button
                         key={alert._id || idx}
-                        className={`bg-slate-900/50 p-4 rounded-lg border border-${alertColor}-500/30 hover:border-${alertColor}-500/50 transition-all duration-200 transform hover:scale-102 cursor-pointer`}
+                        className={`${getSeverityClasses(priority)} ${getAlertPanelClasses(alertColor)} w-full rounded-[28px] border p-5 text-left transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-cyan-500/10`}
+                        type="button"
                         onClick={() => navigate(ROUTES.alerts)}
                       >
-                        <small
-                          className={`text-xs ${alertColor === "red" ? "text-red-400" : alertColor === "yellow" ? "text-yellow-400" : "text-green-400"} uppercase tracking-widest font-bold`}
-                        >
-                          {alertLabel}
-                        </small>
-                        <h4 className="text-base font-bold text-white mt-2 mb-1">
-                          {alert.title || "Flood Alert"}
-                        </h4>
-                        <p className="text-gray-400 text-sm">
-                          {alert.description || "New flood monitoring alert"}
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <p className="text-xs uppercase tracking-[0.35em] font-semibold text-slate-300">
+                              {getAlertLabel(priority)}
+                            </p>
+                            <h3 className="text-lg font-bold text-white mt-3">
+                              {alert.title}
+                            </h3>
+                          </div>
+                          <span className="rounded-full bg-slate-900/70 px-3 py-1 text-xs uppercase tracking-[0.35em] text-slate-300">
+                            Priority {priority}
+                          </span>
+                        </div>
+                        <p className="mt-4 text-sm text-slate-300">
+                          {alert.description}
                         </p>
-                      </div>
+                      </button>
                     );
                   })
                 )}
               </div>
             </section>
 
-            {/* Quick Actions */}
-            <section className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-8 border border-slate-700 shadow-lg">
-              <h3 className="text-lg font-bold text-white mb-4">
+            <section className="col-span-12 lg:col-span-4 rounded-[32px] border border-slate-700 bg-slate-900/95 p-8 shadow-xl shadow-cyan-500/10">
+              <h2 className="text-xl font-bold text-white mb-4">
                 Quick Actions
-              </h3>
-              <div className="flex flex-col gap-3">
-                <button
-                  className="py-3 px-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-semibold text-sm rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-between group"
-                  type="button"
+              </h2>
+              <div className="space-y-4">
+                <ActionButton
+                  label="Register Victim"
                   onClick={() => navigate(ROUTES.victimRegistration)}
-                >
-                  <span>Register Victim</span>
-                  <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </button>
-                <button
-                  className="py-3 px-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white font-semibold text-sm rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-between group"
-                  type="button"
+                  variant="blue"
+                />
+                <ActionButton
+                  label="Find Shelter"
                   onClick={() => navigate(ROUTES.liveMap)}
-                >
-                  <span>Find Shelter</span>
-                  <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </button>
-                <button
-                  className="py-3 px-4 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white font-semibold text-sm rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-between group"
-                  type="button"
+                  variant="green"
+                />
+                <ActionButton
+                  label="Open Chat"
                   onClick={() => navigate(ROUTES.chat)}
-                >
-                  <span>Open Chat</span>
-                  <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </button>
+                  variant="violet"
+                />
               </div>
             </section>
 
-            {/* Nearby Shelters */}
-            <section className="col-span-2 bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-8 border border-slate-700 shadow-lg">
+            <section className="col-span-12 rounded-[32px] border border-slate-700 bg-slate-900/95 p-8 shadow-xl shadow-cyan-500/10">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <Home className="w-5 h-5 text-green-400" />
-                  Nearby Shelters
-                </h3>
+                <div className="flex items-center gap-3">
+                  <Home className="w-5 h-5 text-emerald-400" />
+                  <div>
+                    <h2 className="text-xl font-bold text-white">
+                      Nearby Shelters
+                    </h2>
+                    <p className="text-sm text-slate-400">
+                      Shelter availability and distance from your area.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  className="rounded-full border border-cyan-500/20 px-4 py-2 text-xs uppercase tracking-[0.35em] text-cyan-300 transition duration-200 hover:bg-cyan-500/10"
+                  type="button"
+                  onClick={() => navigate(ROUTES.liveMap)}
+                >
+                  Open Map
+                </button>
               </div>
-              <div className="space-y-3 max-h-48 overflow-y-auto">
+              <div className="space-y-4 max-h-72 overflow-y-auto custom-scrollbar pr-2">
                 {loading ? (
-                  <div className="text-center py-4 text-gray-400">
+                  <div className="rounded-[28px] border border-slate-700 bg-slate-950/80 p-6 text-center text-slate-400">
                     Loading shelters...
                   </div>
                 ) : resources.length === 0 ? (
-                  <div className="text-center py-4 text-gray-400">
+                  <div className="rounded-[28px] border border-slate-700 bg-slate-950/80 p-6 text-center text-slate-400">
                     No shelters nearby
                   </div>
                 ) : (
                   resources.map((shelter, idx) => (
                     <div
                       key={shelter._id || idx}
-                      className="bg-slate-900/50 p-4 rounded-lg border border-slate-600 hover:border-green-500/50 transition-all duration-200"
+                      className="rounded-[28px] border border-slate-700 bg-slate-950/80 p-5 transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-cyan-500/10"
                     >
-                      <div className="flex items-start justify-between">
+                      <div className="flex items-start justify-between gap-4">
                         <div>
                           <strong className="text-white text-base block">
                             {shelter.name || `Shelter ${idx + 1}`}
                           </strong>
-                          <p className="text-gray-400 text-sm mt-1 flex items-center gap-1">
-                            <MapPin className="w-4 h-4" />
-                            {shelter.distance || "1.2"} KM away
+                          <p className="mt-2 text-sm text-slate-400 flex items-center gap-2">
+                            <MapPin className="w-4 h-4 text-cyan-300" />
+                            {shelter.distance} km away
                           </p>
                         </div>
-                        <span className="bg-green-500/20 text-green-300 text-xs px-2 py-1 rounded">
-                          {shelter.capacity || "Available"}
+                        <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs uppercase tracking-[0.35em] text-emerald-200">
+                          {shelter.capacity}
                         </span>
                       </div>
                     </div>
                   ))
                 )}
               </div>
-              <button
-                className="w-full py-3 px-6 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white font-semibold uppercase text-xs rounded-lg transition-all duration-200 mt-4 transform hover:scale-105"
-                type="button"
-                onClick={() => navigate(ROUTES.liveMap)}
-              >
-                View All Shelters
-              </button>
-            </section>
-
-            {/* Emergency Section */}
-            <section className="bg-gradient-to-br from-red-900/50 to-slate-900 rounded-xl p-8 border-2 border-red-500/30 shadow-lg hover:shadow-red-500/20 transition-shadow duration-300">
-              <h3 className="text-lg font-bold text-red-300 mb-4 flex items-center gap-2">
-                <Phone className="w-5 h-5" />
-                Emergency
-              </h3>
-              <p className="text-gray-300 text-sm mb-4">
-                In case of immediate danger, call emergency services.
-              </p>
-              <button
-                className="w-full py-4 px-6 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold uppercase text-sm rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
-                type="button"
-                onClick={() => navigate(ROUTES.emergencySos)}
-              >
-                SOS - GET HELP
-              </button>
             </section>
           </div>
         </div>
       </main>
-
-      <style>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.6s ease-out;
-        }
-        .animate-slideUp {
-          animation: slideUp 0.6s ease-out;
-        }
-      `}</style>
     </div>
   );
 }
+
+const MetricCard = ({ title, value, subtitle }) => (
+  <div className="rounded-[24px] border border-slate-700 bg-slate-950/85 p-6 shadow-lg shadow-cyan-500/5 transition duration-300 hover:-translate-y-1">
+    <p className="text-xs uppercase tracking-[0.35em] text-slate-400 font-semibold">
+      {title}
+    </p>
+    <h3 className="mt-4 text-3xl font-bold text-white">{value}</h3>
+    <p className="mt-2 text-sm text-slate-400">{subtitle}</p>
+  </div>
+);
+
+const StatusCard = ({ label, value, detail }) => (
+  <div className="rounded-3xl border border-slate-700 bg-slate-900/90 p-5">
+    <p className="text-xs uppercase tracking-[0.35em] text-slate-400 font-semibold">
+      {label}
+    </p>
+    <p className="mt-4 text-2xl font-bold text-white">{value}</p>
+    <p className="mt-2 text-sm text-slate-400">{detail}</p>
+  </div>
+);
+
+const SmallMetric = ({ label, value }) => (
+  <div className="rounded-3xl border border-slate-700 bg-slate-950/80 p-4">
+    <p className="text-xs uppercase tracking-[0.35em] text-slate-400 font-semibold">
+      {label}
+    </p>
+    <p className="mt-3 text-lg font-semibold text-white">{value}</p>
+  </div>
+);
+
+const ActionButton = ({ label, onClick, variant }) => {
+  const variantColors = {
+    blue: "from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400",
+    green:
+      "from-emerald-600 to-lime-500 hover:from-emerald-500 hover:to-lime-400",
+    violet:
+      "from-violet-600 to-fuchsia-500 hover:from-violet-500 hover:to-fuchsia-400",
+  };
+
+  return (
+    <button
+      className={`w-full rounded-3xl px-5 py-4 text-sm font-semibold uppercase text-white transition duration-200 hover:-translate-y-1 bg-gradient-to-r ${variantColors[variant] || variantColors.blue}`}
+      type="button"
+      onClick={onClick}
+    >
+      {label}
+    </button>
+  );
+};
+
+const getAlertLabel = (priority) => {
+  if (priority >= 80) return "SEVERE";
+  if (priority >= 50) return "MODERATE";
+  return "LOW RISK";
+};
+
+const getAlertColor = (priority) => {
+  if (priority >= 80) return "red";
+  if (priority >= 50) return "yellow";
+  return "green";
+};
+
+const getAlertPanelClasses = (alertColor) => {
+  if (alertColor === "red")
+    return "bg-slate-900/50 border-red-500/30 hover:border-red-500/50";
+  if (alertColor === "yellow")
+    return "bg-slate-900/50 border-yellow-500/30 hover:border-yellow-500/50";
+  return "bg-slate-900/50 border-emerald-500/30 hover:border-emerald-500/50";
+};
+
+const getSeverityClasses = (priority) => {
+  if (priority >= 80) return "border-red-500/30 bg-red-500/10 text-red-200";
+  if (priority >= 50)
+    return "border-yellow-500/30 bg-amber-500/10 text-amber-200";
+  return "border-emerald-500/30 bg-emerald-500/10 text-emerald-200";
+};
 
 export default DashboardPage;

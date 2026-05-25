@@ -1,4 +1,4 @@
-import { ShieldAlert, Settings, Users } from "lucide-react";
+import { AlertTriangle, Monitor, MessageCircle, Layers } from "lucide-react";
 import NavItem from "./NavItem";
 
 export default function NotificationSidebar({
@@ -7,33 +7,33 @@ export default function NotificationSidebar({
   onMarkAllRead,
 }) {
   return (
-    <aside className="w-64 border-r border-white/5 p-6 min-h-[calc(100vh-64px)] flex flex-col justify-between bg-slate-800/50">
+    <aside className="w-72 min-h-[calc(100vh-160px)] rounded-[2rem] border border-white/10 bg-slate-950/70 p-8 flex flex-col justify-between shadow-2xl shadow-slate-950/20 backdrop-blur-xl">
       <div>
-        <h2 className="text-[12px] font-black uppercase tracking-[0.2em] text-white mb-6">
+        <h2 className="text-[11px] font-black uppercase tracking-[0.24em] text-blue-300 mb-6">
           Notifications
         </h2>
-        <div className="space-y-1">
+        <div className="space-y-3">
           <NavItem
-            icon={ShieldAlert}
+            icon={AlertTriangle}
             label="Emergency"
             active={activeCategory === "emergency"}
             onClick={() => onCategorySelect?.("emergency")}
             badge
           />
           <NavItem
-            icon={Settings}
+            icon={Monitor}
             label="System"
             active={activeCategory === "system"}
             onClick={() => onCategorySelect?.("system")}
           />
           <NavItem
-            icon={Users}
+            icon={MessageCircle}
             label="Social"
             active={activeCategory === "social"}
             onClick={() => onCategorySelect?.("social")}
           />
           <NavItem
-            icon={Users}
+            icon={Layers}
             label="All"
             active={activeCategory === "all"}
             onClick={() => onCategorySelect?.("all")}
@@ -42,7 +42,7 @@ export default function NotificationSidebar({
       </div>
       <button
         onClick={onMarkAllRead}
-        className="w-full py-3 border border-white/10 rounded-xl text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:bg-white/5 hover:text-white transition-all"
+        className="w-full py-3 rounded-2xl bg-slate-900/80 text-[10px] font-bold uppercase tracking-widest text-slate-200 hover:bg-slate-800 transition-all"
       >
         Mark All Read
       </button>

@@ -14,6 +14,12 @@ export const ROUTES = {
   victimRegistration: "/victim-registration",
   chat: "/chat",
 
+  // Extra pages
+  analytics: "/analytics",
+  assets: "/assets",
+  settings: "/settings",
+  search: "/search",
+
   // Admin routes
   adminDashboard: "/admin-dashboard",
   adminMap: "/admin-map",
