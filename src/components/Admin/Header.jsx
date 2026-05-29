@@ -44,7 +44,7 @@ function Header() {
 
   return (
     <>
-      <header className="flex items-center justify-between bg-[#121212] text-white px-4 sm:px-6 md:px-8 lg:px-10 py-3 border-b border-gray-800 sticky top-0 z-50">
+      <header className="flex items-center justify-between bg-slate-950 text-white px-4 sm:px-6 md:px-8 lg:px-10 py-3 border-b border-gray-800 sticky top-0 z-50">
         <div className="flex items-center space-x-2 sm:space-x-4 md:space-x-6 lg:space-x-10">
           <button
             type="button"
@@ -99,7 +99,7 @@ function Header() {
         </div>
 
         <div className="flex items-center space-x-2 sm:space-x-4">
-          <div className="hidden md:flex bg-[#1e1e1e] px-2 sm:px-4 py-2 rounded-full border border-gray-800 items-center space-x-2">
+          <div className="hidden md:flex bg-slate-900/95 px-2 sm:px-4 py-2 rounded-full border border-gray-800 items-center space-x-2">
             <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
             <span className="text-xs sm:text-sm font-bold text-gray-300 tracking-wider uppercase">
               System Status: Optimal
@@ -107,19 +107,11 @@ function Header() {
           </div>
 
           <button
-            className="bg-[#1e1e1e] hover:bg-gray-800 text-blue-300 px-3 sm:px-5 py-1 sm:py-2 rounded border border-gray-800 text-xs sm:text-sm font-bold tracking-widest transition-all"
+            className="bg-slate-900/95 hover:bg-gray-800 text-blue-300 px-3 sm:px-5 py-1 sm:py-2 rounded border border-gray-800 text-xs sm:text-sm font-bold tracking-widest transition-all"
             onClick={() => (window.location.href = "tel:911")}
           >
             EMERGENCY CALL
           </button>
-
-          <div className="w-8 h-8 sm:w-10 h-10 md:w-12 h-12 rounded-full overflow-hidden border border-gray-700 bg-gray-800 cursor-pointer hover:border-blue-300 transition-all">
-            <img
-              src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
-              alt="User"
-              className="w-full h-full object-cover"
-            />
-          </div>
         </div>
       </header>
 

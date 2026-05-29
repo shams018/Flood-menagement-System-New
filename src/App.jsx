@@ -22,8 +22,8 @@ import Settings from "./pages/Settings";
 import SearchResults from "./pages/SearchResults";
 
 import { ROUTES } from "./routes";
-
 import AdminMap from "./components/Admin/AdminMap";
+import SocialSentimentMonitor from "./components/Admin/SocialSentimentMonitor";
 import ResourceManagement from "./components/Admin/ResourceManagement";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import AdminVictimReport from "./components/Admin/AdminVictimReport";
@@ -157,6 +157,14 @@ function App() {
               element={
                 <AdminRoute>
                   <AdminDashboard />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path={ROUTES.sentimentMonitor}
+              element={
+                <AdminRoute>
+                  <SocialSentimentMonitor />
                 </AdminRoute>
               }
             />

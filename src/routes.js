@@ -23,6 +23,7 @@ export const ROUTES = {
   // Admin routes
   adminDashboard: "/admin-dashboard",
   adminMap: "/admin-map",
+  sentimentMonitor: "/admin-sentiment-monitor",
   adminResourceManagement: "/admin-resources",
   adminVictimReport: "/victim-report",
   adminNgoCoordination: "/admin-ngo-coordination",

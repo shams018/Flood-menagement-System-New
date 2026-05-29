@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ROUTES } from "../routes";
 import { API_BASE } from "../lib/config";
 import { useAuth } from "../context/AuthContext";
@@ -26,12 +26,29 @@ const itemVariants = {
 
 function AlertsFeedPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { isAuthenticated } = useAuth();
   const [alerts, setAlerts] = useState([]);
   const [total, setTotal] = useState(0);
   const [error, setError] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [subscriptionMessage, setSubscriptionMessage] = useState("");
+
+  const defaultPlaceImage =
+    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80";
+  const placeLabel =
+    location.state?.placeLabel || searchParams.get("place") || "";
+
+  const getPlaceImageUrl = (label) => {
+    if (!label) return defaultPlaceImage;
+    return `https://source.unsplash.com/1200x600/?${encodeURIComponent(
+      label,
+    )}&sig=${encodeURIComponent(label)}`;
+  };
+
+  const placeImageUrl =
+    location.state?.placeImageUrl || getPlaceImageUrl(placeLabel);
 
   useEffect(() => {
     let cancelled = false;
@@ -68,10 +85,10 @@ function AlertsFeedPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-950 text-white lg:pl-72">
+    <div className="flex min-h-screen bg-slate-950 text-white">
       <PageSidebar />
       <motion.main
-        className="flex-1 flex flex-col overflow-hidden"
+        className="flex-1 flex flex-col overflow-y-auto lg:pl-72"
         initial="hidden"
         animate="visible"
         variants={pageVariants}
@@ -147,6 +164,38 @@ function AlertsFeedPage() {
             </div>
           </div>
         </motion.section>
+
+        {placeLabel ? (
+          <motion.section className="px-8 py-8" variants={itemVariants}>
+            <div className="rounded-[32px] overflow-hidden border border-slate-700 bg-slate-900/90 shadow-2xl shadow-cyan-500/10">
+              <img
+                src={placeImageUrl}
+                alt={
+                  placeLabel
+                    ? `${placeLabel} overview`
+                    : "Flood location overview"
+                }
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = defaultPlaceImage;
+                }}
+                className="w-full h-64 object-cover brightness-90"
+              />
+              <div className="bg-slate-950/80 p-6">
+                <p className="text-xs uppercase tracking-[0.35em] text-cyan-300 font-bold mb-2">
+                  Location detail
+                </p>
+                <h2 className="text-3xl font-black text-white mb-2">
+                  {placeLabel}
+                </h2>
+                <p className="text-sm text-slate-300">
+                  Showing alerts and flood intelligence related to this
+                  location.
+                </p>
+              </div>
+            </div>
+          </motion.section>
+        ) : null}
 
         <motion.section className="px-8 py-8" variants={itemVariants}>
           <div className="grid grid-cols-12 gap-8 mb-8">

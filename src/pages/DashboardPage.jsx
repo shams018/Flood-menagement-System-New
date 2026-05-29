@@ -96,10 +96,10 @@ function DashboardPage() {
     weatherData?.description || "Light precipitation expected";
 
   return (
-    <div className="flex min-h-screen bg-slate-950 text-white overflow-hidden lg:pl-72">
+    <div className="flex min-h-screen bg-slate-950 text-white overflow-hidden">
       <PageSidebar />
 
-      <main className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex-1 flex flex-col overflow-y-auto lg:pl-72">
         <div className="flex-1 overflow-y-auto p-8">
           {error && (
             <div className="mb-6 p-4 rounded-3xl bg-red-500/10 border border-red-500/20 text-red-200 text-sm">

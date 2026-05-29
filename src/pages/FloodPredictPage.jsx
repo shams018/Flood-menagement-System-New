@@ -25,6 +25,18 @@ function FloodPredictPage() {
   const [result, setResult] = useState(null);
   const navigate = useNavigate();
 
+  const defaultPlaceImage =
+    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80";
+
+  const getPlaceImageUrl = (label) => {
+    if (!label) return defaultPlaceImage;
+    return `https://source.unsplash.com/1200x600/?${encodeURIComponent(
+      label,
+    )}&sig=${encodeURIComponent(label)}`;
+  };
+
+  const placeImageUrl = getPlaceImageUrl(result?.placeLabel || query);
+
   async function runSearch(e) {
     e.preventDefault();
     setError("");
@@ -192,6 +204,47 @@ function FloodPredictPage() {
                   Assessed {new Date(result.assessedAt).toLocaleString()} ·
                   Rules {result.rulesVersion}
                 </p>
+                <div className="mt-8 rounded-3xl overflow-hidden border border-white/10 bg-slate-800">
+                  <img
+                    src={placeImageUrl}
+                    alt={
+                      result.placeLabel
+                        ? `${result.placeLabel} overview`
+                        : "Place overview"
+                    }
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = defaultPlaceImage;
+                    }}
+                    className="w-full h-64 object-cover"
+                  />
+                </div>
+                <div className="mt-6 flex flex-wrap gap-4">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      navigate(
+                        {
+                          pathname: ROUTES.alerts,
+                          search: `?place=${encodeURIComponent(
+                            result.placeLabel || query,
+                          )}`,
+                        },
+                        {
+                          state: {
+                            placeLabel: result.placeLabel || query,
+                            placeImageUrl: getPlaceImageUrl(
+                              result.placeLabel || query,
+                            ),
+                          },
+                        },
+                      )
+                    }
+                    className="rounded-2xl border border-cyan-500/30 bg-cyan-500/10 px-6 py-3 text-sm font-bold text-cyan-200 hover:bg-cyan-500/15 transition"
+                  >
+                    See alert details for {result.placeLabel}
+                  </button>
+                </div>
               </article>
             ) : (
               <div className="rounded-[2rem] border border-white/10 bg-slate-950/80 p-8 shadow-2xl shadow-slate-950/20">

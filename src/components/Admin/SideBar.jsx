@@ -6,6 +6,7 @@ import {
   User,
   Users,
   Activity,
+  TrendingUp,
   Settings,
   HelpCircle,
   LogOut,
@@ -40,6 +41,11 @@ function SideBar() {
         <nav className="px-4 pt-4 pb-4 space-y-2">
           {[
             { route: ROUTES.adminDashboard, icon: Grid, label: "Dashboard" },
+            {
+              route: ROUTES.sentimentMonitor,
+              icon: TrendingUp,
+              label: "Sentiment Monitor",
+            },
             { route: ROUTES.adminMap, icon: Map, label: "Resource Hub" },
             {
               route: ROUTES.adminResourceManagement,

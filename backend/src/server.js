@@ -22,15 +22,11 @@ import { createSearchRouter } from "./routes/search.js";
 import { createAnalyticsRouter } from "./routes/analytics.js";
 import { createSosRouter } from "./routes/sos.js";
 import { createAdminRouter } from "./routes/admin.js";
+import { createSentimentRouter } from "./routes/sentiment.js";
 import { User } from "./models/User.js";
 import { ChatMessage } from "./models/ChatMessage.js";
 import { Alert } from "./models/Alert.js";
 import { syncMonitoredLocations } from "./jobs/syncWeatherAlerts.js";
-import {
-  getAIResponse,
-  getSimpleFallbackResponse,
-  isAIServiceAvailable,
-} from "./services/aiChatService.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.join(__dirname, "..");
@@ -77,6 +73,7 @@ app.use("/api/victims", createVictimsRouter({ requireAuth, optionalAuth }));
 app.use("/api/map", createMapRouter());
 app.use("/api/alerts", createAlertsRouter());
 app.use("/api/ngos", createNgosRouter());
+app.use("/api/sentiment", createSentimentRouter({ requireAuth }));
 app.use("/api/flood", createFloodRouter());
 app.use("/api/chat", createChatRouter({ requireAuth }, emitChatMessage));
 app.use("/api/notifications", createNotificationsRouter({ requireAuth }));
@@ -84,63 +81,6 @@ app.use("/api/search", createSearchRouter({ requireAuth }));
 app.use("/api/analytics", createAnalyticsRouter({ requireAuth }));
 app.use("/api/admin", createAdminRouter({ requireAuth }));
 app.use("/api/sos", createSosRouter({ requireAuth }, emitChatMessage));
-
-async function generateAIResponseForChannel(channel, originalBody) {
-  if (channel !== "support" && channel !== "general") return;
-
-  try {
-    const recent = await ChatMessage.find({ channel })
-      .sort({ _id: -1 })
-      .limit(10)
-      .lean();
-
-    const conversationHistory = recent
-      .reverse()
-      .slice(0, -1)
-      .map((m) => ({
-        body: m.body,
-        is_ai_message: Boolean(m.is_ai_message),
-      }));
-
-    let aiResponseText;
-    if (isAIServiceAvailable()) {
-      const aiResult = await getAIResponse(originalBody, conversationHistory);
-      if (aiResult.success) {
-        aiResponseText = aiResult.message;
-      } else if (aiResult.isConfigError) {
-        aiResponseText = await getSimpleFallbackResponse(originalBody);
-      } else {
-        aiResponseText =
-          "I encountered an issue processing your request. Please try again.";
-      }
-    } else {
-      aiResponseText = await getSimpleFallbackResponse(originalBody);
-    }
-
-    const aiDoc = await ChatMessage.create({
-      channel,
-      user: null,
-      author_label: "Sentinel AI Assistant",
-      body: aiResponseText,
-      is_own_highlight: false,
-      is_ai_message: true,
-    });
-
-    const aiMessage = {
-      id: aiDoc._id.toString(),
-      channel: aiDoc.channel,
-      author_label: aiDoc.author_label,
-      body: aiDoc.body,
-      is_own_highlight: Boolean(aiDoc.is_own_highlight),
-      is_ai_message: Boolean(aiDoc.is_ai_message),
-      created_at: aiDoc.created_at?.toISOString?.() || null,
-    };
-
-    io.to(`channel:${channel}`).emit("chat:message", aiMessage);
-  } catch (err) {
-    console.error("AI support reply error:", err);
-  }
-}
 
 app.get("/api/health", (_req, res) => {
   res.json({
@@ -199,7 +139,6 @@ io.on("connection", (socket) => {
         created_at: doc.created_at?.toISOString?.() || null,
       };
       io.to(`channel:${ch}`).emit("chat:message", message);
-      await generateAIResponseForChannel(ch, String(body).trim());
     } catch (e) {
       console.error(e);
     }
