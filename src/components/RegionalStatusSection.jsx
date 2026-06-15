@@ -7,82 +7,64 @@ const stats = [
 
 function RegionalStatusSection() {
   return (
-    <section className="flex flex-col gap-6 py-8 px-6 bg-slate-900">
-      <style>{`
-        @keyframes pulseGlow {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
-          50% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
-        }
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes shimmer {
-          0% { background-position: -1000px 0; }
-          100% { background-position: 1000px 0; }
-        }
-        .pulse-glow { animation: pulseGlow 2s infinite; }
-        .slide-up { animation: slideUp 0.5s ease-out; }
-        .shimmer-effect {
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-          background-size: 1000px 100%;
-        }
-      `}</style>
-
-      <article className="bg-slate-800 rounded-lg p-6 border border-slate-700 transition-all duration-300 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/20">
-        <div className="flex justify-between items-start">
+    <section className="space-y-6 py-8 px-6 bg-slate-950/95">
+      <article className="rounded-[2rem] border border-white/10 bg-slate-950/75 p-8 shadow-2xl shadow-slate-950/20">
+        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-xs tracking-widest text-gray-400 uppercase">
-              GLOBAL RISK PROFILE
+            <p className="text-xs uppercase tracking-[0.35em] text-blue-400/80">
+              Global risk profile
             </p>
-            <h2 className="text-2xl font-bold text-white mt-2">
-              REGIONAL STATUS
+            <h2 className="mt-3 text-3xl font-black text-white">
+              Regional status
             </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+              Current sector monitoring and response readiness with the same
+              notification-style panels used elsewhere in the app.
+            </p>
           </div>
+
           <button
-            className="flex items-center gap-2 px-4 py-2 bg-yellow-500/20 text-yellow-400 rounded-full font-semibold text-sm hover:bg-yellow-500/30 hover:shadow-lg hover:shadow-yellow-500/30 transition-all duration-300 transform hover:scale-105 active:scale-95"
             type="button"
+            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-blue-500/10 px-4 py-2 text-sm font-semibold text-blue-300 transition hover:bg-blue-500/15 hover:text-blue-100"
           >
-            <span className="w-2 h-2 rounded-full bg-yellow-500 pulse-glow" />
-            WATCH
+            <span className="h-2.5 w-2.5 rounded-full bg-blue-400 animate-pulse" />
+            Watch
           </button>
         </div>
 
-        <div className="flex items-center gap-4 mt-6 mb-4">
-          <span className="text-5xl font-black text-blue-400 transition-transform duration-300 hover:scale-110">
-            04
-          </span>
-          <span className="text-gray-400 uppercase text-sm">
-            ACTIVE SECTORS UNDER REVIEW
-          </span>
-        </div>
-        <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden transition-all duration-300 hover:bg-slate-600">
-          <span className="h-full w-1/3 bg-blue-500 block transition-all duration-500 hover:w-2/3 relative shimmer-effect" />
+        <div className="mt-8 rounded-[1.75rem] border border-white/10 bg-slate-950/70 p-6 shadow-2xl shadow-slate-950/15">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.35em] text-slate-500">
+                Active sectors
+              </p>
+              <p className="mt-3 text-5xl font-black text-blue-400">04</p>
+            </div>
+            <p className="text-sm uppercase tracking-[0.35em] text-slate-400">
+              Active sectors under review
+            </p>
+          </div>
+          <div className="mt-6 h-2 overflow-hidden rounded-full bg-slate-800">
+            <div className="h-full w-2/5 rounded-full bg-blue-500 transition-all duration-500" />
+          </div>
         </div>
       </article>
 
-      <div className="grid grid-cols-4 gap-4">
-        {stats.map((item, idx) => (
+      <div className="grid gap-4 lg:grid-cols-4">
+        {stats.map((item) => (
           <article
             key={item.label}
-            className={`bg-slate-700 rounded-lg p-4 text-center border transition-all duration-300 cursor-pointer transform hover:scale-105 hover:shadow-xl ${
-              item.highlight
-                ? "border-blue-500 bg-slate-700/80 hover:border-blue-400 hover:shadow-blue-500/30 hover:bg-slate-700"
-                : item.alert
-                  ? "border-red-500 bg-red-500/10 hover:border-red-400 hover:shadow-red-500/30 hover:bg-red-500/20"
-                  : "border-slate-600 hover:border-slate-500 hover:shadow-slate-500/20"
+            className={`rounded-[1.75rem] border border-white/10 p-5 text-center bg-slate-950/70 shadow-2xl shadow-slate-950/15 transition duration-300 hover:-translate-y-1 hover:border-blue-500 ${
+              item.alert
+                ? "border-red-500/50 bg-red-500/10 hover:border-red-400"
+                : ""
             }`}
-            style={{
-              animation: `slideUp 0.5s ease-out ${idx * 0.1}s backwards`,
-            }}
           >
-            <span className="text-2xl font-bold text-gray-400 transition-transform duration-300 inline-block hover:scale-125 hover:rotate-12">
+            <span className="block text-3xl font-bold text-slate-400 mb-3">
               {item.icon}
             </span>
-            <strong className="block text-xl text-white mt-2 transition-colors duration-300 hover:text-blue-400">
-              {item.value}
-            </strong>
-            <p className="text-xs text-gray-400 uppercase tracking-wide mt-1 transition-colors duration-300 hover:text-gray-300">
+            <p className="text-3xl font-black text-white">{item.value}</p>
+            <p className="mt-2 text-xs uppercase tracking-[0.35em] text-slate-500">
               {item.label}
             </p>
           </article>

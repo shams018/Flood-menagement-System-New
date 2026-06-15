@@ -105,7 +105,7 @@ function Navbar() {
   };
 
   return (
-    <header className="bg-slate-900 text-white border-b border-slate-700 sticky top-0 z-40">
+    <header className="bg-slate-950/95 text-slate-100 border-b border-white/10 backdrop-blur-xl sticky top-0 z-40 shadow-sm shadow-slate-950/20">
       <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
         {/* Logo */}
         <button
@@ -130,10 +130,10 @@ function Navbar() {
               href={getItemRoute(item)}
               className={`cursor-pointer transition-colors text-sm font-medium ${
                 item === "SESSION"
-                  ? "text-gray-500 cursor-default pointer-events-none"
+                  ? "text-slate-500 cursor-default pointer-events-none"
                   : isActive(item)
-                    ? "text-blue-400 border-b-2 border-blue-400 pb-1"
-                    : "text-gray-300 hover:text-white"
+                    ? "text-blue-300 border-b-2 border-blue-300 pb-1"
+                    : "text-slate-300 hover:text-white"
               }`}
               aria-current={isActive(item) ? "page" : undefined}
               onClick={(event) => handleClick(event, item)}
@@ -145,7 +145,7 @@ function Navbar() {
 
         {/* Desktop Emergency Button */}
         <button
-          className="hidden lg:inline-block bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-2 rounded transition-colors cursor-pointer text-sm"
+          className="hidden lg:inline-block bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-2 rounded-2xl transition-colors cursor-pointer text-sm"
           type="button"
           onClick={handleEmergencyCall}
         >

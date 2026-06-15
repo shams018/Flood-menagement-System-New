@@ -7,7 +7,7 @@ const footerLinks = [
 
 function Footer() {
   return (
-    <footer className="bg-slate-900 border-t border-slate-700 py-8 px-6">
+    <footer className="bg-slate-950/95 border-t border-white/10 py-8 px-6 backdrop-blur-xl text-slate-100">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
         <p className="text-xs text-gray-400 uppercase tracking-widest text-center md:text-left">
           &copy; 2024 SENTINEL PROTOCOL. SITUATIONAL AWARENESS ENGINE.
@@ -21,7 +21,7 @@ function Footer() {
             <a
               key={item}
               href="#"
-              className="text-xs text-gray-400 uppercase tracking-wide hover:text-blue-400 transition-colors"
+              className="text-xs text-slate-400 uppercase tracking-wide hover:text-blue-300 transition-colors"
             >
               {item}
             </a>
@@ -32,14 +32,14 @@ function Footer() {
           <button
             type="button"
             aria-label="Share"
-            className="w-8 h-8 bg-slate-800 hover:bg-slate-700 text-gray-400 hover:text-blue-400 rounded font-bold text-sm transition-colors border border-slate-700"
+            className="w-8 h-8 bg-slate-900/80 hover:bg-slate-800 text-slate-400 hover:text-blue-300 rounded-2xl font-bold text-sm transition-colors border border-white/10"
           >
             S
           </button>
           <button
             type="button"
             aria-label="GitHub"
-            className="w-8 h-8 bg-slate-800 hover:bg-slate-700 text-gray-400 hover:text-blue-400 rounded font-bold text-sm transition-colors border border-slate-700"
+            className="w-8 h-8 bg-slate-900/80 hover:bg-slate-800 text-slate-400 hover:text-blue-300 rounded-2xl font-bold text-sm transition-colors border border-white/10"
           >
             G
           </button>
