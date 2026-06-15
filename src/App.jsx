@@ -31,6 +31,8 @@ import AdminChat from "./components/Admin/AdminChart";
 import NGOPortal from "./components/Admin/NGOPortal";
 import NGOAdminLogin from "./components/Admin/NGOAdminLogin";
 import ManageAlerts from "./components/Admin/ManageAlerts";
+import AIREPORT from "./components/Admin/AIREPORT";
+import SystemParameters from "./components/Admin/SystemPrameter";
 
 function App() {
   const location = useLocation();
@@ -168,6 +170,25 @@ function App() {
                 </AdminRoute>
               }
             />
+
+            <Route
+              path={ROUTES.airepot}
+              element={
+                <AdminRoute>
+                  <AIREPORT />
+                </AdminRoute>
+              }
+            />
+
+            <Route
+              path={ROUTES.systemParameters}
+              element={
+                <AdminRoute>
+                  <SystemParameters />
+                </AdminRoute>
+              }
+            />
+
             <Route
               path={ROUTES.adminMap}
               element={

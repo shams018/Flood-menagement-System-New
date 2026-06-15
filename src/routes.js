@@ -24,6 +24,7 @@ export const ROUTES = {
   adminDashboard: "/admin-dashboard",
   adminMap: "/admin-map",
   sentimentMonitor: "/admin-sentiment-monitor",
+  sentairepot: "/admin-aireport",
   adminResourceManagement: "/admin-resources",
   adminVictimReport: "/victim-report",
   adminNgoCoordination: "/admin-ngo-coordination",
@@ -31,4 +32,5 @@ export const ROUTES = {
   ngoPortal: "/ngo-portal",
   ngoAdminLogin: "/ngo-admin-login",
   manageAlerts: "/manage-alerts",
+  systemParameters: "/system-parameters",
 };

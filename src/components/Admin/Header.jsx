@@ -107,7 +107,7 @@ function Header() {
           </div>
 
           <button
-            className="bg-slate-900/95 hover:bg-gray-800 text-blue-300 px-3 sm:px-5 py-1 sm:py-2 rounded border border-gray-800 text-xs sm:text-sm font-bold tracking-widest transition-all"
+            className="bg-red-700 hover:bg-red-900 text-white px-3 sm:px-5 py-1 sm:py-2 rounded border border-gray-800 text-xs sm:text-sm font-bold tracking-widest transition-all"
             onClick={() => (window.location.href = "tel:911")}
           >
             EMERGENCY CALL

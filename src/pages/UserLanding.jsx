@@ -1,4 +1,5 @@
 import HeroSection from "../components/HeroSection";
+import ImageCarouselSection from "../components/ImageCarouselSection";
 import MapAlertsSection from "../components/MapAlertsSection";
 import RegionalStatusSection from "../components/RegionalStatusSection";
 import StatusTicker from "../components/StatusTicker";
@@ -11,6 +12,7 @@ function LandingPage() {
       <div className="hero-shell">
         <HeroSection />
       </div>
+      <ImageCarouselSection />
       <RegionalStatusSection />
       <MapAlertsSection />
     </>
