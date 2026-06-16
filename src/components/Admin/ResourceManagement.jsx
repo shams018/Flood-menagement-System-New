@@ -336,7 +336,7 @@ const ResourceManagement = () => {
 
   return (
     <motion.div
-      className="flex h-screen overflow-hidden bg-[#090b14] text-slate-100"
+      className="flex h-screen overflow-hidden bg-slate-950 text-white"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -350,7 +350,7 @@ const ResourceManagement = () => {
       `}</style>
 
       {/* --- FIXED SIDEBAR --- */}
-      <aside className="hidden md:block shrink-0 h-screen sticky top-0 border-r border-white/5 bg-[#090b14]">
+      <aside className="hidden md:block shrink-0 h-screen sticky top-0 border-r border-slate-700 bg-slate-900/95">
         <SideBar />
       </aside>
 
@@ -364,9 +364,9 @@ const ResourceManagement = () => {
         )}
 
         {/* --- SCROLLABLE CONTENT --- */}
-        <main className="flex-1 overflow-y-auto no-scrollbar p-4 md:p-6 lg:p-8 bg-[#090b14]">
+        <main className="flex-1 overflow-y-auto no-scrollbar p-4 md:p-6 lg:p-8 bg-slate-950">
           <div className="max-w-400 mx-auto space-y-8">
-            <section className="rounded-[40px] border border-white/5 bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 p-8 shadow-2xl">
+            <section className="rounded-[40px] border border-slate-700 bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 p-8 shadow-2xl">
               <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
                 <div className="space-y-4">
                   <div className="inline-flex items-center gap-3 rounded-full border border-slate-800 bg-slate-900/80 px-4 py-2 text-[10px] uppercase tracking-[0.35em] text-sky-300 font-bold">
@@ -379,7 +379,7 @@ const ResourceManagement = () => {
                 </div>
 
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                  <div className="flex rounded-full border border-white/5 bg-slate-900/90 p-1.5 shadow-lg backdrop-blur-md">
+                  <div className="flex rounded-full border border-slate-700 bg-slate-900/95 p-1.5 shadow-lg backdrop-blur-md">
                     <button className="flex items-center gap-2 rounded-full bg-sky-500 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-950">
                       <Table size={14} /> Table
                     </button>
@@ -401,7 +401,7 @@ const ResourceManagement = () => {
             </section>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-8 rounded-4xl border border-white/5 bg-slate-950 p-6 shadow-2xl">
+              <div className="lg:col-span-8 rounded-4xl border border-slate-700 bg-slate-900/95 p-6 shadow-2xl">
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
                   <div className="flex flex-wrap gap-2">
                     {["Shelters", "Medical Centers", "Rescue Teams"].map(
@@ -505,7 +505,7 @@ const ResourceManagement = () => {
                               <div className="absolute right-6 top-12 bg-slate-950 border border-white/10 rounded-2xl shadow-2xl z-50 min-w-40 overflow-hidden">
                                 <button
                                   onClick={() => handleViewResource(res)}
-                                  className="w-full flex items-center gap-3 px-4 py-3 text-xs text-slate-300 hover:bg-white/5 border-b border-white/5"
+                                  className="w-full flex items-center gap-3 px-4 py-3 text-xs text-slate-300 hover:bg-white/5 border-b border-slate-700"
                                 >
                                   <Eye size={14} /> View Details
                                 </button>
@@ -537,7 +537,7 @@ const ResourceManagement = () => {
 
               {/* --- RIGHT SIDEBAR --- */}
               <aside className="lg:col-span-4 space-y-6 overflow-y-auto no-scrollbar max-h-[calc(100vh-250px)]">
-                <div className="rounded-[40px] border border-white/5 bg-slate-900 p-8 shadow-xl">
+                <div className="rounded-[40px] border border-slate-700 bg-slate-900/95 p-8 shadow-xl">
                   <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-3 text-sky-400 font-bold uppercase text-[10px] tracking-widest">
                       <Globe size={18} /> Live View
@@ -549,7 +549,7 @@ const ResourceManagement = () => {
                   <div className="h-64 rounded-[30px] bg-[url('https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=600')] bg-cover bg-center grayscale brightness-75 contrast-125 border border-white/5" />
                 </div>
 
-                <div className="rounded-[40px] border border-white/5 bg-linear-to-br from-slate-900 to-slate-950 p-10 shadow-xl">
+                <div className="rounded-[40px] border border-slate-700 bg-linear-to-br from-slate-900 to-slate-950 p-10 shadow-xl">
                   <div className="flex items-center gap-3 text-sky-400 mb-8 font-bold uppercase text-[10px] tracking-widest">
                     <Activity size={18} /> Operational Pulse
                   </div>
@@ -585,7 +585,7 @@ const ResourceManagement = () => {
           transition={{ duration: 0.3 }}
         >
           <motion.div
-            className="w-full max-w-2xl bg-[#090b14] border border-white/10 rounded-[48px] overflow-hidden shadow-[0_0_100px_rgba(56,189,248,0.1)] relative"
+            className="w-full max-w-2xl bg-slate-950 border border-slate-700 rounded-[48px] overflow-hidden shadow-[0_0_100px_rgba(56,189,248,0.1)] relative"
             onClick={(e) => e.stopPropagation()}
             initial={{ y: 50 }}
             animate={{ y: 0 }}
@@ -611,7 +611,7 @@ const ResourceManagement = () => {
                 </div>
                 <button
                   onClick={() => setShowDetailModal(false)}
-                  className="p-4 rounded-full bg-white/5 text-slate-500 hover:bg-white/10 hover:text-white transition-all shadow-inner border border-white/5"
+                  className="p-4 rounded-full bg-white/5 text-slate-500 hover:bg-white/10 hover:text-white transition-all shadow-inner border border-slate-700"
                 >
                   <X size={20} />
                 </button>
@@ -619,7 +619,7 @@ const ResourceManagement = () => {
 
               {/* Tactical Grid Info */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-900/50 border border-white/5 rounded-4xl p-6 group hover:border-sky-500/30 transition-all duration-500">
+                <div className="bg-slate-900/95 border border-slate-700 rounded-4xl p-6 group hover:border-sky-500/30 transition-all duration-500">
                   <div className="flex items-center gap-3 text-slate-600 mb-4">
                     <MapPin size={18} className="group-hover:text-sky-400" />
                     <span className="text-[10px] font-black uppercase tracking-widest">
@@ -631,7 +631,7 @@ const ResourceManagement = () => {
                   </p>
                 </div>
 
-                <div className="bg-slate-900/50 border border-white/5 rounded-4xl p-6 group hover:border-sky-500/30 transition-all duration-500">
+                <div className="bg-slate-900/95 border border-slate-700 rounded-4xl p-6 group hover:border-sky-500/30 transition-all duration-500">
                   <div className="flex items-center gap-3 text-slate-600 mb-4">
                     <Radio
                       size={18}
@@ -646,7 +646,7 @@ const ResourceManagement = () => {
                   </p>
                 </div>
 
-                <div className="bg-slate-900/50 border border-white/5 rounded-4xl p-6 group hover:border-sky-500/30 transition-all duration-500">
+                <div className="bg-slate-900/95 border border-slate-700 rounded-4xl p-6 group hover:border-sky-500/30 transition-all duration-500">
                   <div className="flex items-center gap-3 text-slate-600 mb-4">
                     <Users size={18} className="group-hover:text-sky-400" />
                     <span className="text-[10px] font-black uppercase tracking-widest">
@@ -679,7 +679,7 @@ const ResourceManagement = () => {
                   </div>
                 </div>
 
-                <div className="bg-slate-900/50 border border-white/5 rounded-4xl p-6 group hover:border-sky-500/30 transition-all duration-500 flex flex-col justify-between">
+                <div className="bg-slate-900/95 border border-slate-700 rounded-4xl p-6 group hover:border-sky-500/30 transition-all duration-500 flex flex-col justify-between">
                   <div className="flex items-center gap-3 text-slate-600 mb-4">
                     <ShieldAlert
                       size={18}
@@ -700,7 +700,7 @@ const ResourceManagement = () => {
               <div className="flex gap-4">
                 <button
                   onClick={() => setShowDetailModal(false)}
-                  className="flex-1 py-5 rounded-3xl bg-slate-900 border border-white/5 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 hover:text-white transition-all shadow-inner"
+                  className="flex-1 py-5 rounded-3xl bg-slate-900/95 border border-slate-700 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 hover:text-white transition-all shadow-inner"
                 >
                   Close Dashboard
                 </button>
@@ -735,7 +735,7 @@ const ResourceManagement = () => {
             animate={{ scale: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.1 }}
           >
-            <div className="flex justify-between items-center mb-8 pb-4 border-b border-white/5">
+            <div className="flex justify-between items-center mb-8 pb-4 border-b border-slate-700">
               <h2 className="text-2xl font-black uppercase tracking-tighter text-white">
                 {isEditing ? "Update" : "Initialize"}{" "}
                 <span className="text-sky-400">Resource</span>
@@ -793,7 +793,7 @@ const ResourceManagement = () => {
                   name="status"
                   value={formValues.status}
                   onChange={handleInputChange}
-                  className="w-full bg-slate-900 border border-white/5 rounded-2xl px-6 py-4 text-sm text-white focus:border-sky-500 outline-none mt-1"
+                  className="w-full bg-slate-900/95 border border-slate-700 rounded-2xl px-6 py-4 text-sm text-white focus:border-sky-500 outline-none mt-1"
                 >
                   <option value="">Select Level</option>
                   <option value="OPERATIONAL">OPERATIONAL</option>
@@ -851,7 +851,7 @@ const ResourceManagement = () => {
             <div className="flex gap-4">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 py-4 rounded-full border border-white/5 text-[10px] font-black uppercase tracking-widest text-slate-500"
+                className="flex-1 py-4 rounded-full border border-slate-700 text-[10px] font-black uppercase tracking-widest text-slate-500"
               >
                 Abort
               </button>
@@ -878,7 +878,7 @@ const InputField = ({ label, ...props }) => (
     <input
       required
       {...props}
-      className="w-full bg-slate-900 border border-white/5 rounded-2xl px-6 py-4 text-sm text-white focus:border-sky-500 outline-none transition-all placeholder:text-slate-800"
+      className="w-full bg-slate-900/95 border border-slate-700 rounded-2xl px-6 py-4 text-sm text-white focus:border-sky-500 outline-none transition-all placeholder:text-slate-800"
     />
   </div>
 );

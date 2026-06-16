@@ -73,22 +73,22 @@ const AdminMap = () => {
   };
 
   return (
-    <section className="flex h-screen w-full bg-[#0a0a0a] text-white overflow-hidden font-sans">
+    <section className="flex h-screen w-full bg-slate-950 text-white overflow-hidden font-sans">
       <style>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
-      <aside className="w-64 h-full bg-[#1e1e1e] border-r border-gray-800 hidden md:flex flex-col">
+      <aside className="w-64 h-full bg-slate-900/95 border-r border-slate-700 hidden md:flex flex-col">
         <SideBar />
       </aside>
 
       <main className="flex-1 h-full flex flex-col relative pl-9">
         <Header />
 
-        <div className="flex-1 flex relative overflow-hidden bg-[#0a0a0a] p-4 lg:p-8">
+        <div className="flex-1 flex relative overflow-hidden bg-slate-950 p-4 lg:p-8">
           {/* LEFT SIDE: CENTERS PANEL */}
-          <div className="w-100 h-full bg-[#1e1e1e]/95 backdrop-blur-xl border-r rounded-xl border-white/10 p-6 z-30 flex flex-col shadow-2xl">
+          <div className="w-100 h-full bg-slate-900/95 backdrop-blur-xl border-r rounded-xl border-slate-700 p-6 z-30 flex flex-col shadow-2xl">
             <div className="mb-4">
               <h2 className="text-xl font-bold uppercase tracking-tighter">
                 Live Resource Hub
@@ -98,7 +98,7 @@ const AdminMap = () => {
               </p>
             </div>
 
-            <div className="flex p-1 bg-black/40 rounded-lg mb-6 border border-white/5">
+            <div className="flex p-1 bg-slate-900/80 rounded-lg mb-6 border border-slate-700">
               {["Medical", "Shelter", "Rescue"].map((tab) => (
                 <button
                   key={tab}
@@ -106,7 +106,7 @@ const AdminMap = () => {
                     setActiveTab(tab);
                     setSelectedCenter(null);
                   }}
-                  className={`flex-1 py-2 rounded-md text-sm font-semibold uppercase transition-all ${activeTab === tab ? "bg-blue-600 text-white shadow-lg" : "text-gray-500 hover:text-gray-300"}`}
+                  className={`flex-1 py-2 rounded-md text-sm font-semibold uppercase transition-all ${activeTab === tab ? "bg-sky-500 text-white shadow-lg" : "text-slate-400 hover:text-white"}`}
                 >
                   {tab}
                 </button>
@@ -123,7 +123,7 @@ const AdminMap = () => {
                   Loading resources from the dashboard...
                 </div>
               ) : filteredResources.length === 0 ? (
-                <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-gray-300">
+                <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-sm text-slate-400">
                   No resources found for this category.
                 </div>
               ) : (
@@ -133,8 +133,8 @@ const AdminMap = () => {
                     onClick={() => setSelectedCenter(res.id)}
                     className={`p-4 rounded-xl border-l-4 transition-all cursor-pointer ${
                       selectedCenter === res.id
-                        ? "bg-blue-500/20 border-blue-400 scale-[1.02]"
-                        : "bg-white/5 border-blue-500 hover:bg-white/10"
+                        ? "bg-sky-500/10 border-sky-400 scale-[1.02]"
+                        : "bg-slate-900/60 border-slate-700 hover:bg-slate-900/80"
                     }`}
                   >
                     <div className="flex justify-between items-start mb-1">
@@ -148,7 +148,7 @@ const AdminMap = () => {
                     <h3 className="text-sm font-bold text-white leading-tight">
                       {res.name}
                     </h3>
-                    <p className="text-[12px] text-gray-300 mt-1 font-semibold tracking-wide uppercase">
+                    <p className="text-[12px] text-slate-400 mt-1 font-semibold tracking-wide uppercase">
                       {res.type_label || "Unknown location"}
                     </p>
 
@@ -157,7 +157,7 @@ const AdminMap = () => {
                         <div
                           className={`w-2 h-2 rounded-full ${res.status_color_class || "bg-blue-400"} animate-pulse`}
                         />
-                        <span className="text-[10px] font-bold text-gray-400">
+                        <span className="text-[10px] font-bold text-slate-400">
                           {res.status || "Unknown"}
                         </span>
                       </div>
@@ -166,7 +166,7 @@ const AdminMap = () => {
                           e.stopPropagation();
                           handleNavigation(res.lat, res.lng, res.name);
                         }}
-                        className="p-1.5 rounded-md bg-white/5 hover:bg-blue-600 transition-colors"
+                        className="p-1.5 rounded-md bg-white/5 hover:bg-sky-500 transition-colors"
                       >
                         <Navigation size={12} />
                       </button>
@@ -178,7 +178,7 @@ const AdminMap = () => {
           </div>
 
           {/* RIGHT SIDE: MAP VIEW */}
-          <div className="flex-1 relative bg-[#0a0a0a]">
+          <div className="flex-1 relative bg-slate-950">
             <div className="absolute inset-0 z-0">
               <iframe
                 title="Pakistan Map"
@@ -206,7 +206,7 @@ const AdminMap = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search resources by name, location, or category..."
-                  className="w-full bg-[#1e1e1e]/90 backdrop-blur-xl border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm focus:border-blue-500/50 outline-none shadow-2xl transition-all"
+                  className="w-full bg-slate-900/95 backdrop-blur-xl border border-slate-700 rounded-xl py-3 pl-12 pr-4 text-sm focus:border-sky-500/50 outline-none shadow-2xl transition-all"
                 />
               </div>
             </div>
@@ -214,7 +214,7 @@ const AdminMap = () => {
             {/* SELECTED RESOURCE SUMMARY */}
             {selectedCenter ? (
               <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 w-full max-w-xl px-6">
-                <div className="rounded-3xl border border-white/10 bg-slate-950/90 backdrop-blur-xl p-5 shadow-2xl">
+                <div className="rounded-3xl border border-slate-700 bg-slate-900/95 backdrop-blur-xl p-5 shadow-2xl">
                   <div className="flex items-center justify-between gap-4 mb-4">
                     <div>
                       <p className="text-xs uppercase tracking-[0.35em] text-blue-400">
@@ -227,7 +227,7 @@ const AdminMap = () => {
                     <button
                       type="button"
                       onClick={() => setSelectedCenter(null)}
-                      className="rounded-full bg-white/5 p-2 text-gray-300 hover:bg-white/10"
+                      className="rounded-full bg-white/5 p-2 text-slate-300 hover:bg-white/10"
                     >
                       <X size={18} />
                     </button>
@@ -268,12 +268,12 @@ const AdminMap = () => {
 
             {/* MAP TOOLS PANEL (RIGHT) */}
             <div className="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-30">
-              <div className="bg-[#1e1e1e]/90 p-2 rounded-xl border border-white/10 shadow-2xl flex flex-col gap-2 backdrop-blur-md">
+              <div className="bg-slate-900/95 p-2 rounded-xl border border-slate-700 shadow-2xl flex flex-col gap-2 backdrop-blur-md">
                 <button
                   onClick={() => {
                     window.location.reload();
                   }}
-                  className="p-2.5 rounded-lg bg-blue-600 text-white shadow-lg shadow-blue-500/30 hover:bg-blue-500 transition-all"
+                  className="p-2.5 rounded-lg bg-sky-500 text-white shadow-lg shadow-cyan-500/30 hover:bg-sky-400 transition-all"
                   title="Reset Map"
                 >
                   <MapIcon size={18} />
@@ -283,7 +283,7 @@ const AdminMap = () => {
                     setActiveTab("Medical");
                     setSelectedCenter(null);
                   }}
-                  className={`p-2.5 rounded-lg transition-all ${activeTab === "Medical" ? "text-blue-400 bg-white/10" : "text-gray-500 hover:bg-white/5"}`}
+                  className={`p-2.5 rounded-lg transition-all ${activeTab === "Medical" ? "text-sky-400 bg-white/10" : "text-slate-400 hover:bg-white/5"}`}
                 >
                   <Droplets size={18} />
                 </button>
@@ -292,7 +292,7 @@ const AdminMap = () => {
                     setActiveTab("Shelter");
                     setSelectedCenter(null);
                   }}
-                  className={`p-2.5 rounded-lg transition-all ${activeTab === "Shelter" ? "text-blue-400 bg-white/10" : "text-gray-500 hover:bg-white/5"}`}
+                  className={`p-2.5 rounded-lg transition-all ${activeTab === "Shelter" ? "text-sky-400 bg-white/10" : "text-slate-400 hover:bg-white/5"}`}
                 >
                   <Home size={18} />
                 </button>
@@ -301,7 +301,7 @@ const AdminMap = () => {
                     setActiveTab("Rescue");
                     setSelectedCenter(null);
                   }}
-                  className={`p-2.5 rounded-lg transition-all ${activeTab === "Rescue" ? "text-blue-400 bg-white/10" : "text-gray-500 hover:bg-white/5"}`}
+                  className={`p-2.5 rounded-lg transition-all ${activeTab === "Rescue" ? "text-sky-400 bg-white/10" : "text-slate-400 hover:bg-white/5"}`}
                 >
                   <MapPin size={18} />
                 </button>

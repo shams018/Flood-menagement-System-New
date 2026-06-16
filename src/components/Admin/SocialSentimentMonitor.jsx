@@ -268,8 +268,8 @@ function SocialSentimentMonitor() {
   ];
 
   return (
-    <section className="flex h-screen w-full bg-[#090a0b] text-white overflow-hidden font-sans">
-      <aside className="hidden md:block w-72 border-r border-white/10 bg-[#111827]">
+    <section className="flex h-screen w-full bg-slate-950 text-white overflow-hidden font-sans">
+      <aside className="hidden md:block w-72 border-r border-slate-700 bg-slate-900/95">
         <SideBar />
       </aside>
 
@@ -278,7 +278,7 @@ function SocialSentimentMonitor() {
         <div className="flex-1 overflow-y-auto px-4 py-5 sm:px-6 lg:px-8">
           <div className="grid gap-6 xl:grid-cols-[400px_minmax(0,1fr)]">
             <div className="space-y-6">
-              <div className="rounded-3xl border border-white/10 bg-[#141923] p-6 shadow-2xl">
+              <div className="rounded-3xl border border-slate-700 bg-slate-900/95 p-6 shadow-2xl">
                 <div className="flex flex-col gap-3">
                   <div>
                     <p className="text-xs uppercase tracking-[0.36em] text-sky-300 font-semibold">
@@ -293,7 +293,7 @@ function SocialSentimentMonitor() {
                     </p>
                   </div>
 
-                  <div className="rounded-3xl border border-white/10 bg-[#0f172a] p-6">
+                  <div className="rounded-3xl border border-slate-700 bg-slate-900/90 p-6">
                     <div className="flex items-center justify-between gap-4">
                       <div>
                         <p className="text-sm uppercase tracking-[0.3em] text-slate-400">
@@ -335,7 +335,7 @@ function SocialSentimentMonitor() {
                     {summaryCards.map((card) => (
                       <div
                         key={card.title}
-                        className="rounded-3xl border border-white/10 bg-[#101827] p-5"
+                        className="rounded-3xl border border-slate-700 bg-slate-900/95 p-5"
                       >
                         <div className="flex items-center justify-between">
                           <div>
@@ -361,7 +361,7 @@ function SocialSentimentMonitor() {
                 </div>
               </div>
 
-              <div className="rounded-3xl border border-white/10 bg-[#141923] p-6 shadow-2xl">
+              <div className="rounded-3xl border border-slate-700 bg-slate-900/95 p-6 shadow-2xl">
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="text-xs uppercase tracking-[0.32em] text-slate-400 font-semibold">
@@ -382,7 +382,7 @@ function SocialSentimentMonitor() {
                   {alertHistory.map((alert) => (
                     <div
                       key={alert.id}
-                      className="rounded-3xl border border-slate-700 bg-slate-950/70 p-4"
+                      className="rounded-3xl border border-slate-700 bg-slate-950/90 p-4"
                     >
                       <div className="flex items-center justify-between gap-4">
                         <div>
@@ -404,7 +404,7 @@ function SocialSentimentMonitor() {
                   ))}
                 </div>
 
-                <div className="mt-6 rounded-3xl border border-white/10 bg-[#0b1220] p-5">
+                <div className="mt-6 rounded-3xl border border-slate-700 bg-slate-900/95 p-5">
                   <p className="text-sm text-slate-300">
                     Take direct action on the current panic alert.
                   </p>
@@ -434,7 +434,7 @@ function SocialSentimentMonitor() {
             </div>
 
             <div className="space-y-6">
-              <div className="rounded-3xl border border-white/10 bg-[#141923] p-6 shadow-2xl">
+              <div className="rounded-3xl border border-slate-700 bg-slate-900/95 p-6 shadow-2xl">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className="text-xs uppercase tracking-[0.32em] text-slate-400 font-semibold">
@@ -466,7 +466,7 @@ function SocialSentimentMonitor() {
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
                       placeholder="Filter by hashtag, keyword, or location"
-                      className="w-full rounded-3xl border border-slate-700 bg-[#0f172a] py-3 pl-12 pr-4 text-sm text-white outline-none transition focus:border-sky-400"
+                      className="w-full rounded-3xl border border-slate-700 bg-slate-900/95 py-3 pl-12 pr-4 text-sm text-white outline-none transition focus:border-sky-400"
                     />
                   </div>
                   <button
@@ -496,7 +496,7 @@ function SocialSentimentMonitor() {
                 </div>
               </div>
 
-              <div className="rounded-3xl border border-white/10 bg-[#141923] p-6 shadow-2xl">
+              <div className="rounded-3xl border border-slate-700 bg-slate-900/95 p-6 shadow-2xl">
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="text-xs uppercase tracking-[0.32em] text-slate-400 font-semibold">

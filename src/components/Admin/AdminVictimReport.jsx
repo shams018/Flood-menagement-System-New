@@ -701,7 +701,7 @@ ${selectedVictim.family.map((member) => `<li class="family-item"><span class="fa
 
   return (
     <motion.section
-      className="flex h-screen w-full bg-[#0a0a0a] text-white overflow-hidden font-sans"
+      className="flex h-screen w-full bg-slate-950 text-white overflow-hidden font-sans"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -714,7 +714,7 @@ ${selectedVictim.family.map((member) => `<li class="family-item"><span class="fa
         .no-scrollbar::-webkit-scrollbar-corner { display: none !important; }
       `}</style>
       {/* SIDEBAR - Jo aapne pehle use kiya tha */}
-      <aside className="w-64 h-full bg-[#1e1e1e] border-r border-gray-800 hidden md:flex flex-col shrink-0">
+      <aside className="w-64 h-full bg-slate-900/95 border-r border-slate-700 hidden md:flex flex-col shrink-0">
         <SideBar />
       </aside>
 
@@ -724,7 +724,7 @@ ${selectedVictim.family.map((member) => `<li class="family-item"><span class="fa
         <Header />
 
         {/* CONTENT CONTAINER (Scrollable) */}
-        <div className="flex-1 overflow-y-auto p-4 lg:p-8 bg-[#0a0a0a] no-scrollbar">
+        <div className="flex-1 overflow-y-auto p-4 lg:p-8 bg-slate-950 no-scrollbar">
           <div className="max-w-7xl mx-auto">
             {/* --- TOP BAR (Stats & Search) --- */}
             {!selectedVictim && (
@@ -743,11 +743,11 @@ ${selectedVictim.family.map((member) => `<li class="family-item"><span class="fa
                 </div>
 
                 <div className="relative w-full md:w-96 group">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5 group-focus-within:text-blue-500 transition-colors" />
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5 group-focus-within:text-sky-400 transition-colors" />
                   <input
                     type="text"
                     placeholder="Search Name, CNIC or ID..."
-                    className="bg-[#1e1e1e] border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 w-full transition-all text-white"
+                    className="bg-slate-900/95 border border-slate-700 rounded-2xl py-4 pl-12 pr-4 text-sm outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-400/10 w-full transition-all text-white"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
@@ -758,11 +758,11 @@ ${selectedVictim.family.map((member) => `<li class="family-item"><span class="fa
             {/* --- MAIN VIEW SWITCHER --- */}
             {!selectedVictim ? (
               /* --- LIST VIEW --- */
-              <div className="bg-[#1e1e1e]/50 border border-white/5 rounded-[32px] overflow-hidden backdrop-blur-xl shadow-2xl animate-in fade-in duration-700">
+              <div className="bg-slate-900/90 border border-slate-700 rounded-[32px] overflow-hidden backdrop-blur-xl shadow-2xl animate-in fade-in duration-700">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-white/5 text-[10px] uppercase tracking-[0.25em] text-gray-500 font-black">
+                      <tr className="bg-slate-900/80 text-[10px] uppercase tracking-[0.25em] text-slate-400 font-black">
                         <th className="p-6">Reference</th>
                         <th className="p-6">Victim Details</th>
                         <th className="p-6">Location</th>
@@ -775,7 +775,7 @@ ${selectedVictim.family.map((member) => `<li class="family-item"><span class="fa
                         <tr>
                           <td
                             colSpan={5}
-                            className="p-10 text-center text-sm text-gray-400"
+                            className="p-10 text-center text-sm text-slate-400"
                           >
                             Loading victim reports...
                           </td>
@@ -784,7 +784,7 @@ ${selectedVictim.family.map((member) => `<li class="family-item"><span class="fa
                         <tr>
                           <td
                             colSpan={5}
-                            className="p-10 text-center text-sm text-red-400"
+                            className="p-10 text-center text-sm text-rose-400"
                           >
                             {fetchError}
                           </td>
@@ -793,7 +793,7 @@ ${selectedVictim.family.map((member) => `<li class="family-item"><span class="fa
                         <tr>
                           <td
                             colSpan={5}
-                            className="p-10 text-center text-sm text-gray-400"
+                            className="p-10 text-center text-sm text-slate-400"
                           >
                             No victim reports found yet.
                           </td>
@@ -803,7 +803,7 @@ ${selectedVictim.family.map((member) => `<li class="family-item"><span class="fa
                           return (
                             <motion.tr
                               key={victim.id}
-                              className="hover:bg-white/[0.03] transition-all group"
+                              className="hover:bg-slate-900/80 transition-all group"
                               initial={{ opacity: 0, x: -20 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{
@@ -821,15 +821,15 @@ ${selectedVictim.family.map((member) => `<li class="family-item"><span class="fa
                                 <div className="font-bold text-white text-lg group-hover:text-blue-400 transition-colors">
                                   {victim.name}
                                 </div>
-                                <div className="text-[11px] text-gray-500 font-mono mt-1 tracking-tighter italic">
+                                <div className="text-[11px] text-slate-400 font-mono mt-1 tracking-tighter italic">
                                   {victim.cnic}
                                 </div>
                               </td>
                               <td className="p-6">
-                                <div className="flex items-start gap-2 text-sm text-gray-400 max-w-[200px]">
+                                <div className="flex items-start gap-2 text-sm text-slate-400 max-w-[200px]">
                                   <MapPin
                                     size={16}
-                                    className="text-red-500 shrink-0 mt-0.5"
+                                    className="text-rose-500 shrink-0 mt-0.5"
                                   />
                                   <span className="leading-snug">
                                     {victim.location}
@@ -840,12 +840,12 @@ ${selectedVictim.family.map((member) => `<li class="family-item"><span class="fa
                                 <span
                                   className={`text-[9px] font-black uppercase px-4 py-1.5 rounded-full border ${
                                     victim.status === "Pending"
-                                      ? "bg-yellow-500/5 text-yellow-500 border-yellow-500/20"
+                                      ? "bg-yellow-500/5 text-amber-400 border-amber-400/20"
                                       : victim.status === "Approved"
-                                        ? "bg-green-500/5 text-green-500 border-green-500/20"
+                                        ? "bg-emerald-500/5 text-emerald-400 border-emerald-400/20"
                                         : victim.status === "Responded"
-                                          ? "bg-blue-500/5 text-blue-400 border-blue-500/20"
-                                          : "bg-red-500/5 text-red-500 border-red-500/20"
+                                          ? "bg-sky-500/5 text-sky-400 border-sky-400/20"
+                                          : "bg-rose-500/5 text-rose-400 border-rose-400/20"
                                   }`}
                                 >
                                   {victim.status}
@@ -857,7 +857,7 @@ ${selectedVictim.family.map((member) => `<li class="family-item"><span class="fa
                                     onClick={() =>
                                       updateStatus(victim.id, "Approved")
                                     }
-                                    className="p-2.5 text-green-500 hover:bg-green-500/10 rounded-xl transition-all"
+                                    className="p-2.5 text-emerald-400 hover:bg-emerald-400/10 rounded-xl transition-all"
                                     title="Approve"
                                   >
                                     <CheckCircle size={20} />
@@ -866,14 +866,14 @@ ${selectedVictim.family.map((member) => `<li class="family-item"><span class="fa
                                     onClick={() =>
                                       updateStatus(victim.id, "Rejected")
                                     }
-                                    className="p-2.5 text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
+                                    className="p-2.5 text-rose-400 hover:bg-rose-400/10 rounded-xl transition-all"
                                     title="Reject"
                                   >
                                     <XCircle size={20} />
                                   </button>
                                   <button
                                     onClick={() => setSelectedVictim(victim)}
-                                    className="bg-blue-600 text-white p-2.5 rounded-xl hover:bg-blue-500 transition-all shadow-lg shadow-blue-500/20 ml-2"
+                                    className="bg-sky-500 text-white p-2.5 rounded-xl hover:bg-sky-400 transition-all shadow-lg shadow-cyan-500/20 ml-2"
                                     title="View Full Report"
                                   >
                                     <Eye size={20} />
@@ -883,7 +883,7 @@ ${selectedVictim.family.map((member) => `<li class="family-item"><span class="fa
                                       setSelectedVictim(victim);
                                       setShowReportModal(true);
                                     }}
-                                    className="bg-slate-700 text-white p-2.5 rounded-xl hover:bg-slate-600 transition-all shadow-lg shadow-slate-500/20 ml-2"
+                                    className="bg-slate-800 text-white p-2.5 rounded-xl hover:bg-slate-700 transition-all shadow-lg shadow-slate-700/20 ml-2"
                                     title="Download Report"
                                   >
                                     <Download size={20} />
@@ -905,17 +905,17 @@ ${selectedVictim.family.map((member) => `<li class="family-item"><span class="fa
                 <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                   <button
                     onClick={() => setSelectedVictim(null)}
-                    className="flex items-center gap-3 text-gray-400 hover:text-white transition-all font-bold text-xs uppercase tracking-[0.2em] group"
+                    className="flex items-center gap-3 text-slate-400 hover:text-white transition-all font-bold text-xs uppercase tracking-[0.2em] group"
                   >
-                    <div className="p-2 rounded-lg bg-white/5 group-hover:bg-white/10">
+                    <div className="p-2 rounded-lg bg-slate-800 group-hover:bg-slate-700">
                       <ArrowLeft size={18} />
                     </div>
                     Go Back to Table
                   </button>
-                  <div className="px-4 py-2 bg-[#1e1e1e] border border-white/10 rounded-xl">
-                    <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest italic">
+                  <div className="px-4 py-2 bg-slate-900/95 border border-slate-700 rounded-xl">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic">
                       Shortcut: Press{" "}
-                      <span className="text-blue-400 underline underline-offset-4 font-black tracking-tighter">
+                      <span className="text-sky-400 underline underline-offset-4 font-black tracking-tighter">
                         Esc
                       </span>{" "}
                       key to exit
@@ -926,7 +926,7 @@ ${selectedVictim.family.map((member) => `<li class="family-item"><span class="fa
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-20">
                   <div className="lg:col-span-2 space-y-6">
                     {/* Victim Card */}
-                    <div className="bg-[#1e1e1e]/80 border border-white/10 rounded-[40px] p-8 md:p-10 backdrop-blur-xl relative overflow-hidden shadow-2xl">
+                    <div className="bg-slate-900/90 border border-slate-700 rounded-[40px] p-8 md:p-10 backdrop-blur-xl relative overflow-hidden shadow-2xl">
                       <div
                         className={`absolute top-0 right-0 w-48 h-1.5 ${
                           selectedVictim.status === "Approved"
@@ -943,11 +943,11 @@ ${selectedVictim.family.map((member) => `<li class="family-item"><span class="fa
                             {selectedVictim.name}
                           </h2>
                           <div className="flex items-center gap-4 mt-3">
-                            <span className="text-blue-400 font-mono text-sm font-bold tracking-[0.2em]">
+                            <span className="text-sky-400 font-mono text-sm font-bold tracking-[0.2em]">
                               {selectedVictim.id}
                             </span>
                             <div className="h-1 w-1 rounded-full bg-slate-700" />
-                            <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest italic">
+                            <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest italic">
                               {selectedVictim.status}
                             </span>
                           </div>
@@ -986,10 +986,10 @@ ${selectedVictim.family.map((member) => `<li class="family-item"><span class="fa
                             Identity Details
                           </h3>
                           <div className="space-y-4">
-                            <div className="bg-black/20 p-5 rounded-3xl border border-white/5 flex items-center gap-4">
-                              <CreditCard className="text-blue-400" size={20} />
+                            <div className="bg-slate-900/80 p-5 rounded-3xl border border-slate-700 flex items-center gap-4">
+                              <CreditCard className="text-sky-400" size={20} />
                               <div>
-                                <p className="text-[9px] uppercase text-gray-500 font-bold tracking-widest">
+                                <p className="text-[9px] uppercase text-slate-400 font-bold tracking-widest">
                                   CNIC
                                 </p>
                                 <p className="text-sm font-mono font-bold">
@@ -997,10 +997,10 @@ ${selectedVictim.family.map((member) => `<li class="family-item"><span class="fa
                                 </p>
                               </div>
                             </div>
-                            <div className="bg-black/20 p-5 rounded-3xl border border-white/5 flex items-center gap-4">
-                              <Phone className="text-blue-400" size={20} />
+                            <div className="bg-slate-900/80 p-5 rounded-3xl border border-slate-700 flex items-center gap-4">
+                              <Phone className="text-sky-400" size={20} />
                               <div>
-                                <p className="text-[9px] uppercase text-gray-500 font-bold tracking-widest">
+                                <p className="text-[9px] uppercase text-slate-400 font-bold tracking-widest">
                                   Phone
                                 </p>
                                 <p className="text-sm font-bold">
@@ -1019,12 +1019,12 @@ ${selectedVictim.family.map((member) => `<li class="family-item"><span class="fa
                             {selectedVictim.family.map((m, idx) => (
                               <div
                                 key={idx}
-                                className="bg-white/5 p-4 rounded-2xl border border-white/5 flex justify-between items-center italic"
+                                className="bg-slate-900/80 p-4 rounded-2xl border border-slate-700 flex justify-between items-center italic"
                               >
                                 <span className="text-sm font-bold">
                                   {m.name}
                                 </span>
-                                <span className="text-[9px] bg-slate-800 text-gray-400 px-3 py-1 rounded-lg uppercase font-black">
+                                <span className="text-[9px] bg-slate-800 text-slate-400 px-3 py-1 rounded-lg uppercase font-black">
                                   {m.category}
                                 </span>
                               </div>
@@ -1035,8 +1035,8 @@ ${selectedVictim.family.map((member) => `<li class="family-item"><span class="fa
                     </div>
 
                     {/* Location Panel */}
-                    <div className="bg-[#1e1e1e]/80 border border-white/10 rounded-[40px] p-8 backdrop-blur-xl shadow-2xl">
-                      <h3 className="text-[10px] uppercase tracking-[0.4em] text-gray-500 font-black mb-8">
+                    <div className="bg-slate-900/90 border border-slate-700 rounded-[40px] p-8 backdrop-blur-xl shadow-2xl">
+                      <h3 className="text-[10px] uppercase tracking-[0.4em] text-slate-400 font-black mb-8">
                         Location Intelligence
                       </h3>
                       <div className="flex items-center gap-6 bg-red-500/5 p-8 rounded-3xl border border-red-500/10">
@@ -1074,26 +1074,26 @@ ${selectedVictim.family.map((member) => `<li class="family-item"><span class="fa
                       </div>
                       <textarea
                         placeholder="Type message here..."
-                        className="w-full bg-black/20 border border-white/10 rounded-3xl p-5 text-sm text-white placeholder:text-white/30 outline-none focus:bg-black/40 h-40 mb-6 resize-none transition-all"
+                        className="w-full bg-slate-900/80 border border-slate-700 rounded-3xl p-5 text-sm text-white placeholder:text-white/30 outline-none focus:bg-slate-900/70 h-40 mb-6 resize-none transition-all"
                       />
                       <button
                         onClick={() =>
                           updateStatus(selectedVictim.id, "Responded")
                         }
-                        className="w-full bg-white text-blue-800 font-black py-5 rounded-2xl text-[11px] uppercase tracking-[0.3em] hover:bg-blue-50 transition-all active:scale-95 shadow-xl mt-auto"
+                        className="w-full bg-sky-500 text-white font-black py-5 rounded-2xl text-[11px] uppercase tracking-[0.3em] hover:bg-sky-400 transition-all active:scale-95 shadow-xl mt-auto"
                       >
                         Deploy Message
                       </button>
                     </div>
 
-                    <div className="bg-[#1e1e1e]/80 border border-white/10 rounded-[40px] p-8 backdrop-blur-xl">
+                    <div className="bg-slate-900/90 border border-slate-700 rounded-[40px] p-8 backdrop-blur-xl">
                       <div className="flex items-center gap-3 text-yellow-500 mb-5">
                         <AlertTriangle size={20} />
                         <span className="text-[11px] uppercase font-black tracking-widest">
                           Protocol Notice
                         </span>
                       </div>
-                      <p className="text-[12px] text-gray-400 leading-relaxed italic">
+                      <p className="text-[12px] text-slate-400 leading-relaxed italic">
                         Cross-verify CNIC data with NADRA registry before
                         finalizing{" "}
                         <span className="text-green-500 font-bold">

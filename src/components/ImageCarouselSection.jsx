@@ -22,12 +22,17 @@ export default function ImageCarouselSection() {
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-8 text-white shadow-2xl shadow-slate-950/20">
           <p className="text-xs uppercase tracking-[0.45em] text-blue-400/80">
-            Flood visuals
+            Real-time monitoring
           </p>
-          <h2 className="mt-3 text-3xl font-black">Operational snapshots</h2>
+          <h2 className="mt-3 text-3xl font-black">
+            {" "}
+            Live Flood Situation Overview
+          </h2>
           <p className="mt-4 max-w-3xl text-slate-300">
-            A quick visual row of the live flood dashboard imagery for your
-            landing page.
+            Access real-time flood imagery, water-level observations, and field
+            monitoring snapshots from affected regions. Stay informed with
+            continuously updated visual data to support emergency response, risk
+            assessment, and operational decision-making.
           </p>
         </div>
 
