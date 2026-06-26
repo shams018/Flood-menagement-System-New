@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiFetch } from "../lib/api";
 import {
   MessageSquare,
   MapPin,
@@ -69,7 +70,7 @@ const NgoCoordination = () => {
   const fetchNgos = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/ngos`);
+      const res = await apiFetch("/api/ngos");
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to load NGOs");
       setNgos(data.ngos || []);

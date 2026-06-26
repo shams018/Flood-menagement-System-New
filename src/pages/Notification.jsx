@@ -5,6 +5,7 @@ import NotificationSidebar from "../components/NotificationSidebar";
 import NotificationFilters from "../components/NotificationFilters";
 import NotificationFeed from "../components/NotificationFeed";
 import NotificationStats from "../components/NotificationStats";
+import NotificationAnalytics from "../components/NotificationAnalytics";
 import NotificationRegions from "../components/NotificationRegions";
 import { API_BASE } from "../lib/config";
 import { useAuth } from "../context/AuthContext";
@@ -205,57 +206,111 @@ const NotificationsPage = () => {
               </div>
             </section>
 
-            <section className="grid gap-6">
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/70 p-6">
-                  <p className="text-sm uppercase tracking-[0.35em] text-slate-500">
-                    Total Alerts
-                  </p>
-                  <p className="mt-4 text-4xl font-black text-white">
-                    {stats.total}
-                  </p>
+            {category === "analytics" ? (
+              <section className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-8 shadow-2xl shadow-slate-950/15">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-white">Analytics</h2>
+                    <p className="text-sm text-slate-400">
+                      Operational overview and trends for notifications and
+                      response activity.
+                    </p>
+                  </div>
                 </div>
-                <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/70 p-6">
-                  <p className="text-sm uppercase tracking-[0.35em] text-slate-500">
-                    Unread
-                  </p>
-                  <p className="mt-4 text-4xl font-black text-blue-400">
-                    {stats.unread}
-                  </p>
+                <div className="grid gap-6 lg:grid-cols-2">
+                  <div className="rounded-lg p-6 bg-gradient-to-br from-slate-900/60 to-slate-800/40 border border-white/6">
+                    <NotificationAnalytics />
+                  </div>
+                  <div className="rounded-lg p-6 bg-slate-900/60 border border-white/6">
+                    <h3 className="text-sm text-amber-300 uppercase tracking-[0.35em]">
+                      Insights
+                    </h3>
+                    <p className="mt-3 text-sm text-slate-300">
+                      Recent spikes, regional hot-spots, and suggested actions
+                      based on current alerts.
+                    </p>
+                    <div className="mt-4 space-y-3">
+                      <div className="flex items-start gap-3">
+                        <div className="w-2 h-2 mt-1 rounded-full bg-red-500" />
+                        <div>
+                          <p className="text-sm text-white font-semibold">
+                            High severity alerts rising
+                          </p>
+                          <p className="text-xs text-slate-400">
+                            Several regions report increased alert counts in the
+                            past hour.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-2 h-2 mt-1 rounded-full bg-emerald-400" />
+                        <div>
+                          <p className="text-sm text-white font-semibold">
+                            Rescue teams capacity
+                          </p>
+                          <p className="text-xs text-slate-400">
+                            Active teams are meeting demand in most regions,
+                            monitor shelters for overflow.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/70 p-6">
-                  <p className="text-sm uppercase tracking-[0.35em] text-slate-500">
-                    Critical
-                  </p>
-                  <p className="mt-4 text-4xl font-black text-red-400">
-                    {stats.critical}
-                  </p>
+              </section>
+            ) : (
+              <section className="grid gap-6">
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/70 p-6">
+                    <p className="text-sm uppercase tracking-[0.35em] text-slate-500">
+                      Total Alerts
+                    </p>
+                    <p className="mt-4 text-4xl font-black text-white">
+                      {stats.total}
+                    </p>
+                  </div>
+                  <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/70 p-6">
+                    <p className="text-sm uppercase tracking-[0.35em] text-slate-500">
+                      Unread
+                    </p>
+                    <p className="mt-4 text-4xl font-black text-blue-400">
+                      {stats.unread}
+                    </p>
+                  </div>
+                  <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/70 p-6">
+                    <p className="text-sm uppercase tracking-[0.35em] text-slate-500">
+                      Critical
+                    </p>
+                    <p className="mt-4 text-4xl font-black text-red-400">
+                      {stats.critical}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              {notifications.length ? (
-                <div className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-8 shadow-2xl shadow-slate-950/15">
-                  <NotificationFeed
-                    notifications={notifications}
-                    onAction={handleNotificationAction}
-                  />
-                </div>
-              ) : (
-                <div className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-12 text-center shadow-2xl shadow-slate-950/15">
-                  <p className="text-slate-300 text-lg font-semibold">
-                    No notifications available right now.
-                  </p>
-                  <p className="mt-3 text-sm text-slate-500">
-                    Subscribe to alerts or wait for new incident updates to
-                    appear here.
-                  </p>
-                </div>
-              )}
-            </section>
+                {notifications.length ? (
+                  <div className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-8 shadow-2xl shadow-slate-950/15">
+                    <NotificationFeed
+                      notifications={notifications}
+                      onAction={handleNotificationAction}
+                    />
+                  </div>
+                ) : (
+                  <div className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-12 text-center shadow-2xl shadow-slate-950/15">
+                    <p className="text-slate-300 text-lg font-semibold">
+                      No notifications available right now.
+                    </p>
+                    <p className="mt-3 text-sm text-slate-500">
+                      Subscribe to alerts or wait for new incident updates to
+                      appear here.
+                    </p>
+                  </div>
+                )}
+              </section>
+            )}
           </main>
 
           <aside className="space-y-8">
             <div className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-6 shadow-2xl shadow-slate-950/20">
-              <NotificationStats stats={stats} />
+              <NotificationAnalytics />
             </div>
             <div className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-6 shadow-2xl shadow-slate-950/20">
               <NotificationRegions regions={regions} />

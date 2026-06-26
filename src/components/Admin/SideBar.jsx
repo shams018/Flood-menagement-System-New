@@ -13,10 +13,12 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { ROUTES } from "../../routes";
+import { useAuth } from "../../context/AuthContext";
 import Logo from "../../assets/logo.jpg";
 function SideBar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useAuth();
 
   const activeRoute = (route) => location.pathname === route;
 
@@ -46,6 +48,7 @@ function SideBar() {
               icon: TrendingUp,
               label: "Sentiment Monitor",
             },
+            { route: ROUTES.airepot, icon: HelpCircle, label: "AI Reports" },
             { route: ROUTES.adminMap, icon: Map, label: "Resource Hub" },
             {
               route: ROUTES.adminResourceManagement,
@@ -102,7 +105,10 @@ function SideBar() {
             </div>
             <button
               type="button"
-              onClick={() => navigate(ROUTES.adminDashboard)}
+              onClick={() => {
+                logout();
+                navigate(ROUTES.home);
+              }}
               className="w-full flex items-center gap-3 text-sm text-red-400 hover:text-red-300 transition"
             >
               <LogOut size={18} className="text-red-400" />
@@ -113,17 +119,33 @@ function SideBar() {
           <div className="mt-8 space-y-3">
             <button
               type="button"
-              className="w-full flex items-center gap-3 text-sm text-slate-400 hover:text-slate-100 transition"
+              onClick={() => navigate(ROUTES.systemParameters)}
+              className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition ${
+                activeRoute(ROUTES.systemParameters)
+                  ? "bg-slate-800 text-slate-100"
+                  : "bg-slate-900/70 text-slate-300 hover:bg-slate-800 hover:text-white"
+              }`}
             >
-              <Settings size={18} className="text-slate-400" />
+              <Settings
+                size={18}
+                className={
+                  activeRoute(ROUTES.systemParameters)
+                    ? "text-sky-300"
+                    : "text-slate-400"
+                }
+              />
               Settings
             </button>
             <button
               type="button"
-              className="w-full flex items-center gap-3 text-sm text-slate-400 hover:text-slate-100 transition"
+              onClick={() => {
+                logout();
+                navigate(ROUTES.home);
+              }}
+              className="w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-red-400 bg-slate-900/70 hover:bg-slate-800 hover:text-red-300 transition"
             >
-              <HelpCircle size={18} className="text-slate-400" />
-              Support
+              <LogOut size={18} className="text-red-400" />
+              Logout
             </button>
           </div>
         )}

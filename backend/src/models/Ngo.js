@@ -1,14 +1,20 @@
 import mongoose from "mongoose";
 
-const ngoSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  type: { type: String, required: true },
-  status: { type: String, required: true },
-  status_color_class: { type: String, required: true },
-  location: { type: String, required: true },
-  contact: { type: String, required: true },
-  is_active: { type: Boolean, default: true },
-});
+const ngoSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    type: { type: String, required: true },
+    status: { type: String, required: true },
+    status_color_class: { type: String, required: true },
+    location: { type: String, required: true },
+    contact: { type: String, required: true },
+    notes: { type: String, default: "" },
+    is_active: { type: Boolean, default: true },
+  },
+  {
+    timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
+  },
+);
 
 ngoSchema.index(
   {

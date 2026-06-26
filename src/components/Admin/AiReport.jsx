@@ -1,923 +1,266 @@
-import { useState, useEffect } from "react";
+﻿import React, { useEffect, useMemo, useState } from "react";
+import SideBar from "./SideBar";
+import Header from "./Header";
+import { apiFetch } from "../../lib/api";
 
-const MOCK_REPORTS = [
-  {
-    _id: "1",
-    date: "2024-10-24",
-    title: "Flash Flood Vector Analysis: Lower Danube",
-    region: "SE-EUROPE",
-    status: "sent",
-    confidence: 94,
-    summary:
-      "Probability of critical failure at Barrage Sector 4 has increased to 74% based on latest n8n telemetry analysis.",
-    detail:
-      "Water levels at the Danube station reported an anomalous rise of 1.2m within 180 minutes. Prediction models suggest peak overflow between 0400h and 0600h tomorrow.",
-    evacPriority: "URGENT",
-    impactRadius: "12.4 km",
-  },
-  {
-    _id: "2",
-    date: "2024-10-23",
-    title: "Inland Surge Prediction: Northern Delta",
-    region: "G-AFRICA",
-    status: "generated",
-    confidence: 88,
-    summary:
-      "Surge prediction models indicate elevated risk across 3 districts with expected water ingress of 0.8m above threshold.",
-    detail:
-      "Satellite telemetry confirms inland surge forming 40km north. NDVI anomaly detected indicating soil saturation beyond safe limits.",
-    evacPriority: "HIGH",
-    impactRadius: "8.1 km",
-  },
-  {
-    _id: "3",
-    date: "2024-10-23",
-    title: "Urban Drainage Saturation Report",
-    region: "JAKARTA-M",
-    status: "failed",
-    confidence: null,
-    summary: "Report generation failed due to telemetry feed interruption.",
-    detail:
-      "Neural link to Jakarta sensor grid was interrupted at 03:14 UTC. Manual review required.",
-    evacPriority: "PENDING",
+function AiReport() {
+  const [activeFilter, setActiveFilter] = useState("ALL");
+  const [reports, setReports] = useState([]);
+  const [stats, setStats] = useState({ reportsToday: 0, successRate: 0 });
+  const [aiSummary, setAiSummary] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let canceled = false;
+
+    const fetchReportData = async () => {
+      setLoading(true);
+      try {
+        const res = await apiFetch("/api/admin/reports");
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || "Unable to load AI reports");
+        }
+        if (canceled) return;
+        setReports(data.reports || []);
+        setStats(data.stats || { reportsToday: 0, successRate: 0 });
+        setAiSummary(data.aiSummary || null);
+        setError("");
+      } catch (err) {
+        if (!canceled) setError(err.message || "Unable to load AI reports");
+      } finally {
+        if (!canceled) setLoading(false);
+      }
+    };
+
+    fetchReportData();
+    return () => {
+      canceled = true;
+    };
+  }, []);
+
+  const filteredArchive = useMemo(() => {
+    if (activeFilter === "ALL") return reports;
+    if (activeFilter === "FAILED")
+      return reports.filter((item) => item.status === "FAILED");
+    if (activeFilter === "PENDING")
+      return reports.filter((item) => item.status === "GENERATED");
+    return reports;
+  }, [activeFilter, reports]);
+
+  const displayReports = useMemo(() => {
+    return filteredArchive.slice(0, 6);
+  }, [filteredArchive]);
+
+  const summary = aiSummary || {
+    title: "No AI reports available",
+    summary: "The AI system is preparing the first intelligence summaries.",
+    confidence: 0,
+    evacPriority: "N/A",
     impactRadius: "N/A",
-  },
-  {
-    _id: "4",
-    date: "2024-10-22",
-    title: "Post-Event Damage Assessment: Alpha-9",
-    region: "SE-ASIA",
-    status: "sent",
-    confidence: 97,
-    summary:
-      "Post-flood damage synthesis complete. 62 structures compromised, 14 critical infrastructure nodes offline.",
-    detail:
-      "Multispectral analysis confirms widespread inundation pattern. Emergency response teams dispatched to zones A3 through A7.",
-    evacPriority: "MODERATE",
-    impactRadius: "19.2 km",
-  },
-];
-
-function formatDate(dateStr) {
-  const d = new Date(dateStr);
-  return {
-    month: d.toLocaleString("default", { month: "short" }).toUpperCase(),
-    day: d.getDate(),
   };
-}
-
-export default function AIReports() {
-  const [reports, setReports] = useState(MOCK_REPORTS);
-  const [selected, setSelected] = useState(MOCK_REPORTS[0]);
-  const [filter, setFilter] = useState("ALL");
-  const [loading, setLoading] = useState(false);
-  const [pulse, setPulse] = useState(true);
-  const [toast, setToast] = useState(null);
-
-  useEffect(() => {
-    // Replace with real API call:
-    // const res = await fetch("/api/reports");
-    // const data = await res.json();
-    // setReports(data);
-    setReports(MOCK_REPORTS);
-  }, []);
-
-  useEffect(() => {
-    const t = setInterval(() => setPulse((p) => !p), 900);
-    return () => clearInterval(t);
-  }, []);
-
-  const filtered =
-    filter === "ALL"
-      ? reports
-      : reports.filter((r) => r.status.toUpperCase() === filter);
-
-  const handleRetry = (id) => {
-    setLoading(true);
-    setTimeout(() => {
-      setReports((prev) =>
-        prev.map((r) => (r._id === id ? { ...r, status: "generated" } : r)),
-      );
-      setLoading(false);
-      showToast("Report regeneration queued.");
-    }, 1500);
-  };
-
-  const showToast = (msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 3000);
-  };
-
-  const successRate = (
-    (reports.filter((r) => r.status !== "failed").length / reports.length) *
-    100
-  ).toFixed(1);
 
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-        .ai-reports * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
-        .ai-reports { background: #111318; min-height: 100vh; color: #e4e6eb; }
-        .report-row:hover { background: rgba(255,255,255,0.03); }
-        .btn-view:hover { background: #2a2f3d; }
-        .btn-export:hover { background: #1f2d4a; }
-        .btn-resend:hover { background: rgba(255,255,255,0.05); }
-        .filter-btn:hover { color: #c9ccd4; }
-      `}</style>
+    <section className="flex h-screen w-full bg-slate-950 text-white overflow-hidden font-sans">
+      <aside className="w-72 h-full bg-slate-900/95 border-r border-slate-700 hidden md:flex flex-col">
+        <SideBar />
+      </aside>
 
-      {/* Toast */}
-      {toast && (
-        <div
-          style={{
-            position: "fixed",
-            bottom: 24,
-            right: 24,
-            zIndex: 9999,
-            background: "#4f8ef7",
-            color: "#fff",
-            fontSize: 12,
-            fontWeight: 600,
-            letterSpacing: "0.05em",
-            padding: "10px 18px",
-            borderRadius: 8,
-            boxShadow: "0 4px 20px rgba(79,142,247,0.4)",
-          }}
-        >
-          {toast}
-        </div>
-      )}
+      <main className="flex-1 h-full flex flex-col overflow-hidden">
+        <Header />
 
-      <div
-        className="ai-reports"
-        style={{ display: "flex", minHeight: "100vh" }}
-      >
-        {/* ── LEFT COLUMN ── */}
-        <div style={{ flex: 1, minWidth: 0, padding: "36px 32px 40px" }}>
-          {/* Live badge */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              marginBottom: 14,
-            }}
-          >
-            <span
-              style={{
-                width: 7,
-                height: 7,
-                borderRadius: "50%",
-                background: "#4f8ef7",
-                display: "inline-block",
-                transition: "opacity 0.5s",
-                opacity: pulse ? 1 : 0.15,
-              }}
-            />
-            <span
-              style={{
-                fontSize: 10,
-                letterSpacing: "0.2em",
-                color: "#4f8ef7",
-                fontWeight: 500,
-              }}
-            >
-              LIVE INTELLIGENCE STREAM
-            </span>
-          </div>
-
-          {/* Title row */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-              marginBottom: 32,
-              flexWrap: "wrap",
-              gap: 20,
-            }}
-          >
-            <div>
-              <h1
-                style={{
-                  fontSize: 52,
-                  fontWeight: 800,
-                  color: "#fff",
-                  margin: "0 0 10px",
-                  lineHeight: 1,
-                  letterSpacing: "-1.5px",
-                }}
-              >
-                AI Reports
-              </h1>
-              <p
-                style={{
-                  fontSize: 13,
-                  color: "#6b7280",
-                  margin: 0,
-                  lineHeight: 1.7,
-                  maxWidth: 380,
-                }}
-              >
-                Deep learning synthesis of multispectral flood data and
-                humanitarian
-                <br />
-                telemetry. Generated via Sentinel Neural Link.
-              </p>
-            </div>
-
-            {/* Stat cards */}
-            <div style={{ display: "flex", gap: 12 }}>
-              {[
-                {
-                  label: "REPORTS TODAY",
-                  value: reports.length,
-                  color: "#e4e6eb",
-                },
-                {
-                  label: "SUCCESS RATE",
-                  value: `${successRate}%`,
-                  color: "#4f8ef7",
-                },
-              ].map(({ label, value, color }) => (
-                <div
-                  key={label}
-                  style={{
-                    background: "#181b23",
-                    border: "1px solid #252932",
-                    borderRadius: 12,
-                    padding: "16px 28px",
-                    textAlign: "center",
-                    minWidth: 130,
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: 10,
-                      letterSpacing: "0.18em",
-                      color: "#6b7280",
-                      marginBottom: 8,
-                      fontWeight: 500,
-                    }}
-                  >
-                    {label}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 36,
-                      fontWeight: 800,
-                      color,
-                      lineHeight: 1,
-                    }}
-                  >
-                    {value}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Archive header + filters */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: 14,
-            }}
-          >
-            <span
-              style={{
-                fontSize: 11,
-                letterSpacing: "0.18em",
-                color: "#4b5563",
-                fontWeight: 500,
-              }}
-            >
-              RECENT ARCHIVE
-            </span>
-            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              {["ALL", "FAILED", "PENDING"].map((f) => (
-                <button
-                  key={f}
-                  className="filter-btn"
-                  onClick={() => setFilter(f)}
-                  style={{
-                    background: filter === f ? "#4f8ef7" : "transparent",
-                    color: filter === f ? "#fff" : "#6b7280",
-                    border: "none",
-                    cursor: "pointer",
-                    fontSize: 11,
-                    fontWeight: 600,
-                    letterSpacing: "0.1em",
-                    padding: "5px 14px",
-                    borderRadius: 20,
-                    transition: "all 0.15s",
-                  }}
-                >
-                  {f}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div style={{ height: 1, background: "#1e2330", marginBottom: 4 }} />
-
-          {/* Report rows */}
-          {filtered.map((r) => {
-            const { month, day } = formatDate(r.date);
-            const isSelected = selected?._id === r._id;
-
-            return (
-              <div key={r._id}>
-                <div
-                  className="report-row"
-                  onClick={() => setSelected(r)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 16,
-                    padding: "18px 12px",
-                    cursor: "pointer",
-                    background: isSelected
-                      ? "rgba(79,142,247,0.06)"
-                      : "transparent",
-                    borderLeft: `3px solid ${r.status === "failed" ? "#ef4444" : isSelected ? "#4f8ef7" : "transparent"}`,
-                    transition: "all 0.15s",
-                    position: "relative",
-                  }}
-                >
-                  {/* Date box */}
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      width: 38,
-                      flexShrink: 0,
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontSize: 9,
-                        letterSpacing: "0.15em",
-                        color: "#4b5563",
-                        fontWeight: 500,
-                      }}
-                    >
-                      {month}
-                    </span>
-                    <span
-                      style={{
-                        fontSize: 22,
-                        fontWeight: 700,
-                        color: "#9ca3af",
-                        lineHeight: 1.1,
-                      }}
-                    >
-                      {day}
-                    </span>
-                  </div>
-
-                  {/* Info */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div
-                      style={{
-                        fontSize: 14,
-                        fontWeight: 600,
-                        color: "#d1d5db",
-                        marginBottom: 7,
-                        lineHeight: 1.4,
-                      }}
-                    >
-                      {r.title}
-                    </div>
-                    <div
-                      style={{ display: "flex", alignItems: "center", gap: 12 }}
-                    >
-                      <span
-                        style={{
-                          fontSize: 10,
-                          color: "#4b5563",
-                          letterSpacing: "0.12em",
-                        }}
-                      >
-                        REGION: {r.region}
-                      </span>
-                      {r.status === "sent" && (
-                        <span
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 5,
-                            fontSize: 10,
-                            fontWeight: 600,
-                            color: "#60a5fa",
-                            letterSpacing: "0.08em",
-                          }}
-                        >
-                          <span
-                            style={{
-                              width: 6,
-                              height: 6,
-                              borderRadius: "50%",
-                              background: "#60a5fa",
-                              display: "inline-block",
-                            }}
-                          />
-                          SENT
-                        </span>
-                      )}
-                      {r.status === "generated" && (
-                        <span
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 5,
-                            fontSize: 10,
-                            fontWeight: 600,
-                            color: "#f59e0b",
-                            letterSpacing: "0.08em",
-                          }}
-                        >
-                          <span
-                            style={{
-                              width: 6,
-                              height: 6,
-                              borderRadius: "50%",
-                              background: "#f59e0b",
-                              display: "inline-block",
-                            }}
-                          />
-                          GENERATED
-                        </span>
-                      )}
-                      {r.status === "failed" && (
-                        <span
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 5,
-                            fontSize: 10,
-                            fontWeight: 600,
-                            color: "#f87171",
-                            letterSpacing: "0.08em",
-                          }}
-                        >
-                          <span
-                            style={{
-                              width: 6,
-                              height: 6,
-                              borderRadius: "50%",
-                              background: "#f87171",
-                              display: "inline-block",
-                            }}
-                          />
-                          FAILED
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                      flexShrink: 0,
-                    }}
-                  >
-                    {r.status === "failed" ? (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRetry(r._id);
-                        }}
-                        disabled={loading}
-                        style={{
-                          fontSize: 11,
-                          fontWeight: 600,
-                          letterSpacing: "0.08em",
-                          color: "#f87171",
-                          background: "transparent",
-                          border: "1px solid rgba(248,113,113,0.4)",
-                          padding: "7px 14px",
-                          borderRadius: 8,
-                          cursor: "pointer",
-                          opacity: loading ? 0.6 : 1,
-                          transition: "all 0.15s",
-                        }}
-                      >
-                        {loading ? "RETRYING..." : "RETRY GENERATION"}
-                      </button>
-                    ) : (
-                      <>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            showToast("Email sent.");
-                          }}
-                          style={{
-                            width: 34,
-                            height: 34,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            background: "transparent",
-                            border: "none",
-                            cursor: "pointer",
-                            color: "#4b5563",
-                            fontSize: 16,
-                            transition: "color 0.15s",
-                          }}
-                          title="Email"
-                          onMouseOver={(e) =>
-                            (e.currentTarget.style.color = "#9ca3af")
-                          }
-                          onMouseOut={(e) =>
-                            (e.currentTarget.style.color = "#4b5563")
-                          }
-                        >
-                          ✉
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            showToast("Downloading...");
-                          }}
-                          style={{
-                            width: 34,
-                            height: 34,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            background: "transparent",
-                            border: "none",
-                            cursor: "pointer",
-                            color: "#4b5563",
-                            fontSize: 18,
-                            transition: "color 0.15s",
-                          }}
-                          title="Download"
-                          onMouseOver={(e) =>
-                            (e.currentTarget.style.color = "#9ca3af")
-                          }
-                          onMouseOut={(e) =>
-                            (e.currentTarget.style.color = "#4b5563")
-                          }
-                        >
-                          ↓
-                        </button>
-                        <button
-                          className="btn-view"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelected(r);
-                          }}
-                          style={{
-                            fontSize: 10,
-                            fontWeight: 700,
-                            letterSpacing: "0.1em",
-                            color: "#d1d5db",
-                            background: "#1e2330",
-                            border: "1px solid #2a3040",
-                            padding: "8px 14px",
-                            borderRadius: 8,
-                            cursor: "pointer",
-                            lineHeight: 1.4,
-                            textAlign: "center",
-                            transition: "all 0.15s",
-                          }}
-                        >
-                          VIEW
-                          <br />
-                          REPORT
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-                <div style={{ height: 1, background: "#1a1e2a" }} />
-              </div>
-            );
-          })}
-        </div>
-
-        {/* ── RIGHT PANEL ── */}
-        <div
-          style={{
-            width: 285,
-            flexShrink: 0,
-            background: "#13161e",
-            borderLeft: "1px solid #1e2330",
-            display: "flex",
-            flexDirection: "column",
-            overflowY: "auto",
-          }}
-        >
-          {selected && (
-            <div
-              style={{
-                padding: "28px 22px",
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              {/* Neural Preview */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                  marginBottom: 4,
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: 9,
-                    letterSpacing: "0.2em",
-                    color: "#4b5563",
-                    fontWeight: 500,
-                  }}
-                >
-                  NEURAL PREVIEW
+        <div className="flex-1 overflow-y-auto p-4 lg:p-8">
+          <div className="grid gap-6 xl:grid-cols-[1.6fr_0.9fr]">
+            <div className="rounded-[2rem] border border-slate-700 bg-slate-900/80 p-8 shadow-2xl shadow-slate-950/40">
+              <div className="mb-8 flex flex-col gap-4">
+                <span className="text-xs uppercase tracking-[0.35em] text-sky-400 font-semibold">
+                  Live intelligence stream
                 </span>
-                <span style={{ color: "#4f8ef7", fontSize: 16 }}>✦</span>
-              </div>
-
-              <h2
-                style={{
-                  fontSize: 26,
-                  fontWeight: 700,
-                  color: "#fff",
-                  margin: "0 0 20px",
-                  lineHeight: 1.2,
-                  letterSpacing: "-0.5px",
-                }}
-              >
-                Executive
-                <br />
-                Summary
-              </h2>
-
-              {/* Quote */}
-              <div
-                style={{
-                  background: "#0d1018",
-                  border: "1px solid #1e2535",
-                  borderRadius: 10,
-                  padding: "14px 16px",
-                  marginBottom: 18,
-                }}
-              >
-                <p
-                  style={{
-                    fontSize: 13,
-                    color: "#9ca3af",
-                    margin: 0,
-                    lineHeight: 1.65,
-                    fontStyle: "italic",
-                  }}
-                >
-                  "{selected.summary}"
-                </p>
-              </div>
-
-              {/* Confidence */}
-              {selected.confidence && (
-                <div style={{ marginBottom: 18 }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      marginBottom: 8,
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontSize: 9,
-                        letterSpacing: "0.18em",
-                        color: "#4b5563",
-                        fontWeight: 500,
-                      }}
-                    >
-                      AI CONFIDENCE SCORE
-                    </span>
-                    <span
-                      style={{
-                        fontSize: 13,
-                        fontWeight: 700,
-                        color: "#d1d5db",
-                      }}
-                    >
-                      {selected.confidence}%
-                    </span>
-                  </div>
-                  <div
-                    style={{
-                      height: 3,
-                      background: "#1e2535",
-                      borderRadius: 2,
-                    }}
-                  >
-                    <div
-                      style={{
-                        height: "100%",
-                        borderRadius: 2,
-                        background: "linear-gradient(90deg, #3b82f6, #60a5fa)",
-                        width: `${selected.confidence}%`,
-                        transition: "width 0.6s ease",
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Detail text */}
-              <p
-                style={{
-                  fontSize: 12,
-                  color: "#6b7280",
-                  lineHeight: 1.75,
-                  marginBottom: 22,
-                }}
-              >
-                {selected.detail}
-              </p>
-
-              {/* Evac + Impact */}
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: 16,
-                  marginBottom: 24,
-                }}
-              >
-                <div>
-                  <p
-                    style={{
-                      fontSize: 9,
-                      letterSpacing: "0.18em",
-                      color: "#4b5563",
-                      margin: "0 0 5px",
-                      fontWeight: 500,
-                    }}
-                  >
-                    EVAC PRIORITY
-                  </p>
-                  <p
-                    style={{
-                      fontSize: 14,
-                      fontWeight: 700,
-                      margin: 0,
-                      color:
-                        selected.evacPriority === "URGENT"
-                          ? "#ef4444"
-                          : selected.evacPriority === "HIGH"
-                            ? "#f97316"
-                            : selected.evacPriority === "MODERATE"
-                              ? "#f59e0b"
-                              : "#6b7280",
-                    }}
-                  >
-                    {selected.evacPriority}
-                  </p>
-                </div>
-                <div>
-                  <p
-                    style={{
-                      fontSize: 9,
-                      letterSpacing: "0.18em",
-                      color: "#4b5563",
-                      margin: "0 0 5px",
-                      fontWeight: 500,
-                    }}
-                  >
-                    IMPACT RADIUS
-                  </p>
-                  <p
-                    style={{
-                      fontSize: 14,
-                      fontWeight: 700,
-                      color: "#d1d5db",
-                      margin: 0,
-                    }}
-                  >
-                    {selected.impactRadius}
-                  </p>
-                </div>
-              </div>
-
-              {/* Export PDF */}
-              <button
-                className="btn-export"
-                onClick={() => showToast("PDF export initiated.")}
-                style={{
-                  width: "100%",
-                  padding: "13px",
-                  marginBottom: 10,
-                  borderRadius: 10,
-                  background: "#192035",
-                  border: "1px solid #2a3a58",
-                  color: "#93c5fd",
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: "0.12em",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                  transition: "all 0.15s",
-                }}
-              >
-                <span style={{ fontSize: 14 }}>⬡</span> EXPORT FULL PDF
-              </button>
-
-              {/* Resend */}
-              <button
-                className="btn-resend"
-                onClick={() => showToast("Resent to admins.")}
-                style={{
-                  width: "100%",
-                  padding: "13px",
-                  borderRadius: 10,
-                  background: "transparent",
-                  border: "1px solid #1e2535",
-                  color: "#6b7280",
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: "0.12em",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                  transition: "all 0.15s",
-                }}
-              >
-                ✉ RESEND TO ADMINS
-              </button>
-
-              {/* Spacer */}
-              <div style={{ flex: 1, minHeight: 28 }} />
-
-              {/* Neural Engine Status */}
-              <div style={{ borderTop: "1px solid #1e2330", paddingTop: 18 }}>
-                <p
-                  style={{
-                    fontSize: 9,
-                    letterSpacing: "0.2em",
-                    color: "#4b5563",
-                    marginBottom: 14,
-                    fontWeight: 500,
-                  }}
-                >
-                  NEURAL ENGINE STATUS
-                </p>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div
-                    style={{
-                      width: 38,
-                      height: 38,
-                      borderRadius: 10,
-                      background: "#1a1e2a",
-                      border: "1px solid #252932",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 20,
-                      flexShrink: 0,
-                    }}
-                  >
-                    🤖
-                  </div>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                   <div>
-                    <p
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 600,
-                        color: "#d1d5db",
-                        margin: "0 0 3px",
-                      }}
-                    >
-                      OpenAI GPT-4o Integration
-                    </p>
-                    <p style={{ fontSize: 11, color: "#4ade80", margin: 0 }}>
-                      • Latency: 420ms
+                    <h1 className="text-4xl font-semibold text-white sm:text-5xl">
+                      AI Reports
+                    </h1>
+                    <p className="mt-3 max-w-2xl text-slate-400 text-sm leading-6">
+                      Deep learning synthesis of multispectral flood data and
+                      humanitarian telemetry. Generated via Sentinel Neural
+                      Link.
                     </p>
                   </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="rounded-3xl border border-slate-700 bg-slate-950/90 p-4">
+                      <div className="text-xs uppercase tracking-[0.3em] text-slate-500">
+                        Reports Today
+                      </div>
+                      <div className="mt-3 text-3xl font-semibold text-sky-400">
+                        14
+                      </div>
+                    </div>
+                    <div className="rounded-3xl border border-slate-700 bg-slate-950/90 p-4">
+                      <div className="text-xs uppercase tracking-[0.3em] text-slate-500">
+                        Success Rate
+                      </div>
+                      <div className="mt-3 text-3xl font-semibold text-emerald-400">
+                        98.2%
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-3xl border border-slate-700 bg-slate-950/90 p-6 shadow-inner shadow-slate-950/20">
+                <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                  <div>
+                    <h2 className="text-sm uppercase tracking-[0.3em] text-slate-500 mb-3">
+                      Recent Archive
+                    </h2>
+                    <p className="text-sm text-slate-400">
+                      Review the latest generated reports, delivery status, and
+                      retry failed predictions instantly.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    {[
+                      { label: "All", value: "ALL" },
+                      { label: "Failed", value: "FAILED" },
+                      { label: "Pending", value: "PENDING" },
+                    ].map((filter) => (
+                      <button
+                        key={filter.value}
+                        type="button"
+                        onClick={() => setActiveFilter(filter.value)}
+                        className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                          activeFilter === filter.value
+                            ? "bg-sky-500 text-slate-950"
+                            : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+                        }`}
+                      >
+                        {filter.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-6 space-y-4">
+                  {filteredArchive.map((item) => (
+                    <div
+                      key={`${item.date}-${item.title}`}
+                      className="flex flex-col gap-4 rounded-3xl border border-slate-700 bg-slate-950/90 p-5 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-slate-500">
+                          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-800 text-slate-300">
+                            {item.date.split(" ")[0]}
+                          </span>
+                          <span>{item.date}</span>
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-white">
+                            {item.title}
+                          </h3>
+                          <p className="mt-1 text-sm text-slate-400 uppercase tracking-[0.2em]">
+                            Region: {item.region}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col gap-3 sm:items-end">
+                        <span
+                          className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] ${
+                            item.badge === "blue"
+                              ? "bg-sky-500/10 text-sky-300"
+                              : item.badge === "amber"
+                                ? "bg-amber-500/10 text-amber-300"
+                                : "bg-red-500/10 text-red-300"
+                          }`}
+                        >
+                          {item.status}
+                        </span>
+                        <div className="flex flex-wrap gap-2">
+                          {item.status === "FAILED" ? (
+                            <button className="rounded-2xl bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-400">
+                              Retry Generation
+                            </button>
+                          ) : (
+                            <button className="rounded-2xl bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:bg-slate-700">
+                              View Report
+                            </button>
+                          )}
+                          <button className="rounded-2xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm text-slate-300 transition hover:border-slate-500 hover:text-white">
+                            Download
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
-          )}
+
+            <div className="rounded-[2rem] border border-slate-700 bg-slate-900/80 p-6 shadow-2xl shadow-slate-950/40">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.35em] text-slate-500">
+                    Neural Preview
+                  </p>
+                  <h2 className="mt-3 text-3xl font-semibold text-white">
+                    Executive Summary
+                  </h2>
+                </div>
+                <div className="rounded-3xl bg-slate-950/90 px-4 py-3 text-sm text-slate-300">
+                  AI Confidence
+                  <div className="mt-2 text-2xl font-semibold text-sky-400">
+                    94%
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 space-y-5 border-t border-slate-700 pt-6 text-slate-300">
+                <p className="text-sm leading-7">
+                  "Probability of critical failure at Barrage Sector 4 has
+                  increased to 74% based on latest n8n telemetry analysis."
+                </p>
+                <p className="text-sm leading-7 text-slate-400">
+                  Water levels at the Danube station reported an anomalous rise
+                  of 1.2m within 180 minutes. Prediction models suggest peak
+                  overflow between 0400h and 0600h tomorrow.
+                </p>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="rounded-3xl border border-slate-700 bg-slate-950/90 p-4">
+                    <div className="text-xs uppercase tracking-[0.3em] text-slate-500">
+                      Evac Priority
+                    </div>
+                    <div className="mt-3 text-2xl font-semibold text-rose-400">
+                      Urgent
+                    </div>
+                  </div>
+                  <div className="rounded-3xl border border-slate-700 bg-slate-950/90 p-4">
+                    <div className="text-xs uppercase tracking-[0.3em] text-slate-500">
+                      Impact Radius
+                    </div>
+                    <div className="mt-3 text-2xl font-semibold text-sky-400">
+                      12.4 km
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <button className="inline-flex items-center justify-center rounded-3xl bg-sky-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-400">
+                    Export Full PDF
+                  </button>
+                  <button className="inline-flex items-center justify-center rounded-3xl border border-slate-700 bg-slate-900 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-slate-800">
+                    Resend to Admins
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </>
+      </main>
+    </section>
   );
 }
+
+export default AiReport;

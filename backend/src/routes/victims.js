@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import mongoose from "mongoose";
+import axios from "axios";
 import { VictimRegistration } from "../models/VictimRegistration.js";
 import { Notification } from "../models/Notification.js";
 
@@ -113,6 +114,22 @@ export function createVictimsRouter({ requireAuth, optionalAuth }) {
           id_front_path: idFrontPath,
           id_back_path: idBackPath,
         });
+
+        try {
+          const hookUrl = new URL(
+            "https://hook.eu1.make.com/97bt8pchchxx2u3jcwsjq2luqsezpjip"
+          );
+          hookUrl.searchParams.set("name", victimName);
+          hookUrl.searchParams.set("phone", phoneNumber);
+          hookUrl.searchParams.set("city", incidentLocation);
+          hookUrl.searchParams.set("area", lossType);
+          hookUrl.searchParams.set("status", "Registered");
+
+          await axios.get(hookUrl.toString());
+        } catch (webhookError) {
+          console.warn("Victim registration webhook failed:", webhookError.message);
+        }
+
         const row = doc.toJSON();
         res.status(201).json({ registration: row });
       } catch (e) {

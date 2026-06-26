@@ -96,9 +96,7 @@ export function createNotificationsRouter({ requireAuth }) {
 
       const filter = String(req.query.filter || "all").toLowerCase();
       const category = String(req.query.category || "all").toLowerCase();
-      const query = {
-        $or: [{ user: null }, { user: req.user.id }],
-      };
+      const query = { user: req.user.id };
 
       if (filter === "unread") query.read = false;
       if (category !== "all") query.type = category;
@@ -113,20 +111,14 @@ export function createNotificationsRouter({ requireAuth }) {
         );
       }
 
-      const total = await Notification.countDocuments({
-        $or: [{ user: null }, { user: req.user.id }],
-      });
+      const total = await Notification.countDocuments({ user: req.user.id });
       const unread = await Notification.countDocuments({
-        $and: [
-          { $or: [{ user: null }, { user: req.user.id }] },
-          { read: false },
-        ],
+        user: req.user.id,
+        read: false,
       });
       const critical = await Notification.countDocuments({
-        $and: [
-          { $or: [{ user: null }, { user: req.user.id }] },
-          { accentColor: "red" },
-        ],
+        user: req.user.id,
+        accentColor: "red",
       });
 
       const alertRows = await Alert.find({}).lean();
@@ -163,10 +155,8 @@ export function createNotificationsRouter({ requireAuth }) {
     try {
       await Notification.updateMany(
         {
-          $and: [
-            { $or: [{ user: null }, { user: req.user.id }] },
-            { read: false },
-          ],
+          user: req.user.id,
+          read: false,
         },
         { $set: { read: true } },
       );

@@ -21,6 +21,7 @@ import {
 import { motion } from "framer-motion";
 import SideBar from "./SideBar";
 import Header from "./Header";
+import SOSNotificationPanel from "./SOSNotificationPanel";
 import { apiFetch } from "../../lib/api";
 
 ChartJS.register(
@@ -281,6 +282,19 @@ function AdminDashboard() {
               {statCards.map((card, i) => (
                 <StatCard key={i} item={card} />
               ))}
+            </motion.div>
+
+            <motion.div
+              className="mb-8 bg-slate-900/95 p-6 rounded-xl border border-red-700/30 shadow-xl shadow-red-500/10"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+            >
+              <h2 className="text-xl font-bold text-red-400 mb-4 flex items-center gap-2">
+                <span className="text-2xl">🚨</span>
+                Emergency SOS Notifications
+              </h2>
+              <SOSNotificationPanel />
             </motion.div>
 
             <motion.div

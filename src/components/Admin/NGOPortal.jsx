@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { API_BASE } from "../../lib/config";
+import { apiFetch } from "../../lib/api";
 import { motion } from "framer-motion";
 import {
   LayoutDashboard,
@@ -47,7 +47,7 @@ const NGOPortal = () => {
     setIsLoading(true);
     setLoadError("");
     try {
-      const response = await fetch(`${API_BASE}/api/ngos`);
+      const response = await apiFetch("/api/ngos");
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.error || "Unable to load NGO records.");
@@ -93,9 +93,8 @@ const NGOPortal = () => {
     }
 
     try {
-      const response = await fetch(`${API_BASE}/api/ngos`, {
+      const response = await apiFetch("/api/ngos", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formState),
       });
       const data = await response.json();

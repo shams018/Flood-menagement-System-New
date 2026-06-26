@@ -10,10 +10,12 @@ import { useAuth } from "../context/AuthContext";
 
 export default function SOSDashboard() {
   const { token, isAuthenticated } = useAuth();
-  const [location, setLocation] = useState({
-    latitude: 34.0522,
-    longitude: -118.2437,
-  });
+  const [location, setLocation] = useState(null);
+  const [locationLoading, setLocationLoading] = useState(true);
+  const [locationError, setLocationError] = useState("");
+  const [manualLatitude, setManualLatitude] = useState("");
+  const [manualLongitude, setManualLongitude] = useState("");
+  const [manualError, setManualError] = useState("");
   const [sosActive, setSosActive] = useState(false);
   const [sosChannel, setSosChannel] = useState(null);
   const [chat, setChat] = useState([]);
@@ -21,41 +23,126 @@ export default function SOSDashboard() {
   const [status, setStatus] = useState("idle"); // idle, locating, initiating, active
   const [error, setError] = useState("");
 
+  const setResolvedLocation = (latitude, longitude) => {
+    setLocation({ latitude, longitude });
+    setLocationLoading(false);
+    setLocationError("");
+    setManualError("");
+    setError("");
+  };
+
+  const fallbackToIp = async () => {
+    try {
+      const response = await fetch("https://ipapi.co/json/");
+      if (!response.ok) throw new Error("IP lookup failed");
+      const data = await response.json();
+      const latitude = parseFloat(data.latitude);
+      const longitude = parseFloat(data.longitude);
+      if (!Number.isNaN(latitude) && !Number.isNaN(longitude)) {
+        setResolvedLocation(latitude, longitude);
+        return;
+      }
+    } catch (fallbackError) {
+      console.error("IP fallback error:", fallbackError);
+    }
+    setLocationLoading(false);
+    setLocationError(
+      "Unable to detect your location automatically. Please allow location access or enter coordinates manually.",
+    );
+  };
+
+  const requestLocation = async () => {
+    setLocationLoading(true);
+    setLocationError("");
+    setManualError("");
+    if (!navigator.geolocation) {
+      setLocationLoading(false);
+      setLocationError("Geolocation is not supported by this browser.");
+      await fallbackToIp();
+      return;
+    }
+
+    // Try to get current position with a shorter timeout
+    const geoOptions = {
+      enableHighAccuracy: true,
+      timeout: 8000,
+      maximumAge: 0,
+    };
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        console.log("Geolocation success:", position.coords);
+        setResolvedLocation(
+          position.coords.latitude,
+          position.coords.longitude,
+        );
+      },
+      async (err) => {
+        console.error(
+          "Geolocation error code:",
+          err.code,
+          "message:",
+          err.message,
+        );
+        let errorMsg = "Unable to get location. Trying IP fallback.";
+
+        if (err.code === 1) {
+          errorMsg =
+            "Location access denied. Please allow location access in browser settings and retry.";
+          setLocationLoading(false);
+          setLocationError(errorMsg);
+          return; // Don't fallback to IP on permission denial
+        } else if (err.code === 2) {
+          errorMsg = "Unable to determine your location. Trying IP fallback.";
+        } else if (err.code === 3) {
+          errorMsg = "Location request timed out. Trying IP fallback.";
+        }
+
+        setLocationError(errorMsg);
+        await fallbackToIp();
+      },
+      geoOptions,
+    );
+  };
+
+  const setManualLocation = () => {
+    const lat = parseFloat(manualLatitude);
+    const lng = parseFloat(manualLongitude);
+    if (Number.isNaN(lat) || Number.isNaN(lng)) {
+      setManualError(
+        "Please enter valid numeric latitude and longitude values.",
+      );
+      return;
+    }
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      setManualError(
+        "Latitude must be between -90 and 90, longitude between -180 and 180.",
+      );
+      return;
+    }
+    setResolvedLocation(lat, lng);
+    setManualError("");
+  };
+
+  useEffect(() => {
+    console.log("SOS component mounted, requesting location...");
+    requestLocation();
+  }, []);
+
   const liveFeedMapSrc = useMemo(() => {
+    const lat = location?.latitude ?? 20.0;
+    const lng = location?.longitude ?? 0.0;
     const delta = 0.05;
-    const left = location.longitude - delta;
-    const right = location.longitude + delta;
-    const top = location.latitude + delta;
-    const bottom = location.latitude - delta;
+    const left = lng - delta;
+    const right = lng + delta;
+    const top = lat + delta;
+    const bottom = lat - delta;
     const url = new URL("https://www.openstreetmap.org/export/embed.html");
     url.searchParams.set("bbox", `${left},${bottom},${right},${top}`);
     url.searchParams.set("layer", "mapnik");
-    url.searchParams.set(
-      "marker",
-      `${location.latitude},${location.longitude}`,
-    );
+    url.searchParams.set("marker", `${lat},${lng}`);
     return url.toString();
   }, [location]);
-
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          });
-        },
-        (err) => {
-          console.error("Geolocation error:", err);
-          setError("Unable to get location. Using default coordinates.");
-        },
-        { enableHighAccuracy: true, timeout: 10000 },
-      );
-    } else {
-      setError("Geolocation not supported.");
-    }
-  }, []);
 
   useEffect(() => {
     if (sosChannel) {
@@ -90,6 +177,12 @@ export default function SOSDashboard() {
   const initiateSOS = async () => {
     if (!isAuthenticated) {
       setError("Please login to initiate SOS.");
+      return;
+    }
+    if (!location) {
+      setError(
+        "Location is not available yet. Please allow location access and try again.",
+      );
       return;
     }
     setStatus("initiating");
@@ -300,7 +393,11 @@ export default function SOSDashboard() {
                       Latitude
                     </p>
                     <p className="text-xl font-mono font-semibold text-white leading-tight">
-                      {location.latitude.toFixed(2)}° N
+                      {location
+                        ? `${location.latitude.toFixed(2)}° N`
+                        : locationLoading
+                          ? "Loading..."
+                          : "Unknown"}
                     </p>
                   </div>
                   <div className="rounded-3xl bg-slate-900/95 p-4">
@@ -308,14 +405,62 @@ export default function SOSDashboard() {
                       Longitude
                     </p>
                     <p className="text-xl font-mono font-semibold text-white leading-tight">
-                      {Math.abs(location.longitude).toFixed(2)}° W
+                      {location
+                        ? `${Math.abs(location.longitude).toFixed(2)}° W`
+                        : locationLoading
+                          ? "Loading..."
+                          : "Unknown"}
                     </p>
                   </div>
                 </div>
-                <div className="mt-6 flex items-center gap-2 text-[11px] uppercase tracking-[0.25em] text-emerald-300">
-                  <span className="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                  Within 2.4 meters
-                </div>
+                {location ? (
+                  <div className="mt-6 flex items-center gap-2 text-[11px] uppercase tracking-[0.25em] text-emerald-300">
+                    <span className="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                    Within 2.4 meters
+                  </div>
+                ) : (
+                  <div className="mt-6 space-y-4 rounded-3xl bg-slate-900/95 p-4 border border-amber-500 text-amber-200">
+                    <p className="text-sm font-medium">
+                      {locationError ||
+                        "Location is not available yet. Please allow location access and try again."}
+                    </p>
+                    <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+                      <button
+                        type="button"
+                        onClick={requestLocation}
+                        className="inline-flex items-center justify-center rounded-3xl bg-amber-500 px-5 py-3 text-sm font-bold uppercase tracking-[0.25em] text-slate-950 transition hover:bg-amber-400"
+                      >
+                        Retry Location
+                      </button>
+                      <button
+                        type="button"
+                        onClick={setManualLocation}
+                        className="inline-flex items-center justify-center rounded-3xl border border-amber-500 bg-transparent px-5 py-3 text-sm font-bold uppercase tracking-[0.25em] text-amber-200 transition hover:bg-amber-500/20"
+                      >
+                        Use Manual Coordinates
+                      </button>
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <input
+                        type="text"
+                        value={manualLatitude}
+                        onChange={(e) => setManualLatitude(e.target.value)}
+                        placeholder="Latitude"
+                        className="w-full rounded-3xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none focus:border-amber-400"
+                      />
+                      <input
+                        type="text"
+                        value={manualLongitude}
+                        onChange={(e) => setManualLongitude(e.target.value)}
+                        placeholder="Longitude"
+                        className="w-full rounded-3xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none focus:border-amber-400"
+                      />
+                    </div>
+                    {manualError && (
+                      <p className="text-sm text-red-400">{manualError}</p>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-6 shadow-2xl shadow-slate-950/20">
@@ -373,10 +518,14 @@ export default function SOSDashboard() {
                     Active Zone
                   </p>
                   <p className="text-sm text-slate-200 font-semibold">
-                    Lat {location.latitude.toFixed(3)}
+                    {location
+                      ? `Lat ${location.latitude.toFixed(3)}`
+                      : "Lat unknown"}
                   </p>
                   <p className="text-sm text-slate-200 font-semibold">
-                    Lon {location.longitude.toFixed(3)}
+                    {location
+                      ? `Lon ${location.longitude.toFixed(3)}`
+                      : "Lon unknown"}
                   </p>
                 </div>
               </div>

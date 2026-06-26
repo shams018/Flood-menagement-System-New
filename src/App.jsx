@@ -31,7 +31,7 @@ import AdminChat from "./components/Admin/AdminChart";
 import NGOPortal from "./components/Admin/NGOPortal";
 import NGOAdminLogin from "./components/Admin/NGOAdminLogin";
 import ManageAlerts from "./components/Admin/ManageAlerts";
-import AIREPORT from "./components/Admin/AIREPORT";
+import AiReport from "./components/Admin/AiReport";
 import SystemParameters from "./components/Admin/SystemPrameter";
 
 function App() {
@@ -175,7 +175,7 @@ function App() {
               path={ROUTES.airepot}
               element={
                 <AdminRoute>
-                  <AIREPORT />
+                  <AiReport />
                 </AdminRoute>
               }
             />
@@ -221,7 +221,14 @@ function App() {
                 </AdminRoute>
               }
             />
-            <Route path={ROUTES.ngoPortal} element={<NGOPortal />} />
+            <Route
+              path={ROUTES.ngoPortal}
+              element={
+                <AdminRoute>
+                  <NGOPortal />
+                </AdminRoute>
+              }
+            />
             <Route path={ROUTES.ngoAdminLogin} element={<NGOAdminLogin />} />
             <Route
               path={ROUTES.manageAlerts}

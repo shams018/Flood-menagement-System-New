@@ -10,13 +10,12 @@ function Header() {
   const location = useLocation();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  const mainNavItems = ["ALERTS", "MAP", "CHAT"];
+  const mainNavItems = ["ALERTS", "MAP"];
 
   const handleClick = (event, item) => {
     event.preventDefault();
     if (item === "ALERTS") navigate(ROUTES.manageAlerts);
     if (item === "MAP") navigate(ROUTES.adminMap);
-    if (item === "CHAT") navigate(ROUTES.adminChat);
   };
 
   const getItemRoute = (item) => {
@@ -25,8 +24,6 @@ function Header() {
         return ROUTES.manageAlerts;
       case "MAP":
         return ROUTES.adminMap;
-      case "CHAT":
-        return ROUTES.adminChat;
       default:
         return "#";
     }

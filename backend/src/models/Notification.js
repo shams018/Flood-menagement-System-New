@@ -29,6 +29,19 @@ const notificationSchema = new mongoose.Schema(
       default: null,
     },
     time: { type: String, default: null },
+    imageUrl: { type: String, default: null },
+    images: [{ type: String }],
+    location: {
+      latitude: { type: Number, default: null },
+      longitude: { type: Number, default: null },
+      placeName: { type: String, default: null },
+    },
+    sosData: {
+      channel: { type: String, default: null },
+      emergencyType: { type: String, default: null }, // medical, police, fire, rescue
+      userEmail: { type: String, default: null },
+      userName: { type: String, default: null },
+    },
   },
   {
     timestamps: true,

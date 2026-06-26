@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import { API_BASE } from "../lib/config";
 import { useAuth } from "../context/AuthContext";
-import { Bot } from "lucide-react";
+import { Bot, AlertCircle, Send, Loader } from "lucide-react";
 
 function ChatArea({ channel }) {
   const { token, user } = useAuth();
@@ -11,6 +11,9 @@ function ChatArea({ channel }) {
   const [connected, setConnected] = useState(false);
   const [aiAvailable, setAiAvailable] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [sending, setSending] = useState(false);
   const socketRef = useRef(null);
   const lastJoinedRef = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -70,21 +73,37 @@ function ChatArea({ channel }) {
   useEffect(() => {
     let cancelled = false;
     setMessages([]);
+    setLoading(true);
+    setError(null);
+
     (async () => {
       try {
         const res = await fetch(
           `${API_BASE}/api/chat/messages?channel=${encodeURIComponent(channel)}`,
+          {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          },
         );
+        if (!res.ok) throw new Error("Failed to load messages");
         const data = await res.json();
-        if (!cancelled) setMessages(data.messages || []);
-      } catch {
-        if (!cancelled) setMessages([]);
+        if (!cancelled) {
+          setMessages(data.messages || []);
+          setLoading(false);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          console.error("Error loading messages:", err);
+          setMessages([]);
+          setError("Failed to load messages. " + err.message);
+          setLoading(false);
+        }
       }
     })();
+
     return () => {
       cancelled = true;
     };
-  }, [channel]);
+  }, [channel, token]);
 
   useEffect(() => {
     if (!token) return undefined;
@@ -151,13 +170,47 @@ function ChatArea({ channel }) {
     scrollToBottom();
   }, [messages]);
 
-  const send = () => {
+  const send = async () => {
     const body = input.trim();
-    if (!body || !socketRef.current?.connected) return;
-    socketRef.current.emit("chat:send", { channel, body });
-    setInput("");
-    if (channel === "support") {
-      setTypingState(true);
+    if (!body || !token) {
+      setError("Cannot send message: not connected");
+      return;
+    }
+
+    setSending(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`${API_BASE}/api/chat/messages`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ channel, body }),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || "Failed to send message");
+      }
+
+      const data = await response.json();
+
+      // Add message to local state immediately
+      if (data.message) {
+        setMessages((prev) => [...prev, data.message]);
+      }
+
+      setInput("");
+      if (channel === "support") {
+        setIsTyping(true);
+      }
+    } catch (err) {
+      console.error("Error sending message:", err);
+      setError("Failed to send message: " + err.message);
+    } finally {
+      setSending(false);
     }
   };
 
@@ -233,7 +286,27 @@ function ChatArea({ channel }) {
         ref={messageContainerRef}
         className="flex-1 min-h-0 overflow-y-auto rounded-3xl border border-slate-700 bg-slate-950/60 p-5 shadow-inner shadow-black/20 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-900"
       >
-        {messages.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center">
+              <Loader className="w-8 h-8 animate-spin text-cyan-400 mx-auto mb-2" />
+              <p className="text-sm text-gray-400">Loading messages...</p>
+            </div>
+          </div>
+        ) : error ? (
+          <div className="mx-auto my-10 max-w-md rounded-3xl border border-red-500/30 bg-red-500/10 p-6">
+            <div className="flex items-start gap-3">
+              <AlertCircle
+                size={20}
+                className="text-red-400 flex-shrink-0 mt-0.5"
+              />
+              <div>
+                <p className="font-semibold text-red-200 mb-1">Error</p>
+                <p className="text-sm text-red-300">{error}</p>
+              </div>
+            </div>
+          </div>
+        ) : messages.length === 0 ? (
           <div className="mx-auto my-20 max-w-md rounded-3xl border border-dashed border-slate-700 bg-slate-900/80 p-10 text-center text-gray-400">
             <p className="text-sm font-semibold text-gray-200 mb-2">
               No chat history yet
@@ -289,6 +362,20 @@ function ChatArea({ channel }) {
         <div ref={messagesEndRef} />
       </div>
 
+      {error && (
+        <div className="mt-3 flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/15 border border-red-500/30 text-xs text-red-200">
+          <AlertCircle size={14} />
+          <span>{error}</span>
+          <button
+            type="button"
+            onClick={() => setError(null)}
+            className="ml-auto font-semibold hover:underline"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
       {channel === "support" && isTyping ? (
         <div className="mt-4 flex items-center gap-2 px-4 py-3 rounded-lg bg-slate-800 border border-cyan-500/30 text-xs text-cyan-200">
           <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
@@ -299,7 +386,7 @@ function ChatArea({ channel }) {
       <div className="mt-5 rounded-3xl border border-slate-700 bg-slate-900 px-4 py-4 shadow-lg shadow-black/20">
         <div className="flex gap-3">
           <input
-            className="flex-1 min-w-0 rounded-2xl border border-slate-700 bg-slate-950/90 px-4 py-3 text-sm text-gray-100 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20"
+            className="flex-1 min-w-0 rounded-2xl border border-slate-700 bg-slate-950/90 px-4 py-3 text-sm text-gray-100 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder={
               channel === "support"
                 ? "Ask the AI assistant about flood safety, shelters, or emergency response..."
@@ -308,19 +395,30 @@ function ChatArea({ channel }) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
+              if (e.key === "Enter" && !e.shiftKey && !sending) {
                 e.preventDefault();
                 send();
               }
             }}
+            disabled={sending || !token}
           />
           <button
             type="button"
-            className="rounded-2xl bg-cyan-500 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:opacity-50"
+            className="rounded-2xl bg-cyan-500 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             onClick={send}
-            disabled={!connected || !input.trim()}
+            disabled={!input.trim() || sending || !token}
           >
-            Send
+            {sending ? (
+              <>
+                <Loader size={16} className="animate-spin" />
+                <span>Sending...</span>
+              </>
+            ) : (
+              <>
+                <Send size={16} />
+                <span>Send</span>
+              </>
+            )}
           </button>
         </div>
       </div>

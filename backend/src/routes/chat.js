@@ -2,6 +2,7 @@ import { Router } from "express";
 import mongoose from "mongoose";
 import { ChatMessage } from "../models/ChatMessage.js";
 import { User } from "../models/User.js";
+import { generateAIResponse } from "../services/aiChat.js";
 
 export function createChatRouter({ requireAuth }, emitChatMessage) {
   const router = Router();
@@ -58,10 +59,46 @@ export function createChatRouter({ requireAuth }, emitChatMessage) {
         emitChatMessage(ch, message);
       }
 
+      // Generate AI response if in support channel
+      if (ch === "support") {
+        const aiResponseText = generateAIResponse(body, ch);
+        if (aiResponseText) {
+          setTimeout(async () => {
+            try {
+              const aiDoc = await ChatMessage.create({
+                channel: ch,
+                author_label: "Sentinel AI Assistant",
+                body: aiResponseText,
+                is_own_highlight: false,
+                is_ai_message: true,
+              });
+              const aiMessage = {
+                id: aiDoc._id.toString(),
+                channel: aiDoc.channel,
+                author_label: aiDoc.author_label,
+                body: aiDoc.body,
+                is_own_highlight: Boolean(aiDoc.is_own_highlight),
+                is_ai_message: Boolean(aiDoc.is_ai_message),
+                created_at: aiDoc.created_at?.toISOString?.() || null,
+              };
+              if (typeof emitChatMessage === "function") {
+                emitChatMessage(ch, aiMessage);
+              }
+            } catch (e) {
+              console.error("[chat] Error creating AI response:", e.message);
+            }
+          }, 500);
+        }
+      }
+
       res.status(201).json({ message });
     } catch (e) {
       next(e);
     }
+  });
+
+  router.get("/ai/status", (req, res) => {
+    res.json({ aiAvailable: true });
   });
 
   return router;

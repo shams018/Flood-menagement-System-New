@@ -68,11 +68,15 @@ function emitChatMessage(channel, message) {
   io.to(`channel:${channel}`).emit("chat:message", message);
 }
 
+function emitNgoUpdate(update) {
+  io.to("ngo:updates").emit("ngo:update", update);
+}
+
 app.use("/api/auth", createAuthRouter(JWT_SECRET));
 app.use("/api/victims", createVictimsRouter({ requireAuth, optionalAuth }));
 app.use("/api/map", createMapRouter());
 app.use("/api/alerts", createAlertsRouter());
-app.use("/api/ngos", createNgosRouter());
+app.use("/api/ngos", createNgosRouter({ requireAuth }, emitNgoUpdate));
 app.use("/api/sentiment", createSentimentRouter({ requireAuth }));
 app.use("/api/flood", createFloodRouter());
 app.use("/api/chat", createChatRouter({ requireAuth }, emitChatMessage));
@@ -117,6 +121,14 @@ io.on("connection", (socket) => {
     if (ch) socket.leave(`channel:${ch}`);
   });
 
+  socket.on("join:ngo", () => {
+    socket.join("ngo:updates");
+  });
+
+  socket.on("leave:ngo", () => {
+    socket.leave("ngo:updates");
+  });
+
   socket.on("chat:send", async ({ channel, body }) => {
     const ch = channel ? String(channel) : "general";
     if (!body || !String(body).trim()) return;
@@ -129,6 +141,7 @@ io.on("connection", (socket) => {
         author_label: authorLabel,
         body: String(body).trim(),
         is_own_highlight: false,
+        is_ai_message: false,
       });
       const message = {
         id: doc._id.toString(),
@@ -136,11 +149,12 @@ io.on("connection", (socket) => {
         author_label: doc.author_label,
         body: doc.body,
         is_own_highlight: Boolean(doc.is_own_highlight),
+        is_ai_message: Boolean(doc.is_ai_message),
         created_at: doc.created_at?.toISOString?.() || null,
       };
       io.to(`channel:${ch}`).emit("chat:message", message);
     } catch (e) {
-      console.error(e);
+      console.error("[socket.io] Error in chat:send:", e);
     }
   });
 });

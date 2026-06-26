@@ -1,4 +1,10 @@
-import { AlertTriangle, Monitor, MessageCircle, Layers } from "lucide-react";
+import {
+  AlertTriangle,
+  Monitor,
+  MessageCircle,
+  Layers,
+  BarChart,
+} from "lucide-react";
 import NavItem from "./NavItem";
 
 export default function NotificationSidebar({
@@ -37,6 +43,12 @@ export default function NotificationSidebar({
             label="All"
             active={activeCategory === "all"}
             onClick={() => onCategorySelect?.("all")}
+          />
+          <NavItem
+            icon={BarChart}
+            label="Analytics"
+            active={activeCategory === "analytics"}
+            onClick={() => onCategorySelect?.("analytics")}
           />
         </div>
       </div>
