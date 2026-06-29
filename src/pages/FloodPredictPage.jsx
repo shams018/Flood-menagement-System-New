@@ -95,7 +95,7 @@ function FloodPredictPage() {
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="e.g. Karachi, London, Houston…"
+                    placeholder="e.g. Karachi, Islamabad, Lahore…"
                     className="w-full h-14 rounded-2xl border border-slate-700 bg-slate-900/90 px-4 pl-14 pr-4 text-white placeholder:text-slate-500 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>

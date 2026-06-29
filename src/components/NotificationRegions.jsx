@@ -1,11 +1,13 @@
 export default function NotificationRegions({ regions }) {
+  const regionItems = Array.isArray(regions) ? regions : [];
+
   return (
     <section>
       <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-6">
         Region Filtering
       </h2>
       <div className="space-y-3">
-        {regions.map((region) => (
+        {regionItems.map((region) => (
           <div
             key={region.name}
             className="flex items-center justify-between p-3 bg-slate-900/90 rounded-2xl border border-white/10"

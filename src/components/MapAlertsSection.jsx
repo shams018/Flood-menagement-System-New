@@ -73,7 +73,7 @@ function MapAlertsSection() {
   return (
     <section className="flex flex-col lg:flex-row items-stretch gap-6 py-8 px-6 bg-slate-950/95">
       {/* MAP SECTION */}
-      <article className="flex-1 rounded-[2rem] border border-white/10 bg-slate-950/75 p-6 relative min-h-[32rem] lg:min-h-[36rem] overflow-hidden flex flex-col shadow-2xl shadow-slate-950/20">
+      <article className="flex-1 rounded-[2rem] border border-white/10 bg-slate-950/75 p-6 relative min-h-[22rem] sm:min-h-[28rem] lg:min-h-[36rem] overflow-hidden flex flex-col shadow-2xl shadow-slate-950/20">
         <div className="absolute top-6 left-6 z-10 flex items-center gap-3 bg-slate-900/80 backdrop-blur rounded-2xl border border-white/10 p-4 w-fit">
           <span className="text-2xl font-bold text-blue-400">o</span>
           <div className="flex flex-col">
@@ -119,7 +119,7 @@ function MapAlertsSection() {
       </article>
 
       {/* ALERT SECTION */}
-      <aside className="w-full lg:w-80 rounded-[2rem] border border-white/10 bg-slate-950/75 p-6 shadow-2xl shadow-slate-950/20 flex flex-col min-h-[32rem] lg:min-h-[36rem]">
+      <aside className="w-full lg:w-80 rounded-[2rem] border border-white/10 bg-slate-950/75 p-6 shadow-2xl shadow-slate-950/20 flex flex-col min-h-[22rem] sm:min-h-[28rem] lg:min-h-[36rem]">
         <header className="flex justify-between items-center mb-6 pb-4 border-b border-white/10">
           <h3 className="text-lg font-bold text-white uppercase tracking-[0.35em]">
             Weather risk feed

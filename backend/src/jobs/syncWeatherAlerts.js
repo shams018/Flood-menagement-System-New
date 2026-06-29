@@ -6,8 +6,7 @@ import { runFloodAssessment } from "../services/floodAssessment.js";
  */
 export async function syncMonitoredLocations() {
   const raw =
-    process.env.MONITORED_LOCATIONS ||
-    "Karachi,London,New York,Mumbai,Sydney";
+    process.env.MONITORED_LOCATIONS || "Karachi,Islamabad,Multan,Lahore,Skardu";
   const places = raw
     .split(",")
     .map((s) => s.trim())

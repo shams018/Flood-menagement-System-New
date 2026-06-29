@@ -36,7 +36,7 @@ export default function ImageCarouselSection() {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
           {slides.map((slide) => (
             <div
               key={slide.src}
@@ -45,7 +45,7 @@ export default function ImageCarouselSection() {
               <img
                 src={slide.src}
                 alt={slide.alt}
-                className="h-56 w-full object-cover"
+                className="h-52 sm:h-56 md:h-64 w-full object-cover"
               />
               <div className="p-4 text-white">
                 <p className="text-sm uppercase tracking-[0.35em] text-blue-400/80">

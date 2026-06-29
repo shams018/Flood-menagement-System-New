@@ -2,6 +2,39 @@
 import SideBar from "./SideBar";
 import Header from "./Header";
 import { apiFetch } from "../../lib/api";
+import { Download, RefreshCw, Eye, AlertTriangle } from "lucide-react";
+import { io } from "socket.io-client";
+import { API_BASE } from "../../lib/config";
+import { useAuth } from "../../context/AuthContext";
+
+function DownloadButton({ report }) {
+  const handleDownload = () => {
+    try {
+      const payload = JSON.stringify(report, null, 2);
+      const blob = new Blob([payload], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${(report.title || "ai-report").replace(/[^a-z0-9\-_.]/gi, "_")}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error("Download failed", e);
+    }
+  };
+
+  return (
+    <button
+      title="Download report"
+      onClick={handleDownload}
+      className="rounded-2xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm text-slate-300 transition hover:border-slate-500 hover:text-white flex items-center gap-2"
+    >
+      <Download size={14} /> Download
+    </button>
+  );
+}
 
 function AiReport() {
   const [activeFilter, setActiveFilter] = useState("ALL");
@@ -10,9 +43,51 @@ function AiReport() {
   const [aiSummary, setAiSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { token } = useAuth();
+
+  useEffect(() => {
+    if (!token) return undefined;
+    const url = API_BASE || window.location.origin;
+    const socket = io(url, {
+      auth: { token },
+      transports: ["websocket", "polling"],
+    });
+
+    const onAnyUpdate = async () => {
+      try {
+        const res = await apiFetch("/api/admin/reports");
+        const data = await res.json();
+        if (res.ok) {
+          setReports(data.reports || []);
+          setStats(data.stats || {});
+          setAiSummary(data.aiSummary || null);
+        }
+      } catch (e) {
+        // ignore
+      }
+    };
+
+    socket.on("ngo:update", onAnyUpdate);
+    socket.on("chat:message", onAnyUpdate);
+
+    socket.on("connect", () => {
+      try {
+        socket.emit("join:ngo");
+      } catch (e) {}
+    });
+
+    return () => {
+      try {
+        socket.off("ngo:update", onAnyUpdate);
+        socket.off("chat:message", onAnyUpdate);
+        socket.disconnect();
+      } catch (e) {}
+    };
+  }, [token]);
 
   useEffect(() => {
     let canceled = false;
+    let interval = null;
 
     const fetchReportData = async () => {
       setLoading(true);
@@ -35,8 +110,12 @@ function AiReport() {
     };
 
     fetchReportData();
+    // Poll every 12 seconds for updates to keep the page live
+    interval = setInterval(fetchReportData, 12000);
+
     return () => {
       canceled = true;
+      if (interval) clearInterval(interval);
     };
   }, []);
 
@@ -52,6 +131,40 @@ function AiReport() {
   const displayReports = useMemo(() => {
     return filteredArchive.slice(0, 6);
   }, [filteredArchive]);
+
+  const [activeReport, setActiveReport] = useState(null);
+
+  const handleResend = async (report) => {
+    if (!report || !report.id) return;
+    try {
+      const res = await apiFetch(
+        `/api/admin/reports/${encodeURIComponent(report.id)}/resend`,
+        {
+          method: "POST",
+        },
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to resend report");
+      // Provide brief feedback by updating stats or showing a temporary message
+      setError("");
+      // trigger fresh fetch
+      const fresh = await apiFetch("/api/admin/reports");
+      const fd = await fresh.json();
+      if (fresh.ok) {
+        setReports(fd.reports || []);
+        setStats(fd.stats || {});
+        setAiSummary(fd.aiSummary || null);
+      }
+    } catch (e) {
+      setError(e.message || "Failed to resend report");
+    }
+  };
+
+  const handleView = (report) => {
+    setActiveReport(report);
+  };
+
+  const handleCloseView = () => setActiveReport(null);
 
   const summary = aiSummary || {
     title: "No AI reports available",
@@ -179,17 +292,21 @@ function AiReport() {
                         </span>
                         <div className="flex flex-wrap gap-2">
                           {item.status === "FAILED" ? (
-                            <button className="rounded-2xl bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-400">
-                              Retry Generation
+                            <button
+                              onClick={() => handleResend(item)}
+                              className="rounded-2xl bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-400 flex items-center gap-2"
+                            >
+                              <AlertTriangle size={14} /> Retry
                             </button>
                           ) : (
-                            <button className="rounded-2xl bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:bg-slate-700">
-                              View Report
+                            <button
+                              onClick={() => handleView(item)}
+                              className="rounded-2xl bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:bg-slate-700 flex items-center gap-2"
+                            >
+                              <Eye size={14} /> View
                             </button>
                           )}
-                          <button className="rounded-2xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm text-slate-300 transition hover:border-slate-500 hover:text-white">
-                            Download
-                          </button>
+                          <DownloadButton report={item} />
                         </div>
                       </div>
                     </div>
@@ -247,10 +364,58 @@ function AiReport() {
                 </div>
 
                 <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <button className="inline-flex items-center justify-center rounded-3xl bg-sky-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-400">
-                    Export Full PDF
+                  <button
+                    onClick={async () => {
+                      try {
+                        const res = await apiFetch("/api/admin/reports");
+                        const data = await res.json();
+                        if (res.ok && data.reports) {
+                          const blob = new Blob(
+                            [JSON.stringify(data.reports, null, 2)],
+                            { type: "application/json" },
+                          );
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement("a");
+                          a.href = url;
+                          a.download = `ai-reports-${new Date().toISOString().slice(0, 10)}.json`;
+                          document.body.appendChild(a);
+                          a.click();
+                          a.remove();
+                          URL.revokeObjectURL(url);
+                        }
+                      } catch (e) {
+                        console.error(e);
+                      }
+                    }}
+                    className="inline-flex items-center justify-center rounded-3xl bg-sky-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-400"
+                  >
+                    Export Full JSON
                   </button>
-                  <button className="inline-flex items-center justify-center rounded-3xl border border-slate-700 bg-slate-900 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-slate-800">
+                  <button
+                    className="inline-flex items-center justify-center rounded-3xl border border-slate-700 bg-slate-900 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-slate-800"
+                    onClick={async () => {
+                      // Resend latest report
+                      if (!aiSummary || !aiSummary.generatedAt) return;
+                      try {
+                        // Find the first matching report id by matching title and date
+                        const res = await apiFetch("/api/admin/reports");
+                        const data = await res.json();
+                        if (!res.ok) return;
+                        const rpt = (data.reports || []).find(
+                          (r) =>
+                            r.title === aiSummary.title ||
+                            r.date === aiSummary.generatedAt,
+                        );
+                        if (!rpt) return;
+                        await apiFetch(
+                          `/api/admin/reports/${encodeURIComponent(rpt.id)}/resend`,
+                          { method: "POST" },
+                        );
+                      } catch (e) {
+                        console.error(e);
+                      }
+                    }}
+                  >
                     Resend to Admins
                   </button>
                 </div>
@@ -259,7 +424,46 @@ function AiReport() {
           </div>
         </div>
       </main>
+      {activeReport ? (
+        <ReportModal report={activeReport} onClose={handleCloseView} />
+      ) : null}
     </section>
+  );
+}
+
+/* render modal at module-level to avoid React rules issues */
+// Note: We keep modal state inside the component; render via portal would be better.
+
+// Modal for viewing report details
+function ReportModal({ report, onClose }) {
+  if (!report) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+      <div className="max-w-3xl w-full bg-slate-950 rounded-2xl p-6 border border-slate-700/30">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h3 className="text-xl font-semibold text-white">{report.title}</h3>
+            <p className="text-sm text-slate-400">
+              Region: {report.region} • {report.date}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onClose}
+              className="px-3 py-2 rounded-xl bg-slate-800 text-sm text-slate-200"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+        <div className="mt-4 text-slate-300">
+          <p className="mb-4">{report.summary}</p>
+          <pre className="whitespace-pre-wrap text-sm text-slate-400 bg-slate-900 p-4 rounded">
+            {report.detail || "No further details."}
+          </pre>
+        </div>
+      </div>
+    </div>
   );
 }
 

@@ -29,10 +29,18 @@ const NotificationsPage = () => {
   }, [filter, category, token]);
 
   const fetchNotifications = async () => {
-    if (!token) return;
+    if (!token) {
+      setNotifications([]);
+      setStats({ total: 0, unread: 0, critical: 0 });
+      setRegions([]);
+      setError("Please sign in to view notifications.");
+      setLoading(false);
+      return;
+    }
 
     try {
       setLoading(true);
+      setError(null);
       const response = await fetch(
         `${API_BASE}/api/notifications?filter=${filter.toLowerCase()}&category=${category}`,
         {
@@ -48,11 +56,25 @@ const NotificationsPage = () => {
       }
 
       const data = await response.json();
-      setNotifications(data.notifications || []);
+      const normalizedNotifications = Array.isArray(data.notifications)
+        ? data.notifications.map((item, index) => ({
+            ...item,
+            id: item.id || item._id || `notification-${index}`,
+            title: item.title || "Notification",
+            body: item.body || "No details available.",
+            time: item.time || "Just now",
+            type: item.type || "system",
+            actionText: item.actionText || "View Alert",
+            accentColor: item.accentColor || "blue",
+            read: Boolean(item.read),
+          }))
+        : [];
+
+      setNotifications(normalizedNotifications);
       setStats(data.stats || { total: 0, unread: 0, critical: 0 });
-      setRegions(data.regions || []);
+      setRegions(Array.isArray(data.regions) ? data.regions : []);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Unable to load notifications");
       console.error("Error fetching notifications:", err);
     } finally {
       setLoading(false);
@@ -107,11 +129,11 @@ const NotificationsPage = () => {
   };
 
   const downloadNotificationPdf = (notification) => {
-    const fileName = `${
-      notification.title.replace(/[\\/:*?"<>|]/g, "").slice(0, 40) ||
-      "notification"
-    }.pdf`;
-    const contents = `Notification: ${notification.title}\n\n${notification.body}\n\n${notification.time}`;
+    const safeTitle = notification?.title || "notification";
+    const safeBody = notification?.body || "No details available.";
+    const safeTime = notification?.time || "Just now";
+    const fileName = `${safeTitle.replace(/[\\/:*?"<>|]/g, "").slice(0, 40) || "notification"}.pdf`;
+    const contents = `Notification: ${safeTitle}\n\n${safeBody}\n\n${safeTime}`;
     const blob = new Blob([contents], { type: "application/pdf" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");

@@ -16,6 +16,11 @@ const NotificationCard = ({
   read,
   onAction,
 }) => {
+  const safeAccentColor = accentColor || "gray";
+  const safeTitle = title || "Notification";
+  const safeBody = body || "No details available.";
+  const safeActionText = actionText || "View details";
+
   const colorMap = {
     red: "border-red-500 bg-red-500/5",
     blue: "border-blue-500 bg-blue-500/5",
@@ -32,17 +37,17 @@ const NotificationCard = ({
 
   return (
     <div
-      className={`relative flex gap-6 p-6 rounded-r-2xl border-l-4 ${colorMap[accentColor]} bg-[#161616] mb-4 group transition-all hover:bg-[#1c1c1c]`}
+      className={`relative flex gap-6 p-6 rounded-r-2xl border-l-4 ${colorMap[safeAccentColor] || colorMap.gray} bg-[#161616] mb-4 group transition-all hover:bg-[#1c1c1c]`}
     >
       <div
         className={`flex-shrink-0 w-12 h-12 rounded-xl bg-[#222] flex items-center justify-center border border-white/5`}
       >
-        {iconMap[accentColor]}
+        {iconMap[safeAccentColor] || iconMap.gray}
       </div>
       <div className="flex-1">
         <div className="flex flex-wrap justify-between items-start gap-3 mb-2">
           <div>
-            <h3 className="text-white font-bold tracking-tight">{title}</h3>
+            <h3 className="text-white font-bold tracking-tight">{safeTitle}</h3>
             {!read ? (
               <span className="inline-flex mt-2 rounded-full bg-blue-600 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-white">
                 Unread
@@ -54,14 +59,14 @@ const NotificationCard = ({
           </span>
         </div>
         <p className="text-gray-400 text-sm leading-relaxed mb-4 max-w-2xl">
-          {body}
+          {safeBody}
         </p>
         <button
           type="button"
           onClick={onAction}
           className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-white group-hover:text-blue-400 transition-colors"
         >
-          {actionText} {ActionIcon && <ActionIcon size={12} />}
+          {safeActionText} {ActionIcon && <ActionIcon size={12} />}
         </button>
       </div>
     </div>

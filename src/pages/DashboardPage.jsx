@@ -13,6 +13,108 @@ import {
 } from "lucide-react";
 import PageSidebar from "../components/PageSidebar";
 
+const WEATHER_DESCRIPTIONS = {
+  0: "Clear sky",
+  1: "Mainly clear",
+  2: "Partly cloudy",
+  3: "Overcast",
+  45: "Foggy",
+  48: "Rime fog",
+  51: "Light drizzle",
+  53: "Moderate drizzle",
+  55: "Dense drizzle",
+  61: "Light rain",
+  63: "Moderate rain",
+  65: "Heavy rain",
+  71: "Light snow",
+  73: "Moderate snow",
+  75: "Heavy snow",
+  80: "Rain showers",
+  81: "Moderate showers",
+  82: "Violent showers",
+  85: "Snow showers",
+  86: "Heavy snow showers",
+  95: "Thunderstorm",
+  96: "Thunderstorm with hail",
+  99: "Severe thunderstorm",
+};
+
+function getWeatherDescription(code) {
+  return WEATHER_DESCRIPTIONS[code] || "Live conditions updating";
+}
+
+function formatTemperature(value) {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) {
+    return "—";
+  }
+  return `${Number(value).toFixed(0)}°C`;
+}
+
+function normalizeWeatherPayload(payload) {
+  const current = payload?.current || {};
+  const temp = current.temperature_2m ?? current.temperature ?? null;
+
+  return {
+    temp: temp === null ? null : Number(temp),
+    humidity: current.relative_humidity_2m ?? null,
+    wind_speed: current.wind_speed_10m ?? null,
+    description: getWeatherDescription(current.weather_code ?? 0),
+    code: current.weather_code ?? 0,
+  };
+}
+
+async function getLocationCoordinates() {
+  if (typeof navigator === "undefined" || !navigator.geolocation) {
+    const fallback = await fetch("https://ipapi.co/json");
+    if (!fallback.ok) throw new Error("Unable to determine location");
+    const data = await fallback.json();
+    return {
+      lat: Number(data.latitude),
+      lon: Number(data.longitude),
+    };
+  }
+
+  return await new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve({
+          lat: position.coords.latitude,
+          lon: position.coords.longitude,
+        });
+      },
+      (error) => {
+        reject(error);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 60000,
+      },
+    );
+  });
+}
+
+async function getLiveWeatherFromBackend(coords = (nullcoords = null)) {
+  const query = new URLSearchParams();
+  query.set("persist", "0");
+  if (coords) {
+    query.set("lat", String(coords.lat));
+    query.set("lon", String(coords.lon));
+  }
+
+  const response = await apiFetch(`/api/flood/assess?${query.toString()}`);
+  if (!response.ok) throw new Error("Unable to fetch live weather");
+
+  const payload = await response.json();
+  return {
+    temp: payload?.weather?.temp ?? null,
+    humidity: payload?.weather?.humidity ?? null,
+    wind_speed: payload?.weather?.wind_speed ?? null,
+    description: payload?.weather?.description || "Live conditions updating",
+    code: payload?.weather?.code ?? 0,
+  };
+}
+
 function DashboardPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -66,7 +168,7 @@ function DashboardPage() {
 
           setAlerts(mappedAlerts);
           setResources(mappedResources);
-          setWeatherData(floodData.weather || {});
+          setWeatherData((current) => current ?? null);
         }
       } catch (err) {
         if (!cancelled) {
@@ -83,6 +185,42 @@ function DashboardPage() {
     };
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadLiveWeather = async () => {
+      try {
+        let coords = null;
+        try {
+          coords = await getLocationCoordinates();
+        } catch (geoError) {
+          console.warn(
+            "Location lookup failed, using backend fallback:",
+            geoError,
+          );
+        }
+
+        const weather = await getLiveWeatherFromBackend(coords);
+        if (!cancelled) {
+          setWeatherData(weather);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          console.warn("Live weather fetch failed:", err);
+          setWeatherData((current) => current ?? null);
+        }
+      }
+    };
+
+    loadLiveWeather();
+    const intervalId = window.setInterval(loadLiveWeather, 10 * 60 * 1000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
+  }, []);
+
   const getFirstName = () => {
     if (user?.full_name) {
       return user.full_name.split(" ")[0];
@@ -93,7 +231,7 @@ function DashboardPage() {
   const getSectorFromLocation = () => "Sector 7G";
 
   const getWeatherLabel = () =>
-    weatherData?.description || "Light precipitation expected";
+    weatherData?.description || "Live conditions updating";
 
   return (
     <div className="flex min-h-screen bg-slate-950 text-white overflow-hidden">
@@ -176,7 +314,9 @@ function DashboardPage() {
                   <div className="mt-5 grid gap-4 sm:grid-cols-3">
                     <StatusCard
                       label="Today's weather"
-                      value={`${weatherData?.temp ?? weatherData?.temperature ?? "24"}°C`}
+                      value={formatTemperature(
+                        weatherData?.temp ?? weatherData?.temperature,
+                      )}
                       detail={getWeatherLabel()}
                     />
                     <StatusCard
@@ -202,7 +342,9 @@ function DashboardPage() {
                       Current Weather
                     </p>
                     <h3 className="mt-2 text-3xl font-bold text-white">
-                      {weatherData?.temp ?? weatherData?.temperature ?? "24"}°C
+                      {formatTemperature(
+                        weatherData?.temp ?? weatherData?.temperature,
+                      )}
                     </h3>
                   </div>
                   <Cloud className="w-10 h-10 text-cyan-300" />
@@ -213,11 +355,19 @@ function DashboardPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <SmallMetric
                     label="Humidity"
-                    value={`${weatherData?.humidity ?? "68"}%`}
+                    value={
+                      weatherData?.humidity == null
+                        ? "—"
+                        : `${weatherData.humidity}%`
+                    }
                   />
                   <SmallMetric
                     label="Wind"
-                    value={`${weatherData?.wind_speed ?? weatherData?.wind ?? "12"} km/h`}
+                    value={
+                      weatherData?.wind_speed == null
+                        ? "—"
+                        : `${weatherData.wind_speed} km/h`
+                    }
                   />
                 </div>
               </aside>

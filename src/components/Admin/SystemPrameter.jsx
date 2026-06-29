@@ -133,23 +133,23 @@ export default function SystemParameters() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         .sp-root * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
-        .sp-root { background: #0e1015; min-height: 100vh; color: #c9cdd8; padding: 40px 32px 60px; }
+        .sp-root { background: #030718 ; min-height: 100vh; color: #c9cdd8; padding: 40px 32px 60px; }
 
         .sp-input {
-          width: 100%; background: #181c26; border: 1px solid #252a38;
+          width: 100%; background: #030718; border: 1px solid #252a38;
           border-radius: 8px; padding: 11px 14px; color: #e2e6f0;
           font-size: 15px; font-weight: 500; outline: none;
           transition: border-color 0.15s;
         }
         .sp-input:focus { border-color: #3b5bdb; }
-        .sp-input[readonly] { cursor: default; color: #f0a500; font-weight: 700; letter-spacing: 0.05em; background: #181c26; }
+        .sp-input[readonly] { cursor: default; color: #f0a500; font-weight: 700; letter-spacing: 0.05em; background: #030718; }
 
         .sp-label {
           font-size: 9px; letter-spacing: 0.18em; color: #4b5263;
           font-weight: 600; text-transform: uppercase; margin-bottom: 6px; display: block;
         }
         .sp-card {
-          background: #13161f; border: 1px solid #1e2230;
+          background: #0E162A; border: 1px solid #1e2230;
           border-radius: 12px; padding: 24px 22px;
           border-left: 3px solid #2a3050;
         }

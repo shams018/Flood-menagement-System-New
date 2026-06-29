@@ -54,7 +54,7 @@ function Header() {
 
           <button
             className="text-blue-300 text-xl sm:text-2xl font-bold tracking-tighter hover:opacity-80 transition-opacity"
-            onClick={() => navigate(ROUTES.home)}
+            onClick={() => navigate(ROUTES.adminDashboard)}
           >
             SENTINEL
           </button>

@@ -56,8 +56,21 @@ function badgeForRisk(risk) {
 /**
  * Full pipeline: geocode → forecast → rules → optional DB upsert
  */
-export async function runFloodAssessment(placeQuery, { persist = true } = {}) {
-  const geo = await geocodePlace(placeQuery || "London");
+export async function runFloodAssessment(
+  placeQuery,
+  { persist = true, coords = null } = {},
+) {
+  const geo = coords
+    ? {
+        name: "Current location",
+        admin1: null,
+        country: null,
+        country_code: null,
+        latitude: coords.lat,
+        longitude: coords.lon,
+        timezone: "auto",
+      }
+    : await geocodePlace(placeQuery || "London");
   const forecast = await fetchForecast(geo.latitude, geo.longitude);
 
   const rain24hMm = sumPrecipitationHours(forecast.hourly.precipitation, 24);

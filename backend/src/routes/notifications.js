@@ -105,6 +105,11 @@ export function createNotificationsRouter({ requireAuth }) {
         .sort({ read: 1, priority: 1, createdAt: -1 })
         .lean();
 
+      notifications = notifications.map((notification) => ({
+        ...notification,
+        id: notification._id?.toString?.() || notification.id || null,
+      }));
+
       if (filter === "critical") {
         notifications = notifications.filter(
           (item) => item.accentColor === "red",

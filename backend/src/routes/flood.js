@@ -8,7 +8,11 @@ export function createFloodRouter() {
     try {
       const q = req.query.q || req.query.place;
       const persist = req.query.persist !== "0";
-      const assessment = await runFloodAssessment(q, { persist });
+      const lat = Number(req.query.lat);
+      const lon = Number(req.query.lon);
+      const coords =
+        Number.isFinite(lat) && Number.isFinite(lon) ? { lat, lon } : null;
+      const assessment = await runFloodAssessment(q, { persist, coords });
       res.json(assessment);
     } catch (e) {
       if (e.status) {
@@ -22,7 +26,11 @@ export function createFloodRouter() {
     try {
       const q = req.body?.place || req.body?.q;
       const persist = req.body?.persist !== false;
-      const assessment = await runFloodAssessment(q, { persist });
+      const lat = Number(req.body?.lat);
+      const lon = Number(req.body?.lon);
+      const coords =
+        Number.isFinite(lat) && Number.isFinite(lon) ? { lat, lon } : null;
+      const assessment = await runFloodAssessment(q, { persist, coords });
       res.json(assessment);
     } catch (e) {
       if (e.status) {

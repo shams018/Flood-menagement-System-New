@@ -17,7 +17,9 @@ export async function geocodePlace(name) {
   if (!res.ok) throw new Error(`Geocoding failed (${res.status})`);
   const data = await res.json();
   if (!data.results?.length) {
-    const err = new Error(`No location found for “${q}”. Try a city or region name.`);
+    const err = new Error(
+      `No location found for “${q}”. Try a city or region name.`,
+    );
     err.status = 404;
     throw err;
   }
@@ -40,28 +42,42 @@ export async function fetchForecast(latitude, longitude) {
   const params = new URLSearchParams({
     latitude: String(latitude),
     longitude: String(longitude),
-    hourly: "precipitation",
+    hourly: "precipitation,temperature_2m",
     daily: "precipitation_sum,precipitation_probability_max",
+    current_weather: "true",
     forecast_days: "7",
     timezone: "auto",
   });
   const res = await fetch(`${FORECAST_URL}?${params}`);
   if (!res.ok) throw new Error(`Weather forecast failed (${res.status})`);
   const data = await res.json();
-  if (!data.hourly?.precipitation || !data.daily?.precipitation_sum) {
+  if (
+    !data.hourly?.precipitation ||
+    !data.daily?.precipitation_sum ||
+    !data.hourly?.temperature_2m ||
+    !data.current_weather
+  ) {
     throw new Error("Incomplete weather response from Open-Meteo");
   }
   return {
+    current: {
+      temperature: Number(data.current_weather.temperature) || null,
+      wind_speed: Number(data.current_weather.windspeed) || null,
+      weather_code: Number(data.current_weather.weathercode) || 0,
+    },
     hourly: {
       time: data.hourly.time,
       precipitation: data.hourly.precipitation.map((v) => Number(v) || 0),
+      temperature_2m: data.hourly.temperature_2m.map((v) => Number(v) || null),
     },
     daily: {
       time: data.daily.time,
-      precipitation_sum: data.daily.precipitation_sum.map((v) => Number(v) || 0),
-      precipitation_probability_max: (data.daily.precipitation_probability_max || []).map(
+      precipitation_sum: data.daily.precipitation_sum.map(
         (v) => Number(v) || 0,
       ),
+      precipitation_probability_max: (
+        data.daily.precipitation_probability_max || []
+      ).map((v) => Number(v) || 0),
     },
   };
 }
